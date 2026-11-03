@@ -10,6 +10,7 @@
   "col_break_ai",
   "enable_ai_candidate_screening",
   "enable_ai_job_description_helper",
+  "enable_path_ceo_auto_insights",
   "gemini_poa_chat_history",
   "github_section",
   "github_webhook_secret",
@@ -69,9 +70,9 @@
   {
    "default": "gemini-2.5-flash",
    "fieldname": "gemini_model",
-   "fieldtype": "Select",
+   "fieldtype": "Data",
    "label": "Gemini Model Name",
-   "options": "gemini-2.5-flash\ngemini-2.5-pro\ngemini-2.0-flash\ncustom"
+   "description": "Enter string identifier (e.g., gemini-2.5-flash, gemini-2.5-pro, custom)"
   },
   {
    "fieldname": "col_break_ai",
@@ -88,6 +89,12 @@
    "fieldname": "enable_ai_job_description_helper",
    "fieldtype": "Check",
    "label": "Enable AI Job Description Helper"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_path_ceo_auto_insights",
+   "fieldtype": "Check",
+   "label": "Enable Automated Path CEO Daily Sync Insights"
   },
   {
    "default": "[]",
@@ -342,7 +349,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-11-03 21:00:00.000000",
+ "modified": "2026-11-04 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin HR Settings",

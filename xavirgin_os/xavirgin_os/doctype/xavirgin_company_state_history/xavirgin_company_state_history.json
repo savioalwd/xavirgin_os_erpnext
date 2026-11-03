@@ -1,10 +1,11 @@
 {
  "actions": [],
- "autoname": "format:XAV-HIST-.YYYY.-.#####",
+ "autoname": "naming_series:",
  "creation": "2026-11-04 00:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "naming_series",
   "version",
   "approval_status",
   "snapshot_date",
@@ -22,6 +23,13 @@
   "new_state_json"
  ],
  "fields": [
+  {
+   "default": "XAV-HIST-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "XAV-HIST-.YYYY.-.#####"
+  },
   {
    "fieldname": "version",
    "fieldtype": "Int",
@@ -66,7 +74,9 @@
    "fieldname": "source_summary_log",
    "fieldtype": "Link",
    "label": "Source AI Summary Log",
-   "options": "Xavirgin AI Summary Log"
+   "options": "Xavirgin AI Summary Log",
+   "ignore_user_permissions": 1,
+   "on_delete": "Cascade"
   },
   {
    "fieldname": "applied_by",
@@ -120,7 +130,7 @@
  ],
  "module": "Xavirgin OS",
  "name": "Xavirgin Company State History",
- "naming_rule": "Expression",
+ "naming_rule": "By \"Naming Series\" field",
  "permissions": [
   {
    "create": 1,
