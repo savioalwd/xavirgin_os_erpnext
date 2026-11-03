@@ -7,8 +7,8 @@
  "field_order": [
   "naming_series",
   "job_title",
-  "department",
   "designation",
+  "department",
   "engagement_category",
   "employment_type",
   "col_break_1",
@@ -48,20 +48,21 @@
    "reqd": 1
   },
   {
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Designation",
+   "options": "Designation",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "designation.description",
    "fieldname": "department",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Department",
    "options": "Department",
-   "reqd": 1
-  },
-  {
-   "fieldname": "designation",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Designation",
-   "options": "Designation",
    "reqd": 1
   },
   {
@@ -147,10 +148,9 @@
    "label": "Internship Active Working Days"
   },
   {
-   "default": "Software Development",
    "fieldname": "skill_area",
    "fieldtype": "Data",
-   "label": "Primary Learning / Skill Area (Used in Offer Letter)"
+   "label": "Primary Learning / Skill Area (Propagates to Offer Letter)"
   },
   {
    "fieldname": "col_break_2",
@@ -201,7 +201,7 @@
    "link_fieldname": "job_opening"
   }
  ],
- "modified": "2026-11-03 10:00:00.000000",
+ "modified": "2026-11-03 17:00:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin Job Opening",

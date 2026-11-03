@@ -17,8 +17,10 @@
   "department",
   "designation",
   "engagement_category",
+  "skill_area",
   "pipeline_stage",
   "assigned_recruiter",
+  "existing_employee",
   "source",
   "profile_section",
   "education",
@@ -29,6 +31,9 @@
   "portfolio_url",
   "linkedin_url",
   "github_url",
+  "ai_screening_section",
+  "ai_match_score",
+  "ai_screening_summary",
   "evaluation_rollup_section",
   "latest_interview",
   "average_evaluation_score",
@@ -135,6 +140,12 @@
    "read_only": 1
   },
   {
+   "fetch_from": "job_opening.skill_area",
+   "fieldname": "skill_area",
+   "fieldtype": "Data",
+   "label": "Primary Skill Track"
+  },
+  {
    "default": "New Application",
    "fieldname": "pipeline_stage",
    "fieldtype": "Select",
@@ -150,6 +161,12 @@
    "in_standard_filter": 1,
    "label": "Assigned Recruiter",
    "options": "User"
+  },
+  {
+   "fieldname": "existing_employee",
+   "fieldtype": "Link",
+   "label": "Link Existing Employee / Intern Record",
+   "options": "Employee"
   },
   {
    "default": "Public Portal",
@@ -201,6 +218,26 @@
    "fieldname": "github_url",
    "fieldtype": "Data",
    "label": "GitHub URL"
+  },
+  {
+   "fieldname": "ai_screening_section",
+   "fieldtype": "Section Break",
+   "label": "Gemini AI Profile Match & Screening"
+  },
+  {
+   "default": "0",
+   "fieldname": "ai_match_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "AI Match Score (/ 10)",
+   "precision": "1",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_screening_summary",
+   "fieldtype": "Small Text",
+   "label": "AI Assessment & Screening Summary",
+   "read_only": 1
   },
   {
    "fieldname": "evaluation_rollup_section",
@@ -335,7 +372,7 @@
    "link_fieldname": "custom_source_candidate"
   }
  ],
- "modified": "2026-11-03 10:00:00.000000",
+ "modified": "2026-11-03 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin Candidate",

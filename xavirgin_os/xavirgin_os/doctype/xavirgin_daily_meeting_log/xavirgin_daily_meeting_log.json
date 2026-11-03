@@ -7,14 +7,21 @@
  "field_order": [
   "naming_series",
   "meeting_date",
+  "sync_time",
   "department",
+  "meeting_url",
   "col_break_1",
   "conducted_by",
+  "conductor_employee",
+  "conductor_name",
+  "total_participants",
   "present_count",
   "absent_count",
   "excused_count",
   "entries_section",
-  "entries"
+  "entries",
+  "summary_section",
+  "meeting_notes"
  ],
  "fields": [
   {
@@ -30,7 +37,14 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "8:00 PM Sync Date",
+   "label": "Sync Date",
+   "reqd": 1
+  },
+  {
+   "default": "20:00:00",
+   "fieldname": "sync_time",
+   "fieldtype": "Time",
+   "label": "Sync Time (IST)",
    "reqd": 1
   },
   {
@@ -38,8 +52,13 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Department Filter (Optional)",
+   "label": "Department Filter (Leave blank for All Squads)",
    "options": "Department"
+  },
+  {
+   "fieldname": "meeting_url",
+   "fieldtype": "Data",
+   "label": "Meeting URL"
   },
   {
    "fieldname": "col_break_1",
@@ -49,8 +68,30 @@
    "default": "__user",
    "fieldname": "conducted_by",
    "fieldtype": "Link",
-   "label": "Conducted By",
-   "options": "User"
+   "label": "Conducted By (User)",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "conductor_employee",
+   "fieldtype": "Link",
+   "label": "Conductor Employee ID",
+   "options": "Employee",
+   "read_only": 1
+  },
+  {
+   "fieldname": "conductor_name",
+   "fieldtype": "Data",
+   "label": "Conductor Name",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "total_participants",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Total Interns",
+   "read_only": 1
   },
   {
    "default": "0",
@@ -73,23 +114,33 @@
    "fieldname": "excused_count",
    "fieldtype": "Int",
    "in_list_view": 1,
-   "label": "Excused (Meeting Leave)",
+   "label": "Excused",
    "read_only": 1
   },
   {
    "fieldname": "entries_section",
    "fieldtype": "Section Break",
-   "label": "8:00 PM IST Roll Call"
+   "label": "8:00 PM IST Roll Call & Work Telemetry"
   },
   {
    "fieldname": "entries",
    "fieldtype": "Table",
    "label": "Participants",
    "options": "Xavirgin Daily Meeting Entry"
+  },
+  {
+   "fieldname": "summary_section",
+   "fieldtype": "Section Break",
+   "label": "Sync Discussion & Blocker Summary"
+  },
+  {
+   "fieldname": "meeting_notes",
+   "fieldtype": "Small Text",
+   "label": "Squad Updates & Key Decisions"
   }
  ],
  "links": [],
- "modified": "2026-11-03 10:00:00.000000",
+ "modified": "2026-11-03 19:00:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin Daily Meeting Log",

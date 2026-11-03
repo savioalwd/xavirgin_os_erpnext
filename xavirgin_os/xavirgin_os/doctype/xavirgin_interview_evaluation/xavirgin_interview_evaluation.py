@@ -21,7 +21,10 @@ class XavirginInterviewEvaluation(Document):
 		for row in template.criteria:
 			self.append("scores", {
 				"criterion_name": row.criterion_name,
-				"max_marks": row.max_marks,
+				"category": row.category or "Technical",
+				"max_marks": row.max_marks or 2.0,
+				"weightage": row.weightage or 1.0,
+				"guidelines": row.description or "",
 				"score_obtained": 0.0,
 			})
 
@@ -136,8 +139,17 @@ def fetch_template_criteria(assessment_template: str):
 	if not assessment_template:
 		return []
 	doc = frappe.get_doc("Xavirgin Assessment Template", assessment_template)
-	return [{"criterion_name": r.criterion_name, "max_marks": r.max_marks, "score_obtained": 0} for r in doc.criteria]
-
+	return [
+		{
+			"criterion_name": r.criterion_name,
+			"category": r.category or "Technical",
+			"max_marks": r.max_marks or 2.0,
+			"weightage": r.weightage or 1.0,
+			"guidelines": r.description or "",
+			"score_obtained": 0.0,
+		}
+		for r in doc.criteria
+	]
 
 def get_permission_query_conditions(user: str) -> str:
 	user = user or frappe.session.user

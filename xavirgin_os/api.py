@@ -1,7 +1,7 @@
 import re
 import frappe
 from frappe import _
-from frappe.utils import now_datetime
+from frappe.utils import get_url, now_datetime
 
 
 def normalize_phone(phone: str) -> str:
@@ -63,6 +63,79 @@ def match_inbound_candidate_attachments(doc, method=None):
 		})
 	offer_doc.flags.ignore_permissions = True
 	offer_doc.save()
+
+
+def send_custom_welcome_email(doc, method=None):
+	"""Hook: Dispatches a branded Xavirgin onboarding email with an activation key on new User creation."""
+	# Bypass service users and guest accounts
+	if doc.name in ("Administrator", "Guest") or doc.user_type == "Website User":
+		return
+
+	# Generate a password reset/activation key
+	reset_key = frappe.generate_hash()
+	doc.db_set("reset_password_key", reset_key, update_modified=False)
+
+	setup_url = f"{get_url()}/update-password?key={reset_key}"
+	recipient_name = doc.first_name or doc.full_name or "Team Member"
+
+	# Fetch linked employee details if already established
+	emp_details = frappe.db.get_value(
+		"Employee",
+		{"user_id": doc.name},
+		["name", "designation", "department"],
+		as_dict=True,
+	)
+
+	designation_line = ""
+	emp_id_block = ""
+	if emp_details:
+		dept_text = f" in the <strong>{emp_details.department}</strong> department" if emp_details.department else ""
+		designation_line = f"<p>Your workspace access has been provisioned for the <strong>{emp_details.designation or 'Team'}</strong> role{dept_text}.</p>"
+		emp_id_block = f"<p style='margin: 4px 0 0; font-size: 14px;'><strong>Employee ID:</strong> <code>{emp_details.name}</code></p>"
+
+	message = f"""
+	<div style="font-family: Arial, sans-serif; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 25px; border: 1px solid #e2e8f0; border-radius: 8px;">
+		<div style="text-align: center; border-bottom: 2px solid #0000FF; padding-bottom: 12px; margin-bottom: 20px;">
+			<h2 style="color: #0000FF; margin: 0;">🧬 XAVIRGIN (OPC) PRIVATE LIMITED</h2>
+			<p style="margin: 4px 0 0; font-size: 13px; color: #64748b;">Smart Tech Solutions &amp; Software Development</p>
+		</div>
+
+		<p>Dear <strong>{recipient_name}</strong>,</p>
+		<p>Welcome to Xavirgin! An official internal operations account has been set up for you.</p>
+		{designation_line}
+
+		<div style="background: #f8fafc; border-left: 4px solid #0000FF; padding: 14px; margin: 20px 0;">
+			<p style="margin: 0; font-size: 14px;"><strong>Portal Login ID:</strong> <code>{doc.email}</code></p>
+			{emp_id_block}
+		</div>
+
+		<p>Please set your password to activate your access to the attendance tracker, 8:00 PM sync tools, and the Xavirgin OS dashboard:</p>
+
+		<div style="text-align: center; margin: 25px 0;">
+			<a href="{setup_url}" style="display: inline-block; background-color: #0000FF; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">
+				Complete Registration &amp; Set Password →
+			</a>
+		</div>
+
+		<p style="font-size: 12px; color: #64748b; line-height: 1.5;">
+			Or copy and paste this verification URL directly into your browser:<br/>
+			<a href="{setup_url}" style="color: #0000FF; word-break: break-all;">{setup_url}</a>
+		</p>
+
+		<hr style="border: none; border-top: 1px solid #e2e8f0; margin: 25px 0;" />
+		<p style="margin: 0; font-size: 11px; color: #94a3b8; text-align: center;">
+			© 2026 Xavirgin (OPC) Private Limited | CIN: U62090KL2025OPC098558<br/>
+			8/372, Ground Floor, Valiyaparambil, Edathala, Aluva, Ernakulam, Kerala - 683561
+		</p>
+	</div>
+	"""
+
+	frappe.sendmail(
+		recipients=[doc.email],
+		subject="🧬 Welcome to Xavirgin OS — Complete Your Account Registration",
+		message=message,
+		delayed=False,
+	)
 
 
 @frappe.whitelist(allow_guest=True)

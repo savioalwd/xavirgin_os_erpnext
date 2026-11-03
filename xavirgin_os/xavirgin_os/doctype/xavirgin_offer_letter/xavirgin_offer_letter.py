@@ -73,16 +73,23 @@ class XavirginOfferLetter(Document):
 		if self.docstatus != 1:
 			frappe.throw(_("Please Submit (Approve) the Offer Letter before sending it to the candidate."))
 
-		pdf_bytes = frappe.get_print(
-			doctype=self.doctype,
-			name=self.name,
-			print_format="Xavirgin Offer Letter and NDA",
-			as_pdf=True,
-		)
+		try:
+			pdf_bytes = frappe.get_print(
+				doctype=self.doctype,
+				name=self.name,
+				print_format="Xavirgin Offer Letter and NDA",
+				as_pdf=True,
+			)
+		except OSError as e:
+			if "wkhtmltopdf" in str(e):
+				frappe.throw(
+					_("PDF generation failed: 'wkhtmltopdf' is not installed or configured on the server. Run: sudo apt install -y wkhtmltopdf")
+				)
+			raise
+
 		safe_name = (self.candidate_name or self.name).replace(" ", "_")
 		filename = f"Offer_Letter_NDA_{safe_name}_v{self.offer_version}.pdf"
 
-		# Save private versioned PDF attachment
 		file_doc = frappe.get_doc({
 			"doctype": "File",
 			"file_name": filename,
@@ -136,6 +143,7 @@ class XavirginOfferLetter(Document):
 		"""
 		Section 9.1 (Improvement #1): Transactional, Idempotent Candidate-to-Employee Conversion.
 		Guarantees zero orphan records and full bidirectional foreign-key integrity.
+		Locks user down to the Xavirgin OS workspace by applying module blocklists and the dedicated Role Profile.
 		"""
 		if self.docstatus != 1:
 			frappe.throw(_("Offer Letter must be Submitted before converting to an Employee."))
@@ -168,17 +176,23 @@ class XavirginOfferLetter(Document):
 
 		frappe.db.savepoint("xavirgin_hire_candidate")
 		try:
-			# 2. Provision or link Frappe User account
+			# 2. Provision or retrieve Frappe User account
 			user_id = frappe.db.get_value("User", {"email": self.candidate_email}, "name")
+			first_name, *rest = (self.candidate_name or "Intern").strip().split(" ")
+			last_name = " ".join(rest) if rest else ""
+
 			if not user_id:
-				first_name, *rest = (self.candidate_name or "Intern").strip().split(" ")
-				last_name = " ".join(rest) if rest else ""
 				roles_to_assign = [{"role": "Employee"}]
 				if self.engagement_category == "Intern":
 					roles_to_assign.append({"role": "Xavirgin Intern"})
 				if self.is_team_lead_role:
 					roles_to_assign.append({"role": "Xavirgin Team Lead"})
 
+				# Restrict user access: Hide all modules except Xavirgin OS
+				all_modules = frappe.get_all("Module Def", pluck="name")
+				blocked_modules = [{"module": m} for m in all_modules if m != "Xavirgin OS"]
+
+				# send_welcome_email=0 suppresses generic Frappe template; User.after_insert hook in api.py handles branded notification
 				user_doc = frappe.get_doc({
 					"doctype": "User",
 					"email": self.candidate_email,
@@ -186,13 +200,13 @@ class XavirginOfferLetter(Document):
 					"last_name": last_name,
 					"enabled": 1,
 					"send_welcome_email": 0,
+					"role_profile_name": "Xavirgin Intern Profile" if self.engagement_category == "Intern" else None,
 					"roles": roles_to_assign,
+					"block_modules": blocked_modules,
 				}).insert(ignore_permissions=True)
 				user_id = user_doc.name
 
 			# 3. Create ERPNext Core Employee Record with complete lineage
-			first_name, *rest = (self.candidate_name or "Intern").strip().split(" ")
-			last_name = " ".join(rest) if rest else ""
 			settings = frappe.get_single("Xavirgin HR Settings")
 
 			emp_doc = frappe.get_doc({

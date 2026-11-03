@@ -7,6 +7,9 @@ def after_install():
 	setup_employee_custom_fields()
 	seed_default_hr_settings()
 	seed_assessment_templates()
+	seed_candidate_kanban_board()
+	configure_intern_role_security()
+	create_intern_role_profile()
 	frappe.db.commit()
 
 
@@ -15,6 +18,106 @@ def after_migrate():
 	setup_employee_custom_fields()
 	seed_default_hr_settings()
 	seed_assessment_templates()
+	seed_candidate_kanban_board()
+	configure_intern_role_security()
+	create_intern_role_profile()
+	frappe.db.commit()
+
+
+def create_xavirgin_roles():
+	roles = [
+		"Xavirgin HR Admin",
+		"Xavirgin HR Manager",
+		"Xavirgin Recruiter",
+		"Xavirgin Interviewer",
+		"Xavirgin Team Lead",
+		"Xavirgin Intern",
+	]
+	for role_name in roles:
+		if not frappe.db.exists("Role", role_name):
+			frappe.get_doc({
+				"doctype": "Role",
+				"role_name": role_name,
+				"desk_access": 1,
+			}).insert(ignore_permissions=True)
+
+
+def create_intern_role_profile():
+	"""Creates a dedicated Role Profile that strictly bundles Xavirgin Intern and Employee."""
+	profile_name = "Xavirgin Intern Profile"
+	if not frappe.db.exists("Role Profile", profile_name):
+		frappe.get_doc({
+			"doctype": "Role Profile",
+			"role_profile": profile_name,
+			"roles": [
+				{"role": "Employee"},
+				{"role": "Xavirgin Intern"},
+			],
+		}).insert(ignore_permissions=True)
+
+
+def configure_intern_role_security():
+	"""Enforces that non-admin roles land exclusively on Xavirgin OS and blocks core workspaces."""
+	# 1. Force Xavirgin Intern role to route directly to desk/xavirgin-os
+	if frappe.db.exists("Role", "Xavirgin Intern"):
+		frappe.db.set_value(
+			"Role",
+			"Xavirgin Intern",
+			{
+				"desk_access": 1,
+				"search_bar": 1,
+				"notifications": 1,
+			},
+			update_modified=False,
+		)
+
+	# 2. Lock down core ERPNext / Frappe Workspaces from standard roles
+	core_workspaces = [
+		"Home",
+		"HR",
+		"Accounting",
+		"Buying",
+		"Selling",
+		"Stock",
+		"Build",
+		"Integrations",
+		"Settings",
+		"Tools",
+		"Users",
+		"Support",
+		"Projects",
+		"CRM",
+		"Payroll",
+	]
+	for ws_name in core_workspaces:
+		if frappe.db.exists("Workspace", ws_name):
+			ws = frappe.get_doc("Workspace", ws_name)
+			# Retain access only for System Manager and Administrator
+			ws.roles = [r for r in ws.roles if r.role in ("System Manager", "Administrator")]
+			ws.flags.ignore_permissions = True
+			ws.save()
+
+	# 3. Ensure the Xavirgin OS workspace allows access to Xavirgin roles and standard employees
+	if frappe.db.exists("Workspace", "Xavirgin OS"):
+		xav_ws = frappe.get_doc("Workspace", "Xavirgin OS")
+		existing_roles = {r.role for r in xav_ws.roles}
+		target_roles = [
+			"System Manager",
+			"Xavirgin HR Admin",
+			"Xavirgin HR Manager",
+			"Xavirgin Recruiter",
+			"Xavirgin Interviewer",
+			"Xavirgin Team Lead",
+			"Xavirgin Intern",
+			"Employee",
+		]
+		for tr in target_roles:
+			if tr not in existing_roles:
+				xav_ws.append("roles", {"role": tr})
+		xav_ws.public = 1
+		xav_ws.flags.ignore_permissions = True
+		xav_ws.save()
+
 
 def seed_candidate_kanban_board():
 	if not frappe.db.exists("DocType", "Xavirgin Candidate"):
@@ -46,24 +149,6 @@ def seed_candidate_kanban_board():
 		"private": 0,
 		"columns": [{"column_name": s, "status": "Active"} for s in stages],
 	}).insert(ignore_permissions=True)
-
-
-def create_xavirgin_roles():
-	roles = [
-		"Xavirgin HR Admin",
-		"Xavirgin HR Manager",
-		"Xavirgin Recruiter",
-		"Xavirgin Interviewer",
-		"Xavirgin Team Lead",
-		"Xavirgin Intern",
-	]
-	for role_name in roles:
-		if not frappe.db.exists("Role", role_name):
-			frappe.get_doc({
-				"doctype": "Role",
-				"role_name": role_name,
-				"desk_access": 1,
-			}).insert(ignore_permissions=True)
 
 
 def setup_employee_custom_fields():
@@ -353,10 +438,7 @@ def seed_assessment_templates():
 				"is_active": 1,
 				"total_max_marks": 10.0,
 				"criteria": [
-					{
-						"criterion_name": c_name,
-						"max_marks": c_max,
-					}
+					{"criterion_name": c_name, "max_marks": c_max}
 					for c_name, c_max in criteria_list
 				],
 			})

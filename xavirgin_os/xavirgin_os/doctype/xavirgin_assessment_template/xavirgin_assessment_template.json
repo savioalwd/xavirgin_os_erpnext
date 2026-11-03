@@ -6,13 +6,16 @@
  "engine": "InnoDB",
  "field_order": [
   "template_name",
-  "department",
   "designation",
+  "department",
   "col_break_1",
   "is_active",
+  "target_total_marks",
   "total_max_marks",
   "criteria_section",
-  "criteria"
+  "criteria",
+  "notes_section",
+  "description"
  ],
  "fields": [
   {
@@ -24,18 +27,19 @@
    "unique": 1
   },
   {
-   "fieldname": "department",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Department",
-   "options": "Department"
-  },
-  {
    "fieldname": "designation",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Designation",
    "options": "Designation"
+  },
+  {
+   "fetch_from": "designation.description",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Department",
+   "options": "Department"
   },
   {
    "fieldname": "col_break_1",
@@ -48,28 +52,45 @@
    "label": "Is Active"
   },
   {
-   "default": "10",
+   "default": "10.0",
+   "fieldname": "target_total_marks",
+   "fieldtype": "Float",
+   "label": "Target Benchmark Score",
+   "read_only": 1
+  },
+  {
+   "default": "10.0",
    "fieldname": "total_max_marks",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Total Maximum Marks",
+   "label": "Total Rubric Marks",
    "read_only": 1
   },
   {
    "fieldname": "criteria_section",
    "fieldtype": "Section Break",
-   "label": "Assessment Criteria (Total = 10 Marks)"
+   "label": "Assessment Criteria Rubric"
   },
   {
    "fieldname": "criteria",
    "fieldtype": "Table",
-   "label": "Criteria",
+   "label": "Criteria Rows",
    "options": "Xavirgin Assessment Criteria",
    "reqd": 1
+  },
+  {
+   "fieldname": "notes_section",
+   "fieldtype": "Section Break",
+   "label": "Interviewer Guidelines"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Instructions for Evaluation Panel"
   }
  ],
  "links": [],
- "modified": "2026-11-03 10:00:00.000000",
+ "modified": "2026-11-03 18:30:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin Assessment Template",

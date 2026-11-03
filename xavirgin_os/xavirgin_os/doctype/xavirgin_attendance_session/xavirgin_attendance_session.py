@@ -4,6 +4,58 @@ from frappe.model.document import Document
 from frappe.utils import add_days, get_datetime, getdate, now_datetime, time_diff_in_hours, today
 
 
+def resolve_employee_context(employee: str = None, user_id: str = None) -> dict:
+	"""Centralized resolver that determines Employee ID using multiple fallback sources.
+
+	Order of resolution:
+	1. Direct Employee Link.
+	2. User ID linked to an Employee.
+	3. Personal or Company Email matching the User's email.
+	4. Converted Employee reference on Xavirgin Candidate matching the User's email.
+	"""
+	if employee and frappe.db.exists("Employee", employee):
+		emp_data = frappe.db.get_value(
+			"Employee",
+			employee,
+			["name", "employee_name", "department", "designation", "custom_team_lead", "status", "company", "holiday_list"],
+			as_dict=True,
+		)
+		if emp_data and emp_data.status == "Active":
+			return emp_data
+
+	target_user = user_id or frappe.session.user
+
+	# Direct User ID match
+	emp_name = frappe.db.get_value("Employee", {"user_id": target_user, "status": "Active"}, "name")
+	if not emp_name:
+		# Email lookup fallback
+		user_email = frappe.db.get_value("User", target_user, "email") or target_user
+		emp_name = frappe.db.get_value(
+			"Employee",
+			{"company_email": user_email, "status": "Active"},
+			"name",
+		) or frappe.db.get_value(
+			"Employee",
+			{"personal_email": user_email, "status": "Active"},
+			"name",
+		)
+
+	if not emp_name:
+		# Check candidate conversion record
+		user_email = frappe.db.get_value("User", target_user, "email") or target_user
+		emp_name = frappe.db.get_value("Xavirgin Candidate", {"email": user_email}, "employee")
+
+	if emp_name and frappe.db.exists("Employee", emp_name):
+		return frappe.db.get_value(
+			"Employee",
+			emp_name,
+			["name", "employee_name", "department", "designation", "custom_team_lead", "status", "company", "holiday_list"],
+			as_dict=True,
+		)
+
+	return {}
+
+
 def compute_badge_tier(xp: int) -> str:
 	if xp >= 5000:
 		return "Legend Tier"
@@ -15,7 +67,6 @@ def compute_badge_tier(xp: int) -> str:
 
 
 def get_company_holidays(employee: str) -> set:
-	"""Improvement #19: Fetch holiday dates from Employee's or Company's Holiday List."""
 	holiday_list = frappe.db.get_value("Employee", employee, "holiday_list")
 	if not holiday_list:
 		company = frappe.db.get_value("Employee", employee, "company")
@@ -28,12 +79,11 @@ def get_company_holidays(employee: str) -> set:
 
 
 def update_daily_aggregates_and_employee_stats(employee: str, attendance_date):
-	"""
-	Recalculates:
-	1. Total check-in count for that employee on `attendance_date`.
-	2. Cumulative worked hours across all sessions on `attendance_date`.
+	"""Recalculates:
+	1. Total check-in count for that employee on attendance_date.
+	2. Cumulative worked hours across all sessions on attendance_date.
 	3. Cumulative day classification (Full Day >= 4h, Half Day 2-4h, Short < 2h).
-	4. Employee denormalized stats (total hours, tasks count, active working days completed, total XP, badge).
+	4. Denormalized Employee master telemetry.
 	"""
 	if not employee or not attendance_date:
 		return
@@ -76,7 +126,7 @@ def update_daily_aggregates_and_employee_stats(employee: str, attendance_date):
 			update_modified=False,
 		)
 
-	# Rollup across all dates for Employee master
+	# Rollup across all dates for the Employee master record
 	all_completed = frappe.get_all(
 		"Xavirgin Attendance Session",
 		filters={"employee": employee, "status": ["in", ["Completed", "Corrected"]]},
@@ -114,7 +164,22 @@ def update_daily_aggregates_and_employee_stats(employee: str, attendance_date):
 
 
 class XavirginAttendanceSession(Document):
+	def before_validate(self):
+		self.resolve_intelligent_employee_fields()
+
+	def resolve_intelligent_employee_fields(self):
+		"""Pulls biographical and organizational context automatically."""
+		ctx = resolve_employee_context(self.employee)
+		if ctx:
+			self.employee = ctx.get("name")
+			self.employee_name = ctx.get("employee_name")
+			self.department = ctx.get("department")
+			self.designation = ctx.get("designation")
+			self.team_lead = ctx.get("custom_team_lead")
+
 	def validate(self):
+		if not self.employee:
+			frappe.throw(_("Employee ID could not be determined. Please link an active Employee record."))
 		if self.check_in:
 			self.attendance_date = getdate(self.check_in)
 		if self.check_in and self.check_out:
@@ -131,15 +196,16 @@ class XavirginAttendanceSession(Document):
 
 @frappe.whitelist()
 def get_today_session_status():
-	"""Returns current active session and today's total check-ins & cumulative hours for the logged-in user."""
-	employee = frappe.db.get_value("Employee", {"user_id": frappe.session.user, "status": "Active"}, "name")
-	if not employee:
+	"""Returns the current active session, check-in count, and cumulative hours for the logged-in user."""
+	ctx = resolve_employee_context()
+	if not ctx or not ctx.get("name"):
 		return {"has_employee": False}
 
+	emp_id = ctx["name"]
 	current_date = getdate(today())
 	today_sessions = frappe.get_all(
 		"Xavirgin Attendance Session",
-		filters={"employee": employee, "attendance_date": current_date},
+		filters={"employee": emp_id, "attendance_date": current_date},
 		fields=["name", "status", "worked_hours", "check_in"],
 		order_by="check_in asc",
 	)
@@ -148,7 +214,8 @@ def get_today_session_status():
 
 	return {
 		"has_employee": True,
-		"employee": employee,
+		"employee": emp_id,
+		"employee_name": ctx.get("employee_name"),
 		"active_session": active_session,
 		"today_checkin_count": len(today_sessions),
 		"today_completed_hours": completed_hours,
@@ -156,15 +223,13 @@ def get_today_session_status():
 
 
 @frappe.whitelist()
-def start_session():
-	"""
-	Supports multiple check-ins per day.
-	Blocks check-in ONLY if there is already an unclosed ('Working') session.
-	"""
-	employee = frappe.db.get_value("Employee", {"user_id": frappe.session.user, "status": "Active"}, "name")
-	if not employee:
-		frappe.throw(_("No active Employee record linked to your user account ({0}).").format(frappe.session.user))
+def start_session(target_employee: str = None):
+	"""Supports multiple daily check-ins. Blocks check-in only if an unclosed session already exists."""
+	ctx = resolve_employee_context(target_employee)
+	if not ctx or not ctx.get("name"):
+		frappe.throw(_("No active Employee record could be resolved for user {0}.").format(frappe.session.user))
 
+	employee = ctx["name"]
 	open_session = frappe.db.get_value(
 		"Xavirgin Attendance Session",
 		{"employee": employee, "status": "Working"},
@@ -180,17 +245,16 @@ def start_session():
 	current_date = getdate(today())
 	settings = frappe.get_single("Xavirgin HR Settings")
 
-	# Count how many times the user has already checked in today
 	prior_checkins_today = frappe.db.count(
 		"Xavirgin Attendance Session",
 		{"employee": employee, "attendance_date": current_date},
 	)
 	session_number = prior_checkins_today + 1
 
-	# Award Check-In XP (+10 XP) only on Session #1 of the day
+	# Award Check-In XP only on Session #1 of the day
 	xp_gained = int(settings.checkin_xp or 10) if session_number == 1 else 0
 
-	# Update daily streak on first check-in of the day (skipping Sundays & Company Holidays)
+	# Calculate Sunday- and holiday-safe streak on first check-in of the day
 	if session_number == 1:
 		holidays = get_company_holidays(employee)
 		prev_work_day = add_days(current_date, -1)
@@ -208,6 +272,10 @@ def start_session():
 	doc = frappe.get_doc({
 		"doctype": "Xavirgin Attendance Session",
 		"employee": employee,
+		"employee_name": ctx.get("employee_name"),
+		"department": ctx.get("department"),
+		"designation": ctx.get("designation"),
+		"team_lead": ctx.get("custom_team_lead"),
 		"attendance_date": current_date,
 		"daily_session_number": session_number,
 		"daily_checkin_count": session_number,
@@ -220,38 +288,34 @@ def start_session():
 		"session": doc.name,
 		"session_number": session_number,
 		"xp_gained": xp_gained,
-		"message": _("⚡ Check-In #{0} for today started ({1}). {2}").format(
+		"message": _("Check-In #{0} started ({1}). {2}").format(
 			session_number,
 			doc.name,
-			f"+{xp_gained} XP earned!" if xp_gained else "Active session tracking.",
+			f"+{xp_gained} XP earned!" if xp_gained else "Session tracking enabled.",
 		),
 	}
 
 
 @frappe.whitelist()
-def stop_session(work_log: str):
-	"""
-	Allows check-out ONLY if an active 'Working' session exists.
-	Computes cumulative daily hours across all sessions today and awards daily cap-safe XP.
-	"""
-	employee = frappe.db.get_value("Employee", {"user_id": frappe.session.user, "status": "Active"}, "name")
-	if not employee:
-		frappe.throw(_("No active Employee record linked to your user account."))
+def stop_session(work_log: str, target_employee: str = None):
+	"""Allows check-out only if an active 'Working' session exists. Validates work log length."""
+	ctx = resolve_employee_context(target_employee)
+	if not ctx or not ctx.get("name"):
+		frappe.throw(_("No active Employee record found."))
 
+	employee = ctx["name"]
 	session_name = frappe.db.get_value(
 		"Xavirgin Attendance Session",
 		{"employee": employee, "status": "Working"},
 		"name",
 	)
 	if not session_name:
-		frappe.throw(_("Cannot Check Out: You do not have an active Check-In session. Please Check In first."))
+		frappe.throw(_("Cannot Check Out: No active working session found. Please Check In first."))
 
 	settings = frappe.get_single("Xavirgin HR Settings")
 	min_chars = int(settings.min_work_log_chars or 20)
 	if not work_log or len(work_log.strip()) < min_chars:
-		frappe.throw(
-			_("Please enter a Work Summary of at least {0} characters before checking out.").format(min_chars)
-		)
+		frappe.throw(_("Please enter a Work Summary of at least {0} characters before checking out.").format(min_chars))
 
 	doc = frappe.get_doc("Xavirgin Attendance Session", session_name)
 	doc.check_out = now_datetime()
@@ -260,7 +324,7 @@ def stop_session(work_log: str):
 	session_hours = round(time_diff_in_hours(doc.check_out, doc.check_in), 2)
 	doc.worked_hours = session_hours
 
-	# Calculate prior hours and XP already earned on this date so multi-session checkouts reach Full Day XP fairly without farming
+	# Calculate cumulative hours worked today to award capped XP accurately
 	other_sessions_today = frappe.get_all(
 		"Xavirgin Attendance Session",
 		filters={
@@ -279,7 +343,6 @@ def stop_session(work_log: str):
 	partial_bonus = int(settings.checkout_partial_xp or 5)
 	min_full_hours = float(settings.min_daily_hours_for_full_day or 4.0)
 
-	# Determine target total daily checkout bonus based on cumulative hours today
 	if new_cumulative_hours >= min_full_hours:
 		target_daily_bonus = full_bonus
 	elif new_cumulative_hours >= 1.0:
@@ -287,7 +350,6 @@ def stop_session(work_log: str):
 	else:
 		target_daily_bonus = 0
 
-	# Subtract checkout bonus already awarded in earlier sessions today
 	total_xp_today_so_far = sum(int(s.xp_earned or 0) for s in other_sessions_today) + int(doc.xp_earned or 0)
 	checkout_bonus_already_given = max(0, total_xp_today_so_far - checkin_xp)
 	bonus_xp = max(0, target_daily_bonus - checkout_bonus_already_given)
@@ -302,7 +364,7 @@ def stop_session(work_log: str):
 		"session_hours": session_hours,
 		"daily_cumulative_hours": new_cumulative_hours,
 		"bonus_xp": bonus_xp,
-		"message": _(
-			"🛑 Check-Out #{0} Complete: {1}h this session | {2}h cumulative today (+{3} Bonus XP)."
-		).format(total_checkins_today, session_hours, new_cumulative_hours, bonus_xp),
+		"message": _("Check-Out #{0} Complete: {1}h this session | {2}h cumulative today (+{3} Bonus XP).").format(
+			total_checkins_today, session_hours, new_cumulative_hours, bonus_xp
+		),
 	}

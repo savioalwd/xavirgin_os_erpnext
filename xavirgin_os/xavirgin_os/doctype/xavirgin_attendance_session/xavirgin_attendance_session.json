@@ -9,15 +9,19 @@
   "employee",
   "employee_name",
   "department",
+  "designation",
+  "team_lead",
+  "col_break_1",
   "attendance_date",
   "daily_session_number",
   "daily_checkin_count",
-  "col_break_1",
   "status",
   "day_classification",
+  "timing_section",
   "check_in",
   "check_out",
   "worked_hours",
+  "col_break_2",
   "daily_cumulative_hours",
   "xp_earned",
   "log_section",
@@ -40,7 +44,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Employee / Intern",
+   "label": "Employee ID",
    "options": "Employee",
    "reqd": 1
   },
@@ -49,7 +53,7 @@
    "fieldname": "employee_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Name",
+   "label": "Full Name",
    "read_only": 1
   },
   {
@@ -60,6 +64,26 @@
    "label": "Department",
    "options": "Department",
    "read_only": 1
+  },
+  {
+   "fetch_from": "employee.designation",
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "label": "Designation",
+   "options": "Designation",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "employee.custom_team_lead",
+   "fieldname": "team_lead",
+   "fieldtype": "Link",
+   "label": "Squad Team Lead",
+   "options": "Employee",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
   },
   {
    "default": "Today",
@@ -87,10 +111,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "col_break_1",
-   "fieldtype": "Column Break"
-  },
-  {
    "default": "Working",
    "fieldname": "status",
    "fieldtype": "Select",
@@ -105,9 +125,14 @@
    "fieldname": "day_classification",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Day Classification (Cumulative)",
+   "label": "Day Classification",
    "options": "In Progress\nFull Day (>= 4h)\nHalf Day (2h - 4h)\nShort Session (< 2h)",
    "read_only": 1
+  },
+  {
+   "fieldname": "timing_section",
+   "fieldtype": "Section Break",
+   "label": "Session Timers & Hours"
   },
   {
    "fieldname": "check_in",
@@ -129,6 +154,10 @@
    "label": "Session Hours",
    "precision": "2",
    "read_only": 1
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
   },
   {
    "default": "0",
@@ -182,7 +211,7 @@
   }
  ],
  "links": [],
- "modified": "2026-11-03 12:15:00.000000",
+ "modified": "2026-11-03 18:30:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin Attendance Session",

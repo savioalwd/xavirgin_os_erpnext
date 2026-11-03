@@ -4,6 +4,12 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "ai_section",
+  "gemini_api_key",
+  "gemini_model",
+  "col_break_ai",
+  "enable_ai_candidate_screening",
+  "enable_ai_job_description_helper",
   "meeting_section",
   "default_meet_link",
   "default_meeting_platform",
@@ -22,6 +28,7 @@
   "monthly_general_leave_limit",
   "monthly_meeting_leave_limit",
   "default_supervisor",
+  "default_hiring_manager",
   "gamification_section",
   "checkin_xp",
   "checkout_full_xp",
@@ -29,6 +36,39 @@
   "min_work_log_chars"
  ],
  "fields": [
+  {
+   "fieldname": "ai_section",
+   "fieldtype": "Section Break",
+   "label": "AI Integration & Gemini Configuration"
+  },
+  {
+   "fieldname": "gemini_api_key",
+   "fieldtype": "Password",
+   "label": "Gemini API Key"
+  },
+  {
+   "default": "gemini-2.5-flash",
+   "fieldname": "gemini_model",
+   "fieldtype": "Select",
+   "label": "Gemini Model Name",
+   "options": "gemini-2.5-flash\ngemini-2.5-pro\ngemini-2.0-flash\ncustom"
+  },
+  {
+   "fieldname": "col_break_ai",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_ai_candidate_screening",
+   "fieldtype": "Check",
+   "label": "Enable AI Candidate Resume Screening"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_ai_job_description_helper",
+   "fieldtype": "Check",
+   "label": "Enable AI Job Description Helper"
+  },
   {
    "fieldname": "meeting_section",
    "fieldtype": "Section Break",
@@ -134,6 +174,12 @@
    "options": "Employee"
   },
   {
+   "fieldname": "default_hiring_manager",
+   "fieldtype": "Link",
+   "label": "Default Hiring Manager",
+   "options": "Employee"
+  },
+  {
    "fieldname": "gamification_section",
    "fieldtype": "Section Break",
    "label": "Gamification & Anti-Cheat XP Parameters"
@@ -165,7 +211,7 @@
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-11-03 10:00:00.000000",
+ "modified": "2026-11-03 17:00:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin HR Settings",
