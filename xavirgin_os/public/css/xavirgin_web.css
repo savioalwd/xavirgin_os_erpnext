@@ -1,0 +1,333 @@
+/* ==========================================================================
+   Xavirgin.com Official Dark Cyber Theme (Portal, Careers & Login)
+   ========================================================================== */
+
+:root {
+    --xav-bg: #060911;
+    --xav-surface: #0d1322;
+    --xav-surface-hover: #131b2e;
+    --xav-border: rgba(255, 255, 255, 0.09);
+    --xav-border-glow: rgba(0, 229, 153, 0.45);
+    --xav-emerald: #00e599;
+    --xav-cyan: #00d2ff;
+    --xav-indigo: #6366f1;
+    --xav-text: #f8fafc;
+    --xav-muted: #94a3b8;
+}
+
+/* Reset Frappe's default outer wrappers */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Override Frappe default white web background */
+body {
+    background-color: var(--xav-bg) !important;
+    background-image: 
+        radial-gradient(circle at 15% 15%, rgba(0, 229, 153, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 85% 20%, rgba(99, 102, 241, 0.07) 0%, transparent 45%) !important;
+    color: var(--xav-text) !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    min-height: 100vh;
+}
+
+/* Docked viewport layout on login: Pins Navbar at Top, Centers Card, Docks Footer at Bottom */
+body[data-path="login"],
+body:has(.for-login) {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100vh !important;
+    justify-content: space-between !important;
+}
+
+/* Hide Frappe's default white navbar & footer on web pages */
+nav.navbar.navbar-light,
+nav.navbar.navbar-expand-lg,
+footer.web-footer {
+    display: none !important;
+}
+
+.page-content-wrapper,
+main.container,
+.container.my-4 {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* On login views, let the wrapper fill the remaining vertical space to center the card */
+body[data-path="login"] .page-content-wrapper,
+body:has(.for-login) .page-content-wrapper {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
+/* Custom Xavirgin Top Navigation Bar */
+.xav-global-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(6, 9, 17, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--xav-border);
+    padding: 10px 0 !important; /* Tightened from 14px to eliminate excessive header space */
+    flex-shrink: 0;
+}
+
+.xav-nav-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.xav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none !important;
+    color: #ffffff !important;
+    font-weight: 800;
+    font-size: 19px;
+    letter-spacing: -0.3px;
+}
+
+.xav-brand img {
+    height: 32px;
+    width: auto;
+    border-radius: 6px;
+}
+
+.xav-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.xav-nav-links a.xav-link {
+    color: #cbd5e1 !important;
+    text-decoration: none !important;
+    font-size: 13.5px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.xav-nav-links a.xav-link:hover,
+.xav-nav-links a.xav-link.active {
+    color: var(--xav-emerald) !important;
+}
+
+/* Pill & Action Buttons matching xavirgin.com */
+.xav-btn-emerald {
+    background: var(--xav-emerald) !important;
+    color: #04120c !important;
+    font-weight: 700 !important;
+    font-size: 13.5px !important;
+    padding: 8px 18px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 0 20px rgba(0, 229, 153, 0.25);
+    transition: all 0.2s ease !important;
+    cursor: pointer;
+}
+
+.xav-btn-emerald:hover {
+    background: #10f5a8 !important;
+    box-shadow: 0 0 28px rgba(0, 229, 153, 0.45);
+    transform: translateY(-1px);
+    color: #04120c !important;
+}
+
+.xav-btn-outline {
+    background: rgba(255, 255, 255, 0.03) !important;
+    color: #e2e8f0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    padding: 9px 20px !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease !important;
+}
+
+.xav-btn-outline:hover {
+    border-color: var(--xav-emerald) !important;
+    color: var(--xav-emerald) !important;
+    background: rgba(0, 229, 153, 0.06) !important;
+}
+
+/* Status Pill Badge */
+.xav-pill-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 229, 153, 0.08);
+    border: 1px solid rgba(0, 229, 153, 0.25);
+    color: var(--xav-emerald);
+    font-family: monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    text-transform: uppercase;
+}
+
+.xav-pill-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--xav-emerald);
+    box-shadow: 0 0 8px var(--xav-emerald);
+}
+
+/* Typography Gradient */
+.xav-gradient-text {
+    background: linear-gradient(90deg, #00e599 0%, #00d2ff 55%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Cyber Glass Cards */
+.xav-glass-card {
+    background: rgba(13, 19, 34, 0.85) !important;
+    border: 1px solid var(--xav-border) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45) !important;
+    backdrop-filter: blur(12px);
+    transition: all 0.22s ease;
+}
+
+.xav-glass-card:hover {
+    border-color: rgba(0, 229, 153, 0.3) !important;
+}
+
+.xav-glass-card.active-job {
+    border-color: var(--xav-emerald) !important;
+    background: linear-gradient(145deg, rgba(0, 229, 153, 0.07) 0%, rgba(13, 19, 34, 0.95) 100%) !important;
+    box-shadow: 0 0 25px rgba(0, 229, 153, 0.15) !important;
+}
+
+/* Dark Form Controls */
+.xav-input,
+.for-login .form-control,
+body[data-path="login"] .form-control {
+    background-color: #070b14 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #f8fafc !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    font-size: 13.5px !important;
+}
+
+.xav-input:focus,
+.for-login .form-control:focus,
+body[data-path="login"] .form-control:focus {
+    border-color: var(--xav-emerald) !important;
+    box-shadow: 0 0 0 3px rgba(0, 229, 153, 0.15) !important;
+    outline: none !important;
+}
+
+.xav-input::placeholder {
+    color: #475569 !important;
+}
+
+/* ==========================================================================
+   Frappe Native /login Page Cyber Restyling & Padding Clamps
+   ========================================================================== */
+.for-login,
+.for-forgot,
+.for-signup {
+    padding: 12px 16px !important; /* Reduced from 40px to stop stretching the screen */
+    margin: auto 0 !important;     /* Centers card between header and footer */
+}
+
+.for-login .page-card,
+.for-forgot .page-card {
+    background: #0d1322 !important;
+    border: 1px solid rgba(0, 229, 153, 0.25) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 229, 153, 0.08) !important;
+    padding: 24px 28px !important; /* Balanced inner padding */
+    max-width: 420px !important;
+    margin: 0 auto !important;
+}
+
+.for-login .page-card-head h4,
+.for-login h4 {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+}
+
+.for-login .btn-login,
+.for-login .btn-primary {
+    background: var(--xav-emerald) !important;
+    color: #04120c !important;
+    font-weight: 700 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 10px 16px !important;
+    box-shadow: 0 0 20px rgba(0, 229, 153, 0.3) !important;
+}
+
+.for-login label,
+.for-login .forgot-password-message a {
+    color: #94a3b8 !important;
+}
+
+/* Global Statutory Footer */
+.xav-global-footer {
+    border-top: 1px solid var(--xav-border);
+    background: #04060c;
+    padding: 48px 24px 32px;
+    margin-top: 80px; /* Kept for long scroll pages like / and /careers */
+    color: var(--xav-muted);
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+/* Specific clamp for the login page: zero excessive top margin, compact padding */
+body[data-path="login"] .xav-global-footer,
+body:has(.for-login) .xav-global-footer {
+    margin-top: 0 !important;
+    padding: 14px 24px !important;
+}
+
+.xav-footer-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.xav-legal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.xav-legal-links a {
+    color: #cbd5e1 !important;
+    text-decoration: none !important;
+    font-size: 12.5px;
+    transition: color 0.2s;
+}
+
+.xav-legal-links a:hover {
+    color: var(--xav-emerald) !important;
+}

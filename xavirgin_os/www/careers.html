@@ -1,0 +1,262 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div style="max-width: 1280px; margin: 0 auto; padding: 48px 24px;">
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+        <div class="xav-pill-badge mb-3">
+            <span class="xav-pill-dot"></span>
+            <span>ZERO ENERGY PROTOCOL &bull; TALENT COHORT INITIATIVE</span>
+        </div>
+        <h1 class="display-5 fw-bold text-white mb-3" style="letter-spacing: -1px;">
+            Build <span class="xav-gradient-text">Autonomous Engineering</span> at Xavirgin
+        </h1>
+        <p class="mx-auto" style="color: #94a3b8; max-width: 680px; font-size: 16px;">
+            Join our execution-first engineering squads. Work on real-world production software, cross-platform Flutter apps, microservices, and enterprise AI systems.
+        </p>
+    </div>
+
+    {% if not jobs %}
+        <div class="xav-glass-card p-5 text-center my-4">
+            <div style="font-size: 40px;" class="mb-3">⚡</div>
+            <h4 class="fw-bold text-white mb-2">No Active Cohort Openings Right Now</h4>
+            <p class="small mb-4" style="color: #94a3b8;">All current squad seats are filled. Check back soon for the next cohort window.</p>
+            <a href="https://xavirgin.com" target="_blank" class="xav-btn-outline">Visit xavirgin.com ↗</a>
+        </div>
+    {% else %}
+        <div class="row g-4 align-items-start">
+            <!-- Left Column: Open Positions List -->
+            <div class="col-lg-5">
+                <div class="d-flex align-items-center justify-content-between mb-3 px-1">
+                    <span class="small font-monospace text-uppercase fw-bold" style="color: #94a3b8; letter-spacing: 1px;">
+                        Open Squad Roles ({{ jobs | length }})
+                    </span>
+                    <span class="small font-monospace" style="color: #00e599;">Select to Apply</span>
+                </div>
+
+                <div class="d-flex flex-column gap-3">
+                    {% set current = selected_job or jobs[0] %}
+                    {% for job in jobs %}
+                    <div id="job-card-{{ job.name }}"
+                         class="xav-glass-card p-4 job-selector-card {% if current.name == job.name %}active-job{% endif %}" 
+                         style="cursor: pointer;" 
+                         onclick="selectJob('{{ job.name }}')">
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                            <h5 class="fw-bold text-white mb-0" style="font-size: 17px;">{{ job.job_title }}</h5>
+                            <span class="badge font-monospace" style="background: rgba(0, 229, 153, 0.12); color: #00e599; border: 1px solid rgba(0, 229, 153, 0.3); font-size: 10.5px;">
+                                {{ job.employment_type or 'Internship' }}
+                            </span>
+                        </div>
+
+                        <div class="small fw-semibold mb-2" style="color: #00d2ff;">
+                            {{ job.department or 'Engineering' }} &bull; {{ job.skill_area or 'Full-Stack' }}
+                        </div>
+
+                        <p class="small mb-3" style="color: #94a3b8; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            {{ job.job_description or 'Production engineering track under Xavirgin OS.' }}
+                        </p>
+
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top" style="border-color: rgba(255,255,255,0.08) !important;">
+                            <span class="font-monospace small" style="color: #cbd5e1; font-size: 12px;">
+                                ⏱ {{ job.internship_duration_days or 90 }} Days Track
+                            </span>
+                            <span class="small fw-bold" style="color: #00e599;">
+                                View &amp; Apply &rarr;
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Right Column: Role Details & Application Form -->
+            <div class="col-lg-7">
+                <div class="xav-glass-card p-4 p-md-5">
+                    {% set current = selected_job or jobs[0] %}
+                    <div id="job-detail-panel">
+                        <!-- Role Header -->
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 pb-3 mb-4 border-bottom" style="border-color: rgba(255,255,255,0.1) !important;">
+                            <div>
+                                <div class="small font-monospace text-uppercase mb-1" style="color: #00e599;" id="disp-job-dept">
+                                    {{ current.department or 'Engineering' }} &bull; {{ current.skill_area or 'Software Development' }}
+                                </div>
+                                <h2 class="fw-bold text-white mb-0" id="disp-job-title">{{ current.job_title }}</h2>
+                            </div>
+                            <span class="badge font-monospace px-3 py-2" style="background: rgba(99, 102, 241, 0.18); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4);" id="disp-job-type">
+                                {{ current.employment_type or 'Remote Internship' }}
+                            </span>
+                        </div>
+
+                        <!-- Role Description -->
+                        <div class="mb-4">
+                            <h6 class="text-uppercase font-monospace small fw-bold mb-2" style="color: #cbd5e1; letter-spacing: 0.8px;">
+                                Role Brief &amp; Execution Scope
+                            </h6>
+                            <div class="small p-3 rounded" style="background: rgba(6, 9, 17, 0.6); border: 1px solid rgba(255,255,255,0.06); color: #cbd5e1; white-space: pre-wrap; line-height: 1.7;" id="disp-job-desc">{{ current.job_description or 'You will collaborate directly with squad leads on live production repositories, daily POA execution, and milestone deployments.' }}</div>
+                        </div>
+
+                        <!-- Required Tech Stack -->
+                        <div class="mb-4">
+                            <h6 class="text-uppercase font-monospace small fw-bold mb-2" style="color: #cbd5e1; letter-spacing: 0.8px;">
+                                Required Tech Stack &amp; Competencies
+                            </h6>
+                            <div class="small p-3 rounded font-monospace" style="background: rgba(0, 229, 153, 0.05); border: 1px solid rgba(0, 229, 153, 0.2); color: #00e599;" id="disp-job-skills">{{ current.required_skills or 'Proficiency in Git, modern frameworks, and execution-first problem solving.' }}</div>
+                        </div>
+
+                        <!-- Candidate Application Form -->
+                        <div class="pt-4 mt-4 border-top" style="border-color: rgba(255,255,255,0.1) !important;">
+                            <h4 class="fw-bold text-white mb-1">Submit Your Application</h4>
+                            <p class="small mb-4" style="color: #94a3b8;">Direct ingestion into the Xavirgin OS Recruitment Pipeline.</p>
+
+                            <form id="job-application-form" enctype="multipart/form-data">
+                                <input type="hidden" name="job_opening" id="form-job-id" value="{{ current.name }}" />
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-sm-6">
+                                        <label class="form-label small fw-semibold" style="color: #cbd5e1;">Full Name *</label>
+                                        <input type="text" name="full_name" class="form-control xav-input" required placeholder="Enter your full name" />
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="form-label small fw-semibold" style="color: #cbd5e1;">Email Address *</label>
+                                        <input type="email" name="email" class="form-control xav-input" required placeholder="you@domain.com" />
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-sm-6">
+                                        <label class="form-label small fw-semibold" style="color: #cbd5e1;">WhatsApp / Phone Number *</label>
+                                        <input type="tel" name="phone" class="form-control xav-input" required placeholder="+91 9876543210" />
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="form-label small fw-semibold" style="color: #cbd5e1;">GitHub Profile URL</label>
+                                        <input type="url" name="github_profile" class="form-control xav-input" placeholder="https://github.com/username" />
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-sm-6">
+                                        <label class="form-label small fw-semibold" style="color: #cbd5e1;">Portfolio / Live Links</label>
+                                        <input type="url" name="portfolio_url" class="form-control xav-input" placeholder="https://yourportfolio.dev" />
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="form-label small fw-semibold" style="color: #cbd5e1;">Resume / CV (PDF, DOCX)</label>
+                                        <input type="file" name="resume_file" class="form-control xav-input" accept=".pdf,.doc,.docx" />
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold" style="color: #cbd5e1;">Proof of Work / Why Xavirgin?</label>
+                                    <textarea name="cover_letter" class="form-control xav-input" rows="3" placeholder="Share a link to a project you built or explain a complex technical bug you solved..."></textarea>
+                                </div>
+
+                                <!-- Policy Consent Notice -->
+                                <div class="small mb-4" style="color: #64748b; font-size: 12px;">
+                                    By submitting this application, you agree to Xavirgin's 
+                                    <a href="https://xavirgin.com/privacy-policy.html" target="_blank" style="color: #00e599;">Privacy Policy</a>, 
+                                    <a href="https://xavirgin.com/workplace-policy.html" target="_blank" style="color: #00e599;">Workplace Policy</a>, and 
+                                    <a href="https://xavirgin.com/terms-and-conditions.html" target="_blank" style="color: #00e599;">Terms &amp; Conditions</a>.
+                                </div>
+
+                                <button type="submit" id="btn-submit-app" class="xav-btn-emerald w-100 py-3">
+                                    <span>Submit Application to Xavirgin OS</span>
+                                    <span>&rarr;</span>
+                                </button>
+
+                                <div id="form-feedback" class="mt-3 p-3 rounded small text-center" style="display: none;"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Safe JSON payload container passed pre-serialized from Python -->
+<script id="job-data-payload" type="application/json">
+    {{ jobs_json | safe }}
+</script>
+
+<script>
+const jobPayloadElement = document.getElementById("job-data-payload");
+const jobData = jobPayloadElement ? JSON.parse(jobPayloadElement.textContent || "[]") : [];
+
+function selectJob(jobId) {
+    const job = jobData.find(j => j.name === jobId);
+    if (!job) return;
+
+    // Highlight active card
+    document.querySelectorAll(".job-selector-card").forEach(el => el.classList.remove("active-job"));
+    const activeCard = document.getElementById("job-card-" + jobId);
+    if (activeCard) activeCard.classList.add("active-job");
+
+    const titleEl = document.getElementById("disp-job-title");
+    if (titleEl) titleEl.innerText = job.job_title || "";
+
+    const deptEl = document.getElementById("disp-job-dept");
+    if (deptEl) deptEl.innerText = (job.department || "Engineering") + " • " + (job.skill_area || "Software Development");
+
+    const typeEl = document.getElementById("disp-job-type");
+    if (typeEl) typeEl.innerText = job.employment_type || "Remote Internship";
+
+    const descEl = document.getElementById("disp-job-desc");
+    if (descEl) descEl.innerText = job.job_description || "You will collaborate directly with squad leads on live production repositories, daily POA execution, and milestone deployments.";
+
+    const skillsElem = document.getElementById("disp-job-skills");
+    if (skillsElem) {
+        skillsElem.innerText = job.required_skills || "Proficiency in Git, modern frameworks, and execution-first problem solving.";
+    }
+
+    const formJobId = document.getElementById("form-job-id");
+    if (formJobId) formJobId.value = job.name;
+
+    window.history.replaceState(null, null, "?job=" + encodeURIComponent(job.name));
+}
+document.getElementById("job-application-form")?.addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById("btn-submit-app");
+    const feedback = document.getElementById("form-feedback");
+    const formData = new FormData(this);
+
+    btn.disabled = true;
+    btn.innerHTML = '<span>Submitting Telemetry...</span>';
+    feedback.style.display = "none";
+
+    try {
+        const response = await fetch("/api/method/xavirgin_os.www.careers.submit_job_application", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-Frappe-CSRF-Token": (window.frappe && frappe.csrf_token) ? frappe.csrf_token : ""
+            }
+        });
+        
+        const result = await response.json();
+        const payload = result.message || {};
+
+        if (payload.status === "success") {
+            feedback.style.background = "rgba(0, 229, 153, 0.12)";
+            feedback.style.border = "1px solid #00e599";
+            feedback.style.color = "#00e599";
+            feedback.innerText = payload.message;
+            feedback.style.display = "block";
+            document.getElementById("job-application-form").reset();
+        } else {
+            feedback.style.background = "rgba(239, 68, 68, 0.15)";
+            feedback.style.border = "1px solid #ef4444";
+            feedback.style.color = "#f87171";
+            feedback.innerText = payload.message || "Application could not be submitted. Please check the form.";
+            feedback.style.display = "block";
+        }
+    } catch (err) {
+        feedback.style.background = "rgba(239, 68, 68, 0.15)";
+        feedback.style.border = "1px solid #ef4444";
+        feedback.style.color = "#f87171";
+        feedback.innerText = "Network or transmission issue. Please try again.";
+        feedback.style.display = "block";
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>Submit Application to Xavirgin OS</span><span>&rarr;</span>';
+    }
+});</script>
+{% endblock %}

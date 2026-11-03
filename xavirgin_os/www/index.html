@@ -1,0 +1,109 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div style="max-width: 1280px; margin: 0 auto; padding: 60px 24px;">
+    <!-- Hero Section matching xavirgin.com -->
+    <div class="row align-items-center g-5 py-4">
+        <div class="col-lg-7">
+            <div class="xav-pill-badge mb-4">
+                <span class="xav-pill-dot"></span>
+                <span>PRODUCTION SOFTWARE STUDIO & ENGINEERING RESIDENCY</span>
+            </div>
+
+            <h1 class="display-3 fw-bold text-white mb-4" style="letter-spacing: -1.5px; line-height: 1.08;">
+                Engineering <br />
+                <span class="xav-gradient-text">Production-Grade</span> <br />
+                Systems &amp; Scalable <br />
+                Digital Products.
+            </h1>
+
+            <p class="lead mb-4" style="color: #94a3b8; font-size: 17px; line-height: 1.7; max-width: 620px;">
+                Xavirgin deploys specialized engineering squads to architect unified ERPs, cross-platform Flutter applications, AI workflow automation, and high-conversion web platforms—built for long-term ownership under the Zero Energy Protocol.
+            </p>
+
+            <div class="d-flex flex-wrap gap-3 mt-4 pt-2">
+                <a href="/login" class="xav-btn-emerald">
+                    <span>Access Enterprise Workspace</span>
+                    <span>&rarr;</span>
+                </a>
+                <a href="/careers" class="xav-btn-outline">
+                    <span>>_ Academy &amp; Cohorts ({{ open_jobs_count or 0 }} Open)</span>
+                </a>
+                <a href="https://xavirgin.com" target="_blank" class="xav-btn-outline">
+                    <span>Explore xavirgin.com &nearr;</span>
+                </a>
+            </div>
+
+            <!-- Architecture Pillars -->
+            <div class="row g-4 mt-5 pt-4 border-top" style="border-color: rgba(255,255,255,0.08) !important;">
+                <div class="col-4">
+                    <div class="small font-monospace text-uppercase" style="color: #64748b; font-size: 11px;">ARCHITECTURE</div>
+                    <div class="fw-bold text-white mt-1">Full-Stack &amp; ERP</div>
+                </div>
+                <div class="col-4">
+                    <div class="small font-monospace text-uppercase" style="color: #64748b; font-size: 11px;">DELIVERY MODEL</div>
+                    <div class="fw-bold text-white mt-1">Agile Squads</div>
+                </div>
+                <div class="col-4">
+                    <div class="small font-monospace text-uppercase" style="color: #64748b; font-size: 11px;">TALENT ECOSYSTEM</div>
+                    <div class="fw-bold mt-1" style="color: #00e599;">90-Day Residency</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Telemetry Terminal Card -->
+        <div class="col-lg-5">
+            <div class="xav-glass-card p-4">
+                <div class="d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
+                    <div class="d-flex gap-2">
+                        <span style="width:11px; height:11px; border-radius:50%; background:#ef4444; display:inline-block;"></span>
+                        <span style="width:11px; height:11px; border-radius:50%; background:#f59e0b; display:inline-block;"></span>
+                        <span style="width:11px; height:11px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+                    </div>
+                    <span class="font-monospace small" style="color: #64748b; font-size: 11px;">xavirgin-telemetry-pipeline.sys</span>
+                </div>
+
+                <div class="p-3 rounded mb-3" style="background: #060911; border: 1px solid rgba(255,255,255,0.06);">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="small font-monospace" style="color:#94a3b8;">SYSTEM STATUS</span>
+                        <span class="badge" style="background: rgba(0,229,153,0.15); color:#00e599; font-family:monospace;">ONLINE &bull; V16</span>
+                    </div>
+                    <div class="text-white fw-bold fs-5 mb-1">Xavirgin OS Core</div>
+                    <p class="small mb-0" style="color:#64748b;">
+                        Daily POA tracking, GitHub commit verification, gamified XP badges, automated NDA &amp; Offer Letter lifecycle, and Path AI executive summaries.
+                    </p>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a href="/login" class="xav-btn-emerald w-100 py-2">Sign In to Xavirgin Desk</a>
+                    <a href="/careers" class="xav-btn-outline w-100 justify-content-center py-2">Apply for Engineering Residency</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legal & Corporate Compliance Block -->
+    <div class="xav-glass-card p-4 mt-5">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <div class="small font-monospace text-uppercase mb-1" style="color: #00e599;">CORPORATE GOVERNANCE &amp; COMPLIANCE</div>
+                <h5 class="fw-bold text-white mb-2">{{ company_legal_name }}</h5>
+                <p class="small mb-2" style="color: #94a3b8;">
+                    Incorporated under the Ministry of Corporate Affairs, Government of India. Corporate Identity Number (CIN): <code style="color: #00e599;">{{ cin }}</code>.
+                </p>
+                <p class="small mb-0" style="color: #64748b;">
+                    Registered Office: 8/372, Ground Floor, Valiyaparambil, Edathala, Aluva, Ernakulam, Kerala — 683561
+                </p>
+            </div>
+            <div class="col-lg-5">
+                <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+                    <a href="https://xavirgin.com/privacy-policy.html" target="_blank" class="xav-btn-outline btn-sm">Privacy Policy ↗</a>
+                    <a href="https://xavirgin.com/terms-and-conditions.html" target="_blank" class="xav-btn-outline btn-sm">Terms &amp; Conditions ↗</a>
+                    <a href="https://xavirgin.com/legal-notice.html" target="_blank" class="xav-btn-outline btn-sm">Legal Notice ↗</a>
+                    <a href="https://xavirgin.com/workplace-policy.html" target="_blank" class="xav-btn-outline btn-sm">Workplace Policy ↗</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
