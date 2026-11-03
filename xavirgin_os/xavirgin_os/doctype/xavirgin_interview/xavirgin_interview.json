@@ -1,0 +1,262 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2026-11-03 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "candidate",
+  "candidate_name",
+  "candidate_email",
+  "job_opening",
+  "department",
+  "assessment_template",
+  "col_break_1",
+  "interview_round",
+  "status",
+  "interview_date",
+  "start_time",
+  "end_time",
+  "timezone",
+  "meeting_platform",
+  "meeting_url",
+  "candidate_invitation_sent",
+  "panel_section",
+  "interviewers",
+  "evaluation_summary_section",
+  "submitted_evaluations_count",
+  "average_score",
+  "consensus_recommendation",
+  "instructions_section",
+  "interview_instructions"
+ ],
+ "fields": [
+  {
+   "default": "XAV-INT-.YYYY.-",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "XAV-INT-.YYYY.-"
+  },
+  {
+   "fieldname": "candidate",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Candidate",
+   "options": "Xavirgin Candidate",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "candidate.full_name",
+   "fieldname": "candidate_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Candidate Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "candidate.email",
+   "fieldname": "candidate_email",
+   "fieldtype": "Data",
+   "label": "Candidate Email",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "candidate.job_opening",
+   "fieldname": "job_opening",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Job Opening",
+   "options": "Xavirgin Job Opening",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "candidate.department",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Department",
+   "options": "Department",
+   "read_only": 1
+  },
+  {
+   "fieldname": "assessment_template",
+   "fieldtype": "Link",
+   "label": "Assessment Criteria Template",
+   "options": "Xavirgin Assessment Template",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Round 1 - Technical",
+   "fieldname": "interview_round",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Interview Round",
+   "options": "Initial Screening\nRound 1 - Technical\nRound 2 - System / Practical\nFinal Director / HR Round",
+   "reqd": 1
+  },
+  {
+   "default": "Scheduled",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Interview Status",
+   "options": "Scheduled\nIn Progress\nCompleted\nRescheduled\nCancelled\nNo Show",
+   "reqd": 1
+  },
+  {
+   "fieldname": "interview_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Interview Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "start_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Start Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_time",
+   "fieldtype": "Time",
+   "label": "End Time",
+   "reqd": 1
+  },
+  {
+   "default": "Asia/Kolkata (IST)",
+   "fieldname": "timezone",
+   "fieldtype": "Data",
+   "label": "Timezone"
+  },
+  {
+   "default": "Google Meet",
+   "fieldname": "meeting_platform",
+   "fieldtype": "Select",
+   "label": "Meeting Platform",
+   "options": "Google Meet\nZoom\nMicrosoft Teams\nCustom WebRTC"
+  },
+  {
+   "fieldname": "meeting_url",
+   "fieldtype": "Data",
+   "label": "Meeting URL (Auto-filled from Global HR Settings, Overridable)",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "candidate_invitation_sent",
+   "fieldtype": "Check",
+   "label": "Candidate Invitation Email Sent",
+   "read_only": 1
+  },
+  {
+   "fieldname": "panel_section",
+   "fieldtype": "Section Break",
+   "label": "Assigned Interviewer Panel"
+  },
+  {
+   "fieldname": "interviewers",
+   "fieldtype": "Table",
+   "label": "Interviewers",
+   "options": "Xavirgin Interview Participant",
+   "reqd": 1
+  },
+  {
+   "fieldname": "evaluation_summary_section",
+   "fieldtype": "Section Break",
+   "label": "Aggregated Evaluation Rollup"
+  },
+  {
+   "default": "0",
+   "fieldname": "submitted_evaluations_count",
+   "fieldtype": "Int",
+   "label": "Evaluations Submitted",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "average_score",
+   "fieldtype": "Float",
+   "label": "Average Score (/ 10)",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "consensus_recommendation",
+   "fieldtype": "Select",
+   "label": "Consensus Recommendation",
+   "options": "\nStrongly Recommended\nRecommended\nHold\nNot Recommended",
+   "read_only": 1
+  },
+  {
+   "fieldname": "instructions_section",
+   "fieldtype": "Section Break",
+   "label": "Interview Instructions"
+  },
+  {
+   "fieldname": "interview_instructions",
+   "fieldtype": "Text Editor",
+   "label": "Instructions for Candidate & Panel"
+  }
+ ],
+ "links": [
+  {
+   "group": "Evaluations",
+   "link_doctype": "Xavirgin Interview Evaluation",
+   "link_fieldname": "interview"
+  }
+ ],
+ "modified": "2026-11-03 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Xavirgin OS",
+ "name": "Xavirgin Interview",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "read": 1,
+   "role": "Xavirgin HR Admin",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "read": 1,
+   "role": "Xavirgin Recruiter",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Interviewer"
+  }
+ ],
+ "sort_field": "interview_date",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "candidate_name",
+ "track_changes": 1
+}

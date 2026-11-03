@@ -1,0 +1,57 @@
+{
+ "actions": [],
+ "creation": "2026-11-03 10:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "criterion_name",
+  "max_marks",
+  "score_obtained",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "criterion_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Criterion",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "default": "2",
+   "fieldname": "max_marks",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Maximum Marks",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "score_obtained",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Score Awarded",
+   "reqd": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Evaluator Note"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-03 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Xavirgin OS",
+ "name": "Xavirgin Evaluation Score",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

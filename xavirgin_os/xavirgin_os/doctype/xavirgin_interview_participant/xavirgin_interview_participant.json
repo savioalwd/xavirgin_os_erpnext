@@ -1,0 +1,136 @@
+{
+ "actions": [],
+ "creation": "2026-11-03 10:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "is_external",
+  "employee",
+  "interviewer_user",
+  "full_name",
+  "email",
+  "phone",
+  "designation",
+  "department",
+  "interview_role",
+  "participation_status",
+  "evaluation_status",
+  "evaluation_score",
+  "notification_sent"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "is_external",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "External?"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "employee.user_id",
+   "fieldname": "interviewer_user",
+   "fieldtype": "Link",
+   "label": "System User",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fetch_if_empty": 1,
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Interviewer Name",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.company_email",
+   "fetch_if_empty": 1,
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Email",
+   "options": "Email",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.cell_number",
+   "fetch_if_empty": 1,
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Phone"
+  },
+  {
+   "fetch_from": "employee.designation",
+   "fetch_if_empty": 1,
+   "fieldname": "designation",
+   "fieldtype": "Data",
+   "label": "Designation"
+  },
+  {
+   "fetch_from": "employee.department",
+   "fetch_if_empty": 1,
+   "fieldname": "department",
+   "fieldtype": "Data",
+   "label": "Department"
+  },
+  {
+   "default": "Technical Evaluator",
+   "fieldname": "interview_role",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Role",
+   "options": "Lead Interviewer\nTechnical Evaluator\nHR Evaluator\nObserver"
+  },
+  {
+   "default": "Invited",
+   "fieldname": "participation_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Participation",
+   "options": "Invited\nConfirmed\nAttended\nDeclined"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "evaluation_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Evaluation Status",
+   "options": "Pending\nSubmitted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "evaluation_score",
+   "fieldtype": "Float",
+   "label": "Score (/10)",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "notification_sent",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Notification Sent",
+   "read_only": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-03 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Xavirgin OS",
+ "name": "Xavirgin Interview Participant",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

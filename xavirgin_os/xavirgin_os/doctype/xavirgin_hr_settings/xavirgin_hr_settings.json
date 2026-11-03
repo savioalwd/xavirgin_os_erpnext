@@ -1,0 +1,197 @@
+{
+ "actions": [],
+ "creation": "2026-11-03 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "meeting_section",
+  "default_meet_link",
+  "default_meeting_platform",
+  "default_meeting_duration_mins",
+  "daily_team_sync_time",
+  "col_break_1",
+  "send_interviewer_email_notifications",
+  "send_interviewer_system_notifications",
+  "send_candidate_stage_emails",
+  "leave_and_internship_section",
+  "internship_required_active_days",
+  "initial_evaluation_days",
+  "min_daily_hours_for_full_day",
+  "offer_acceptance_deadline_days",
+  "col_break_2",
+  "monthly_general_leave_limit",
+  "monthly_meeting_leave_limit",
+  "default_supervisor",
+  "gamification_section",
+  "checkin_xp",
+  "checkout_full_xp",
+  "checkout_partial_xp",
+  "min_work_log_chars"
+ ],
+ "fields": [
+  {
+   "fieldname": "meeting_section",
+   "fieldtype": "Section Break",
+   "label": "Global Interview & Meeting Configuration"
+  },
+  {
+   "default": "https://meet.google.com/xzx-icxk-uje",
+   "fieldname": "default_meet_link",
+   "fieldtype": "Data",
+   "label": "Default Meeting URL",
+   "reqd": 1
+  },
+  {
+   "default": "Google Meet",
+   "fieldname": "default_meeting_platform",
+   "fieldtype": "Select",
+   "label": "Default Meeting Platform",
+   "options": "Google Meet\nZoom\nMicrosoft Teams\nCustom WebRTC"
+  },
+  {
+   "default": "40",
+   "fieldname": "default_meeting_duration_mins",
+   "fieldtype": "Int",
+   "label": "Default Interview Duration (Minutes)"
+  },
+  {
+   "default": "20:00:00",
+   "fieldname": "daily_team_sync_time",
+   "fieldtype": "Time",
+   "label": "Daily Team Sync Time (IST)"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "send_interviewer_email_notifications",
+   "fieldtype": "Check",
+   "label": "Send Interviewer Email Notifications"
+  },
+  {
+   "default": "1",
+   "fieldname": "send_interviewer_system_notifications",
+   "fieldtype": "Check",
+   "label": "Send In-App Bell Notifications to Interviewers"
+  },
+  {
+   "default": "1",
+   "fieldname": "send_candidate_stage_emails",
+   "fieldtype": "Check",
+   "label": "Send Candidate Application & Decision Emails"
+  },
+  {
+   "fieldname": "leave_and_internship_section",
+   "fieldtype": "Section Break",
+   "label": "Internship & Leave Governance Rules"
+  },
+  {
+   "default": "90",
+   "fieldname": "internship_required_active_days",
+   "fieldtype": "Int",
+   "label": "Required Active Working Days for Certificate"
+  },
+  {
+   "default": "15",
+   "fieldname": "initial_evaluation_days",
+   "fieldtype": "Int",
+   "label": "Initial Probation / Evaluation Period (Days)"
+  },
+  {
+   "default": "4.0",
+   "fieldname": "min_daily_hours_for_full_day",
+   "fieldtype": "Float",
+   "label": "Minimum Daily Hours for Full Active Day"
+  },
+  {
+   "default": "2",
+   "fieldname": "offer_acceptance_deadline_days",
+   "fieldtype": "Int",
+   "label": "Offer Letter Acceptance Window (Days)"
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "3",
+   "fieldname": "monthly_general_leave_limit",
+   "fieldtype": "Int",
+   "label": "Global Monthly General Leave Limit (Sick/Casual)"
+  },
+  {
+   "default": "3",
+   "fieldname": "monthly_meeting_leave_limit",
+   "fieldtype": "Int",
+   "label": "Global Monthly 8 PM Meeting Leave Limit"
+  },
+  {
+   "fieldname": "default_supervisor",
+   "fieldtype": "Link",
+   "label": "Default Director / Reporting Supervisor",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "gamification_section",
+   "fieldtype": "Section Break",
+   "label": "Gamification & Anti-Cheat XP Parameters"
+  },
+  {
+   "default": "10",
+   "fieldname": "checkin_xp",
+   "fieldtype": "Int",
+   "label": "Daily First Check-In XP"
+  },
+  {
+   "default": "20",
+   "fieldname": "checkout_full_xp",
+   "fieldtype": "Int",
+   "label": "Full Session Check-Out Bonus XP (>= Min Hours)"
+  },
+  {
+   "default": "5",
+   "fieldname": "checkout_partial_xp",
+   "fieldtype": "Int",
+   "label": "Partial Session Check-Out Bonus XP (>= 1 Hour)"
+  },
+  {
+   "default": "20",
+   "fieldname": "min_work_log_chars",
+   "fieldtype": "Int",
+   "label": "Minimum Work Log Characters Required on Check-Out"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-11-03 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Xavirgin OS",
+ "name": "Xavirgin HR Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Xavirgin HR Admin",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Recruiter"
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

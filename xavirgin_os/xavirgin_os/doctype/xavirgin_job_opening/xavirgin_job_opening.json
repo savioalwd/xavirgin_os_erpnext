@@ -1,0 +1,246 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2026-11-03 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "job_title",
+  "department",
+  "designation",
+  "engagement_category",
+  "employment_type",
+  "col_break_1",
+  "status",
+  "is_published",
+  "public_application_url",
+  "number_of_vacancies",
+  "application_deadline",
+  "assigned_recruiter",
+  "hiring_manager",
+  "assessment_template",
+  "compensation_section",
+  "internship_duration_days",
+  "skill_area",
+  "col_break_2",
+  "min_salary_or_stipend",
+  "max_salary_or_stipend",
+  "details_section",
+  "required_skills",
+  "required_qualifications",
+  "experience_requirements",
+  "job_description"
+ ],
+ "fields": [
+  {
+   "default": "XAV-JOB-.YYYY.-",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "XAV-JOB-.YYYY.-"
+  },
+  {
+   "fieldname": "job_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Job Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Department",
+   "options": "Department",
+   "reqd": 1
+  },
+  {
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Designation",
+   "options": "Designation",
+   "reqd": 1
+  },
+  {
+   "default": "Intern",
+   "fieldname": "engagement_category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Engagement Category",
+   "options": "Intern\nRegular Employee",
+   "reqd": 1
+  },
+  {
+   "default": "Remote Unpaid Internship",
+   "fieldname": "employment_type",
+   "fieldtype": "Select",
+   "label": "Employment Type",
+   "options": "Remote Unpaid Internship\nRemote Paid Internship\nFull-Time Permanent\nContract\nPart-Time"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Open",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Job Status",
+   "options": "Draft\nOpen\nOn Hold\nClosed"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_published",
+   "fieldtype": "Check",
+   "label": "Published on Public Portal"
+  },
+  {
+   "fieldname": "public_application_url",
+   "fieldtype": "Data",
+   "label": "Unique Public Application URL",
+   "read_only": 1
+  },
+  {
+   "default": "5",
+   "fieldname": "number_of_vacancies",
+   "fieldtype": "Int",
+   "label": "Number of Vacancies",
+   "reqd": 1
+  },
+  {
+   "fieldname": "application_deadline",
+   "fieldtype": "Date",
+   "label": "Application Deadline"
+  },
+  {
+   "fieldname": "assigned_recruiter",
+   "fieldtype": "Link",
+   "label": "Assigned Recruiter",
+   "options": "User"
+  },
+  {
+   "fieldname": "hiring_manager",
+   "fieldtype": "Link",
+   "label": "Hiring Manager",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "assessment_template",
+   "fieldtype": "Link",
+   "label": "Default Assessment Rubric",
+   "options": "Xavirgin Assessment Template"
+  },
+  {
+   "fieldname": "compensation_section",
+   "fieldtype": "Section Break",
+   "label": "Duration, Track & Compensation"
+  },
+  {
+   "default": "90",
+   "fieldname": "internship_duration_days",
+   "fieldtype": "Int",
+   "label": "Internship Active Working Days"
+  },
+  {
+   "default": "Software Development",
+   "fieldname": "skill_area",
+   "fieldtype": "Data",
+   "label": "Primary Learning / Skill Area (Used in Offer Letter)"
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "min_salary_or_stipend",
+   "fieldtype": "Currency",
+   "label": "Minimum Monthly Salary / Stipend (INR)"
+  },
+  {
+   "default": "0",
+   "fieldname": "max_salary_or_stipend",
+   "fieldtype": "Currency",
+   "label": "Maximum Monthly Salary / Stipend (INR)"
+  },
+  {
+   "fieldname": "details_section",
+   "fieldtype": "Section Break",
+   "label": "Requirements & Description"
+  },
+  {
+   "fieldname": "required_skills",
+   "fieldtype": "Small Text",
+   "label": "Required Skills"
+  },
+  {
+   "fieldname": "required_qualifications",
+   "fieldtype": "Small Text",
+   "label": "Required Qualifications"
+  },
+  {
+   "fieldname": "experience_requirements",
+   "fieldtype": "Data",
+   "label": "Experience Requirements"
+  },
+  {
+   "fieldname": "job_description",
+   "fieldtype": "Text Editor",
+   "label": "Job Description"
+  }
+ ],
+ "links": [
+  {
+   "group": "Recruitment Pipeline",
+   "link_doctype": "Xavirgin Candidate",
+   "link_fieldname": "job_opening"
+  }
+ ],
+ "modified": "2026-11-03 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Xavirgin OS",
+ "name": "Xavirgin Job Opening",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "Xavirgin HR Admin",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Xavirgin Recruiter",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Interviewer"
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "job_title",
+ "track_changes": 1
+}

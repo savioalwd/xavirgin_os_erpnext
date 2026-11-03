@@ -1,0 +1,241 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2026-11-03 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "interview",
+  "candidate",
+  "candidate_name",
+  "job_opening",
+  "assessment_template",
+  "col_break_1",
+  "interviewer_user",
+  "interviewer_employee",
+  "interviewer_name",
+  "interviewer_email",
+  "evaluation_date",
+  "scores_section",
+  "scores",
+  "summary_section",
+  "total_score",
+  "max_possible_score",
+  "recommendation",
+  "col_break_2",
+  "strengths",
+  "weaknesses",
+  "internal_comments",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "default": "XAV-EVAL-.YYYY.-",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "XAV-EVAL-.YYYY.-"
+  },
+  {
+   "fieldname": "interview",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Interview Session",
+   "options": "Xavirgin Interview",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "interview.candidate",
+   "fieldname": "candidate",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Candidate",
+   "options": "Xavirgin Candidate",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "interview.candidate_name",
+   "fieldname": "candidate_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Candidate Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "interview.job_opening",
+   "fieldname": "job_opening",
+   "fieldtype": "Link",
+   "label": "Job Opening",
+   "options": "Xavirgin Job Opening",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "interview.assessment_template",
+   "fieldname": "assessment_template",
+   "fieldtype": "Link",
+   "label": "Assessment Template",
+   "options": "Xavirgin Assessment Template",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "__user",
+   "fieldname": "interviewer_user",
+   "fieldtype": "Link",
+   "label": "Interviewer User",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "interviewer_employee",
+   "fieldtype": "Link",
+   "label": "Interviewer Employee Record",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "interviewer_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Interviewer Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "interviewer_email",
+   "fieldtype": "Data",
+   "label": "Interviewer Email",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "evaluation_date",
+   "fieldtype": "Date",
+   "label": "Evaluation Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "scores_section",
+   "fieldtype": "Section Break",
+   "label": "Department Assessment Rubric (Out of 10)"
+  },
+  {
+   "fieldname": "scores",
+   "fieldtype": "Table",
+   "label": "Criterion Scores",
+   "options": "Xavirgin Evaluation Score",
+   "reqd": 1
+  },
+  {
+   "fieldname": "summary_section",
+   "fieldtype": "Section Break",
+   "label": "Overall Scorecard & Confidential Feedback"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Total Score Obtained",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "default": "10",
+   "fieldname": "max_possible_score",
+   "fieldtype": "Float",
+   "label": "Maximum Marks",
+   "read_only": 1
+  },
+  {
+   "fieldname": "recommendation",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Overall Recommendation",
+   "options": "\nStrongly Recommended\nRecommended\nHold\nNot Recommended",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "strengths",
+   "fieldtype": "Small Text",
+   "label": "Key Strengths",
+   "reqd": 1
+  },
+  {
+   "fieldname": "weaknesses",
+   "fieldtype": "Small Text",
+   "label": "Areas for Improvement / Weaknesses",
+   "reqd": 1
+  },
+  {
+   "fieldname": "internal_comments",
+   "fieldtype": "Small Text",
+   "label": "Confidential Internal Panel Notes"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Xavirgin Interview Evaluation",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-11-03 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Xavirgin OS",
+ "name": "Xavirgin Interview Evaluation",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "System Manager",
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "Xavirgin HR Admin",
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Recruiter"
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Xavirgin Interviewer",
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "candidate_name",
+ "track_changes": 1
+}

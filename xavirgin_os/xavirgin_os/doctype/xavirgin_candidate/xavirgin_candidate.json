@@ -1,0 +1,400 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2026-11-03 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "full_name",
+  "email",
+  "phone",
+  "normalized_phone",
+  "location",
+  "address_line",
+  "col_break_1",
+  "job_opening",
+  "department",
+  "designation",
+  "engagement_category",
+  "pipeline_stage",
+  "assigned_recruiter",
+  "source",
+  "profile_section",
+  "education",
+  "skills",
+  "experience_summary",
+  "col_break_2",
+  "resume",
+  "portfolio_url",
+  "linkedin_url",
+  "github_url",
+  "evaluation_rollup_section",
+  "latest_interview",
+  "average_evaluation_score",
+  "overall_recommendation",
+  "col_break_3",
+  "final_decision",
+  "decision_date",
+  "decision_maker",
+  "decision_reason",
+  "internal_remarks",
+  "onboarding_lineage_section",
+  "latest_offer_letter",
+  "employee",
+  "converted_on",
+  "documents_section",
+  "documents",
+  "history_section",
+  "stage_history"
+ ],
+ "fields": [
+  {
+   "default": "XAV-CAND-.YYYY.-",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "XAV-CAND-.YYYY.-"
+  },
+  {
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Candidate Full Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Email Address",
+   "options": "Email",
+   "reqd": 1
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Phone Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "normalized_phone",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Normalized Phone",
+   "read_only": 1
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Data",
+   "label": "City / State / Country"
+  },
+  {
+   "fieldname": "address_line",
+   "fieldtype": "Small Text",
+   "label": "Full Postal Address (Used on Offer Letter)"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "job_opening",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Job Opening",
+   "options": "Xavirgin Job Opening",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "job_opening.department",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Department",
+   "options": "Department",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "job_opening.designation",
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "label": "Designation",
+   "options": "Designation",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "job_opening.engagement_category",
+   "fieldname": "engagement_category",
+   "fieldtype": "Data",
+   "label": "Engagement Category",
+   "read_only": 1
+  },
+  {
+   "default": "New Application",
+   "fieldname": "pipeline_stage",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Pipeline Stage",
+   "options": "New Application\nInitial Screening\nShortlisted\nInterview Scheduled\nInterview Completed\nTechnical Assessment\nFinal Review\nOffer Preparation\nOffer Sent\nOffer Accepted\nOffer Rejected\nHired\nRejected\nWithdrawn",
+   "reqd": 1
+  },
+  {
+   "fieldname": "assigned_recruiter",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Assigned Recruiter",
+   "options": "User"
+  },
+  {
+   "default": "Public Portal",
+   "fieldname": "source",
+   "fieldtype": "Select",
+   "label": "Application Source",
+   "options": "Public Portal\nHR Manual Entry\nLinkedIn\nReferral\nCampus Drive"
+  },
+  {
+   "fieldname": "profile_section",
+   "fieldtype": "Section Break",
+   "label": "Qualifications, Portfolio & Links"
+  },
+  {
+   "fieldname": "education",
+   "fieldtype": "Small Text",
+   "label": "Education Details"
+  },
+  {
+   "fieldname": "skills",
+   "fieldtype": "Small Text",
+   "label": "Skills"
+  },
+  {
+   "fieldname": "experience_summary",
+   "fieldtype": "Small Text",
+   "label": "Experience Summary"
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "resume",
+   "fieldtype": "Attach",
+   "label": "Resume / CV Upload"
+  },
+  {
+   "fieldname": "portfolio_url",
+   "fieldtype": "Data",
+   "label": "Portfolio URL"
+  },
+  {
+   "fieldname": "linkedin_url",
+   "fieldtype": "Data",
+   "label": "LinkedIn URL"
+  },
+  {
+   "fieldname": "github_url",
+   "fieldtype": "Data",
+   "label": "GitHub URL"
+  },
+  {
+   "fieldname": "evaluation_rollup_section",
+   "fieldtype": "Section Break",
+   "label": "Interview Evaluation Summary & HR Decision"
+  },
+  {
+   "fieldname": "latest_interview",
+   "fieldtype": "Link",
+   "label": "Latest Interview",
+   "options": "Xavirgin Interview",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "average_evaluation_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Avg Score (/ 10)",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "overall_recommendation",
+   "fieldtype": "Select",
+   "label": "Consensus Recommendation",
+   "options": "\nStrongly Recommended\nRecommended\nHold\nNot Recommended",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "final_decision",
+   "fieldtype": "Select",
+   "label": "HR Candidate Decision",
+   "options": "\nSchedule Next Interview\nRequest Technical Assessment\nPut On Hold\nInitiate Offer Letter\nReject Candidate"
+  },
+  {
+   "fieldname": "decision_date",
+   "fieldtype": "Datetime",
+   "label": "Decision Timestamp",
+   "read_only": 1
+  },
+  {
+   "fieldname": "decision_maker",
+   "fieldtype": "Link",
+   "label": "Decision Maker",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "decision_reason",
+   "fieldtype": "Small Text",
+   "label": "Decision Reason (Candidate-Safe)"
+  },
+  {
+   "fieldname": "internal_remarks",
+   "fieldtype": "Small Text",
+   "label": "Confidential HR Internal Remarks (Never Sent to Candidate)",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "onboarding_lineage_section",
+   "fieldtype": "Section Break",
+   "label": "Offer & Employee Conversion References"
+  },
+  {
+   "fieldname": "latest_offer_letter",
+   "fieldtype": "Link",
+   "label": "Active Offer Letter",
+   "options": "Xavirgin Offer Letter",
+   "read_only": 1
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "label": "Converted Employee Record",
+   "options": "Employee",
+   "read_only": 1
+  },
+  {
+   "fieldname": "converted_on",
+   "fieldtype": "Datetime",
+   "label": "Converted to Employee On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "documents_section",
+   "fieldtype": "Section Break",
+   "label": "Candidate Documents & Verification"
+  },
+  {
+   "fieldname": "documents",
+   "fieldtype": "Table",
+   "label": "Submitted Documents",
+   "options": "Xavirgin Candidate Document"
+  },
+  {
+   "fieldname": "history_section",
+   "fieldtype": "Section Break",
+   "label": "Immutable Pipeline Stage History"
+  },
+  {
+   "fieldname": "stage_history",
+   "fieldtype": "Table",
+   "label": "Stage Audit Trail",
+   "options": "Xavirgin Candidate Stage History",
+   "read_only": 1
+  }
+ ],
+ "links": [
+  {
+   "group": "Interviews & Scoring",
+   "link_doctype": "Xavirgin Interview",
+   "link_fieldname": "candidate"
+  },
+  {
+   "group": "Interviews & Scoring",
+   "link_doctype": "Xavirgin Interview Evaluation",
+   "link_fieldname": "candidate"
+  },
+  {
+   "group": "Offer & Onboarding",
+   "link_doctype": "Xavirgin Offer Letter",
+   "link_fieldname": "candidate"
+  },
+  {
+   "group": "Offer & Onboarding",
+   "link_doctype": "Employee",
+   "link_fieldname": "custom_source_candidate"
+  }
+ ],
+ "modified": "2026-11-03 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Xavirgin OS",
+ "name": "Xavirgin Candidate",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Xavirgin HR Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Xavirgin HR Admin",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Xavirgin Recruiter",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Xavirgin Recruiter",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Interviewer"
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "full_name",
+ "track_changes": 1
+}
