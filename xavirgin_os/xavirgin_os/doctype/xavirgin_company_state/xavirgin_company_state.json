@@ -1,0 +1,236 @@
+{
+ "actions": [],
+ "creation": "2026-11-04 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company_name",
+  "active_version",
+  "last_updated_date",
+  "last_updated_time",
+  "col_break_meta",
+  "last_update_source",
+  "last_applied_history",
+  "last_ai_execution_id",
+  "financial_section",
+  "cash_balance",
+  "bank_balance",
+  "total_liquidity",
+  "col_break_fin",
+  "receivables",
+  "payables",
+  "director_loans",
+  "state_payload_section",
+  "operational_state_json",
+  "human_resources_json",
+  "decisions_and_actions_section",
+  "active_decisions_json",
+  "pending_actions_json",
+  "unresolved_issues_json",
+  "strategic_section",
+  "risks_json",
+  "opportunities_json",
+  "long_term_objectives_json",
+  "important_historical_facts_json",
+  "raw_json_section",
+  "full_state_json"
+ ],
+ "fields": [
+  {
+   "default": "XAVIRGIN (OPC) PRIVATE LIMITED",
+   "fieldname": "company_name",
+   "fieldtype": "Data",
+   "label": "Company Name",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "active_version",
+   "fieldtype": "Int",
+   "label": "Current State Version",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_updated_date",
+   "fieldtype": "Date",
+   "label": "Last Updated Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_updated_time",
+   "fieldtype": "Datetime",
+   "label": "Last Updated Timestamp",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_meta",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_update_source",
+   "fieldtype": "Data",
+   "label": "Source of Latest Update",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_applied_history",
+   "fieldtype": "Link",
+   "label": "Applied History Reference",
+   "options": "Xavirgin Company State History",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_ai_execution_id",
+   "fieldtype": "Data",
+   "label": "Last AI Execution ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "financial_section",
+   "fieldtype": "Section Break",
+   "label": "Verified ERPNext Financial Position (Immutable by AI)"
+  },
+  {
+   "fieldname": "cash_balance",
+   "fieldtype": "Currency",
+   "label": "Cash Balance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bank_balance",
+   "fieldtype": "Currency",
+   "label": "Bank Balance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_liquidity",
+   "fieldtype": "Currency",
+   "label": "Total Survival Energy",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_fin",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "receivables",
+   "fieldtype": "Currency",
+   "label": "Outstanding Receivables",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payables",
+   "fieldtype": "Currency",
+   "label": "Outstanding Payables",
+   "read_only": 1
+  },
+  {
+   "fieldname": "director_loans",
+   "fieldtype": "Currency",
+   "label": "Director Loan Balance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "state_payload_section",
+   "fieldtype": "Section Break",
+   "label": "Operational & Talent Lineage State"
+  },
+  {
+   "fieldname": "operational_state_json",
+   "fieldtype": "Code",
+   "label": "Operational State (Projects, Pipelines)",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "human_resources_json",
+   "fieldtype": "Code",
+   "label": "Human Resources & Talent (Active Rosters, Cohorts)",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "decisions_and_actions_section",
+   "fieldtype": "Section Break",
+   "label": "Decisions & Action Items"
+  },
+  {
+   "fieldname": "active_decisions_json",
+   "fieldtype": "Code",
+   "label": "Decisions Register (With Outcomes & Reasons)",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "pending_actions_json",
+   "fieldtype": "Code",
+   "label": "Pending High-Leverage Actions",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "unresolved_issues_json",
+   "fieldtype": "Code",
+   "label": "Unresolved Blockers & Technical Debt",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "strategic_section",
+   "fieldtype": "Section Break",
+   "label": "Strategic Intel & Lineage Facts"
+  },
+  {
+   "fieldname": "risks_json",
+   "fieldtype": "Code",
+   "label": "Active Risks (Financial, Delivery, Attrition)",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "opportunities_json",
+   "fieldtype": "Code",
+   "label": "Opportunities & Value Creation Avenues",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "long_term_objectives_json",
+   "fieldtype": "Code",
+   "label": "Long-Term Directives & Zero Energy Milestones",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "important_historical_facts_json",
+   "fieldtype": "Code",
+   "label": "Immutable Historical Milestones & Facts",
+   "options": "JSON"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "raw_json_section",
+   "fieldtype": "Section Break",
+   "label": "Consolidated Snapshot JSON"
+  },
+  {
+   "fieldname": "full_state_json",
+   "fieldtype": "Code",
+   "label": "Full Company State Document",
+   "options": "JSON",
+   "read_only": 1
+  }
+ ],
+ "issingle": 1,
+ "module": "Xavirgin OS",
+ "name": "Xavirgin Company State",
+ "permissions": [
+  {
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin HR Admin",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Team Lead"
+  }
+ ],
+ "track_changes": 1
+}

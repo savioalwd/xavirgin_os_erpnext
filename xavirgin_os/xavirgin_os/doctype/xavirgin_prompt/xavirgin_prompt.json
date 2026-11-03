@@ -1,0 +1,140 @@
+{
+ "actions": [],
+ "autoname": "format:XAV-PRMPT-{category}-{###}",
+ "creation": "2026-11-04 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "category",
+  "version",
+  "is_active",
+  "is_default",
+  "col_break_1",
+  "model_override",
+  "temperature",
+  "max_tokens",
+  "prompt_section",
+  "system_instruction",
+  "prompt_template",
+  "description",
+  "version_history_section",
+  "previous_version",
+  "change_notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Prompt Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Category",
+   "options": "Daily Operational Analysis\nFinancial Analysis\nCEO Assistant\nCTO Assistant\nHR Analysis\nProject Management\nHistorical Company Analysis\nDecision Analysis",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "version",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Version",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Active"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "label": "Default for Category"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "model_override",
+   "fieldtype": "Select",
+   "label": "Model Override",
+   "options": "\ngemini-2.5-flash\ngemini-2.5-pro\ngemini-2.0-flash"
+  },
+  {
+   "default": "0.2",
+   "fieldname": "temperature",
+   "fieldtype": "Float",
+   "label": "Temperature"
+  },
+  {
+   "fieldname": "prompt_section",
+   "fieldtype": "Section Break",
+   "label": "Prompt Templates"
+  },
+  {
+   "fieldname": "system_instruction",
+   "fieldtype": "Code",
+   "label": "System Instruction",
+   "options": "Markdown"
+  },
+  {
+   "fieldname": "prompt_template",
+   "fieldtype": "Code",
+   "label": "Prompt Template / Payload Wrapper",
+   "options": "Markdown"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "version_history_section",
+   "fieldtype": "Section Break",
+   "label": "Lineage"
+  },
+  {
+   "fieldname": "previous_version",
+   "fieldtype": "Link",
+   "label": "Forked From Version",
+   "options": "Xavirgin Prompt",
+   "read_only": 1
+  },
+  {
+   "fieldname": "change_notes",
+   "fieldtype": "Small Text",
+   "label": "Change Notes"
+  }
+ ],
+ "module": "Xavirgin OS",
+ "name": "Xavirgin Prompt",
+ "naming_rule": "Expression",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Xavirgin HR Admin",
+   "write": 1
+  }
+ ],
+ "track_changes": 1
+}

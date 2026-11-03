@@ -1,5 +1,7 @@
 import frappe
-from frappe.utils import add_days, getdate, now_datetime, time_diff_in_hours
+
+from xavirgin_os.ai import generate_organization_path_insight
+from frappe.utils import add_days, today,getdate, now_datetime, time_diff_in_hours
 
 
 def auto_close_abandoned_attendance_sessions():
@@ -42,9 +44,13 @@ def expire_overdue_offer_letters():
 			frappe.db.set_value("Xavirgin Candidate", doc.candidate, "pipeline_stage", "Withdrawn", update_modified=False)
 
 def scheduled_daily_path_ceo_insight():
-	"""7:30 PM IST Cron: Generates the daily Path CEO Organization Insight prior to the 8:00 PM Sync."""
-	from xavirgin_os.ai import generate_organization_path_insight
-	try:
-		generate_organization_path_insight()
-	except Exception:
-		frappe.log_error(frappe.get_traceback(), "Scheduled Path CEO Insight Failed")
+    """Daily cron task (configured at 19:30 IST in hooks.py).
+    Executes the daily company state transition idempotently."""
+    t_today = today()
+    # Check if insight already generated today to prevent redundant token spend
+    exists = frappe.db.exists(
+        "Xavirgin AI Summary Log",
+        {"summary_date": t_today, "scope_type": "Organization - Path CEO", "status": "Generated"}
+    )
+    if not exists:
+        generate_organization_path_insight(target_date=t_today, auto_apply_updates=True)

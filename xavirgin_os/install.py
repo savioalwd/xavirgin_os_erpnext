@@ -1,5 +1,7 @@
 import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
+from xavirgin_os.company_state import initialize_first_time_company_state
+from xavirgin_os.prompt_manager import seed_default_prompts
 
 
 def after_install():
@@ -10,6 +12,9 @@ def after_install():
 	seed_candidate_kanban_board()
 	configure_intern_role_security()
 	create_intern_role_profile()
+	seed_default_prompts()
+	seed_accounting_director_loan_accounts()
+	initialize_first_time_company_state()
 	frappe.db.commit()
 
 
@@ -21,6 +26,9 @@ def after_migrate():
 	seed_candidate_kanban_board()
 	configure_intern_role_security()
 	create_intern_role_profile()
+	seed_default_prompts()
+	seed_accounting_director_loan_accounts()
+	initialize_first_time_company_state()
 	frappe.db.commit()
 
 
@@ -119,6 +127,56 @@ def configure_intern_role_security():
 			xav_ws.save()
 		except Exception:
 			pass
+
+
+def seed_accounting_director_loan_accounts():
+	"""Ensures a dedicated 'Director Loan - Savio Babu' Liability account exists in ERPNext Chart of Accounts."""
+	company = frappe.defaults.get_user_default("Company") or frappe.db.get_single_value(
+		"Global Defaults", "default_company"
+	)
+	if not company:
+		companies = frappe.get_all("Company", limit=1)
+		company = companies[0].name if companies else None
+	if not company:
+		return
+
+	parent_liability = frappe.db.get_value(
+		"Account",
+		{
+			"company": company,
+			"account_name": ["in", ["Loans (Liability)", "Current Liabilities"]],
+			"is_group": 1,
+		},
+		"name",
+	)
+	if not parent_liability:
+		return
+
+	abbr = frappe.db.get_value("Company", company, "abbr")
+	target_acc_name = f"Director Loan - Savio Babu - {abbr}"
+	if not frappe.db.exists("Account", target_acc_name):
+		try:
+			acc = frappe.get_doc({
+				"doctype": "Account",
+				"account_name": "Director Loan - Savio Babu",
+				"parent_account": parent_liability,
+				"company": company,
+				"root_type": "Liability",
+				"report_type": "Balance Sheet",
+				"is_group": 0,
+			}).insert(ignore_permissions=True)
+			target_acc_name = acc.name
+		except Exception:
+			pass
+
+	if frappe.db.exists("Account", target_acc_name) and frappe.db.exists("DocType", "Xavirgin HR Settings"):
+		frappe.db.set_value(
+			"Xavirgin HR Settings",
+			"Xavirgin HR Settings",
+			"director_loan_account",
+			target_acc_name,
+			update_modified=False,
+		)
 
 
 def seed_candidate_kanban_board():

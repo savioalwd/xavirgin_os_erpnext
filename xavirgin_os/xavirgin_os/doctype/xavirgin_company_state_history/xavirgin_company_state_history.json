@@ -1,0 +1,141 @@
+{
+ "actions": [],
+ "autoname": "format:XAV-HIST-.YYYY.-.#####",
+ "creation": "2026-11-04 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "version",
+  "approval_status",
+  "snapshot_date",
+  "col_break_1",
+  "ai_execution_id",
+  "prompt_used",
+  "source_summary_log",
+  "applied_by",
+  "applied_timestamp",
+  "summary_section",
+  "change_summary",
+  "proposed_updates_json",
+  "snapshots_section",
+  "previous_state_json",
+  "new_state_json"
+ ],
+ "fields": [
+  {
+   "fieldname": "version",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Target Version Number",
+   "reqd": 1
+  },
+  {
+   "default": "Pending Approval",
+   "fieldname": "approval_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Approval Status",
+   "options": "Pending Approval\nApproved\nRejected\nApplied\nArchived",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "snapshot_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Snapshot Date"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ai_execution_id",
+   "fieldtype": "Data",
+   "label": "AI Execution ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "prompt_used",
+   "fieldtype": "Link",
+   "label": "Prompt Template",
+   "options": "Xavirgin Prompt"
+  },
+  {
+   "fieldname": "source_summary_log",
+   "fieldtype": "Link",
+   "label": "Source AI Summary Log",
+   "options": "Xavirgin AI Summary Log"
+  },
+  {
+   "fieldname": "applied_by",
+   "fieldtype": "Link",
+   "label": "Reviewed / Applied By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "applied_timestamp",
+   "fieldtype": "Datetime",
+   "label": "Applied Timestamp",
+   "read_only": 1
+  },
+  {
+   "fieldname": "summary_section",
+   "fieldtype": "Section Break",
+   "label": "State Delta & Changes"
+  },
+  {
+   "fieldname": "change_summary",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Change Summary"
+  },
+  {
+   "fieldname": "proposed_updates_json",
+   "fieldtype": "Code",
+   "label": "AI Proposed Updates (Add/Update/Resolve/Archive)",
+   "options": "JSON"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "snapshots_section",
+   "fieldtype": "Section Break",
+   "label": "Full Snapshots (Before & After)"
+  },
+  {
+   "fieldname": "previous_state_json",
+   "fieldtype": "Code",
+   "label": "Previous State Snapshot",
+   "options": "JSON",
+   "read_only": 1
+  },
+  {
+   "fieldname": "new_state_json",
+   "fieldtype": "Code",
+   "label": "New Proposed / Resulting State Snapshot",
+   "options": "JSON"
+  }
+ ],
+ "module": "Xavirgin OS",
+ "name": "Xavirgin Company State History",
+ "naming_rule": "Expression",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Xavirgin HR Admin",
+   "write": 1
+  }
+ ],
+ "track_changes": 1
+}
