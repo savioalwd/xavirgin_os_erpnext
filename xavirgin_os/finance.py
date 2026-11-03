@@ -13,7 +13,6 @@ def get_xavirgin_liquidity() -> dict:
 	roles = set(frappe.get_roles(user))
 	is_privileged = bool(roles.intersection({"System Manager", "Xavirgin HR Admin", "Accounts Manager", "Director"}))
 
-	# Fixed for Frappe v16: use frappe.defaults.get_global_default or frappe.db.get_single_value
 	default_curr = frappe.defaults.get_global_default("currency") or "INR"
 	currency_symbol = frappe.db.get_value("Currency", default_curr, "symbol") or "₹"
 
@@ -50,11 +49,12 @@ def get_xavirgin_liquidity() -> dict:
 
 	total_balance = 0.0
 	if cash_bank_accounts:
+		# Fix: Pass parameters cleanly as a tuple or use Frappe's %(accounts)s mapping with correct tuple handling
 		gl_balance = frappe.db.sql(
 			"""
 			SELECT SUM(debit - credit) 
 			FROM `tabGL Entry` 
-			WHERE company = %s AND is_cancelled = 0 AND account IN %(accounts)s
+			WHERE company = %(company)s AND is_cancelled = 0 AND account IN %(accounts)s
 		""",
 			{"company": company, "accounts": tuple(cash_bank_accounts)},
 		)
