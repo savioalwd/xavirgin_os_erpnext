@@ -1,0 +1,23 @@
+{
+ "content": null,
+ "creation": "2026-11-03 10:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-11-03 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Xavirgin OS",
+ "name": "xavirgin-org-chart",
+ "owner": "Administrator",
+ "page_name": "xavirgin-org-chart",
+ "roles": [
+  { "role": "System Manager" },
+  { "role": "Xavirgin HR Admin" },
+  { "role": "Xavirgin Recruiter" },
+  { "role": "Xavirgin Team Lead" },
+  { "role": "Employee" },
+  { "role": "Xavirgin Intern" }
+ ],
+ "standard": "Yes",
+ "title": "Xavirgin Organizational Chart"
+}

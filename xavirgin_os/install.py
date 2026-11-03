@@ -16,6 +16,37 @@ def after_migrate():
 	seed_default_hr_settings()
 	seed_assessment_templates()
 
+def seed_candidate_kanban_board():
+	if not frappe.db.exists("DocType", "Xavirgin Candidate"):
+		return
+	board_name = "Xavirgin Recruitment Pipeline"
+	if frappe.db.exists("Kanban Board", board_name):
+		return
+	stages = [
+		"New Application",
+		"Initial Screening",
+		"Shortlisted",
+		"Interview Scheduled",
+		"Interview Completed",
+		"Technical Assessment",
+		"Final Review",
+		"Offer Preparation",
+		"Offer Sent",
+		"Offer Accepted",
+		"Offer Rejected",
+		"Hired",
+		"Rejected",
+		"Withdrawn",
+	]
+	frappe.get_doc({
+		"doctype": "Kanban Board",
+		"kanban_board_name": board_name,
+		"reference_doctype": "Xavirgin Candidate",
+		"field_name": "pipeline_stage",
+		"private": 0,
+		"columns": [{"column_name": s, "status": "Active"} for s in stages],
+	}).insert(ignore_permissions=True)
+
 
 def create_xavirgin_roles():
 	roles = [

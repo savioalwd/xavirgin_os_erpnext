@@ -1,0 +1,230 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2026-11-03 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "employee",
+  "employee_name",
+  "department",
+  "attendance_date",
+  "daily_session_number",
+  "daily_checkin_count",
+  "col_break_1",
+  "status",
+  "day_classification",
+  "check_in",
+  "check_out",
+  "worked_hours",
+  "daily_cumulative_hours",
+  "xp_earned",
+  "log_section",
+  "work_log",
+  "approval_section",
+  "is_manual_correction",
+  "approved_by",
+  "correction_remarks"
+ ],
+ "fields": [
+  {
+   "default": "XAV-ATT-.YYYY.-",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "XAV-ATT-.YYYY.-"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee / Intern",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "employee.department",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Department",
+   "options": "Department",
+   "read_only": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "attendance_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "daily_session_number",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Session # (For Day)",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "daily_checkin_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Total Check-Ins Today",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Working",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Session Status",
+   "options": "Working\nCompleted\nAuto-Closed\nCorrected",
+   "reqd": 1
+  },
+  {
+   "default": "In Progress",
+   "fieldname": "day_classification",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Day Classification (Cumulative)",
+   "options": "In Progress\nFull Day (>= 4h)\nHalf Day (2h - 4h)\nShort Session (< 2h)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "check_in",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Check In Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "check_out",
+   "fieldtype": "Datetime",
+   "label": "Check Out Time"
+  },
+  {
+   "default": "0",
+   "fieldname": "worked_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Session Hours",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "daily_cumulative_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Day Total Hours",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "xp_earned",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "XP Earned",
+   "read_only": 1
+  },
+  {
+   "fieldname": "log_section",
+   "fieldtype": "Section Break",
+   "label": "Session Work Summary / Task Log"
+  },
+  {
+   "fieldname": "work_log",
+   "fieldtype": "Small Text",
+   "label": "Work Summary (Mandatory on Check-Out)"
+  },
+  {
+   "fieldname": "approval_section",
+   "fieldtype": "Section Break",
+   "label": "Correction & Audit Metadata"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_manual_correction",
+   "fieldtype": "Check",
+   "label": "Is Manual Correction"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved / Corrected By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "correction_remarks",
+   "fieldtype": "Small Text",
+   "label": "Correction Audit Note"
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-03 12:15:00.000000",
+ "modified_by": "Administrator",
+ "module": "Xavirgin OS",
+ "name": "Xavirgin Attendance Session",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "Xavirgin HR Admin",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Xavirgin Team Lead",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Xavirgin Intern",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Employee",
+   "write": 1
+  }
+ ],
+ "sort_field": "check_in",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "employee_name",
+ "track_changes": 1
+}

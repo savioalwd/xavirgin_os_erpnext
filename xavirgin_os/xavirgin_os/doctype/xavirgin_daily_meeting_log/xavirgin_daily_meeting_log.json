@@ -1,0 +1,123 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2026-11-03 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "meeting_date",
+  "department",
+  "col_break_1",
+  "conducted_by",
+  "present_count",
+  "absent_count",
+  "excused_count",
+  "entries_section",
+  "entries"
+ ],
+ "fields": [
+  {
+   "default": "XAV-SYNC-.YYYY.-",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "XAV-SYNC-.YYYY.-"
+  },
+  {
+   "default": "Today",
+   "fieldname": "meeting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "8:00 PM Sync Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Department Filter (Optional)",
+   "options": "Department"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "__user",
+   "fieldname": "conducted_by",
+   "fieldtype": "Link",
+   "label": "Conducted By",
+   "options": "User"
+  },
+  {
+   "default": "0",
+   "fieldname": "present_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Present",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "absent_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Absent",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "excused_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Excused (Meeting Leave)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "entries_section",
+   "fieldtype": "Section Break",
+   "label": "8:00 PM IST Roll Call"
+  },
+  {
+   "fieldname": "entries",
+   "fieldtype": "Table",
+   "label": "Participants",
+   "options": "Xavirgin Daily Meeting Entry"
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-03 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Xavirgin OS",
+ "name": "Xavirgin Daily Meeting Log",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "role": "Xavirgin HR Admin",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Xavirgin Team Lead",
+   "write": 1
+  }
+ ],
+ "sort_field": "meeting_date",
+ "sort_order": "DESC",
+ "states": []
+}

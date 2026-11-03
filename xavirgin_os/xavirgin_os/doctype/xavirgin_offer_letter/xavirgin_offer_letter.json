@@ -1,0 +1,359 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2026-11-03 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "candidate",
+  "candidate_name",
+  "candidate_email",
+  "candidate_phone",
+  "candidate_address",
+  "col_break_1",
+  "workflow_state",
+  "offer_version",
+  "issue_date",
+  "acceptance_deadline",
+  "job_opening",
+  "department",
+  "designation",
+  "engagement_terms_section",
+  "engagement_category",
+  "employment_type",
+  "skill_area",
+  "active_working_days_required",
+  "initial_evaluation_days",
+  "col_break_2",
+  "start_date",
+  "end_date",
+  "reporting_manager",
+  "reporting_manager_name",
+  "team_lead",
+  "is_team_lead_role",
+  "monthly_stipend_or_salary",
+  "working_hours_summary",
+  "verification_section",
+  "submitted_documents",
+  "documents_verified",
+  "verified_by",
+  "verified_on",
+  "employee",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "default": "XAV-OFFER-.YYYY.-",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "XAV-OFFER-.YYYY.-"
+  },
+  {
+   "fieldname": "candidate",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Candidate",
+   "options": "Xavirgin Candidate",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "candidate.full_name",
+   "fieldname": "candidate_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Candidate Full Name",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "candidate.email",
+   "fieldname": "candidate_email",
+   "fieldtype": "Data",
+   "label": "Candidate Email",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "candidate.phone",
+   "fieldname": "candidate_phone",
+   "fieldtype": "Data",
+   "label": "Candidate Phone",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "candidate.address_line",
+   " fetch_if_empty": 1,
+   "fieldname": "candidate_address",
+   "fieldtype": "Small Text",
+   "label": "Candidate Address (Printed on Offer Letter)"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "Draft",
+   "fieldname": "workflow_state",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Offer Status",
+   "options": "Draft\nPending Approval\nApproved\nSent\nAccepted\nRejected\nExpired\nWithdrawn",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "offer_version",
+   "fieldtype": "Int",
+   "label": "Document Version",
+   "read_only": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "issue_date",
+   "fieldtype": "Date",
+   "label": "Issue / Agreement Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "acceptance_deadline",
+   "fieldtype": "Date",
+   "label": "Acceptance Deadline (Default +2 Days)",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "candidate.job_opening",
+   "fieldname": "job_opening",
+   "fieldtype": "Link",
+   "label": "Job Opening",
+   "options": "Xavirgin Job Opening",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "candidate.department",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Department",
+   "options": "Department",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "candidate.designation",
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Position / Designation",
+   "options": "Designation",
+   "reqd": 1
+  },
+  {
+   "fieldname": "engagement_terms_section",
+   "fieldtype": "Section Break",
+   "label": "Role, Schedule & Governance Terms"
+  },
+  {
+   "default": "Intern",
+   "fieldname": "engagement_category",
+   "fieldtype": "Select",
+   "label": "Engagement Category",
+   "options": "Intern\nRegular Employee",
+   "reqd": 1
+  },
+  {
+   "default": "Unpaid, 90-Day Remote Internship",
+   "fieldname": "employment_type",
+   "fieldtype": "Data",
+   "label": "Nature of Engagement"
+  },
+  {
+   "default": "Software Development",
+   "fieldname": "skill_area",
+   "fieldtype": "Data",
+   "label": "Primary Learning / Skill Area (e.g. Quality Assurance, Flutter, UI/UX)",
+   "reqd": 1
+  },
+  {
+   "default": "90",
+   "fieldname": "active_working_days_required",
+   "fieldtype": "Int",
+   "label": "Net Active Working Days Requirement"
+  },
+  {
+   "default": "15",
+   "fieldname": "initial_evaluation_days",
+   "fieldtype": "Int",
+   "label": "Initial Evaluation Period (Days)"
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "End Date (90 Working Days Excl. Sundays)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "reporting_manager",
+   "fieldtype": "Link",
+   "label": "Reporting Manager (Employee Link)",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "reporting_manager.employee_name",
+   "default": "Savio Babu",
+   "fieldname": "reporting_manager_name",
+   "fieldtype": "Data",
+   "label": "Reporting Manager Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "team_lead",
+   "fieldtype": "Link",
+   "label": "Assigned Squad Team Lead",
+   "options": "Employee"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_team_lead_role",
+   "fieldtype": "Check",
+   "label": "Grant Team Lead Status on Onboarding"
+  },
+  {
+   "default": "0",
+   "fieldname": "monthly_stipend_or_salary",
+   "fieldtype": "Currency",
+   "label": "Monthly Stipend / Salary (INR)"
+  },
+  {
+   "default": "Minimum 4 hours per day (remote), 6 days a week (Sunday Off). Mandatory Daily Sync at 8:00 PM IST.",
+   "fieldname": "working_hours_summary",
+   "fieldtype": "Small Text",
+   "label": "Work Commitment & Sync Schedule"
+  },
+  {
+   "fieldname": "verification_section",
+   "fieldtype": "Section Break",
+   "label": "Signed Acceptance, Document Verification & Employee Conversion"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "submitted_documents",
+   "fieldtype": "Table",
+   "label": "Signed Offer, NDA & Identity Proof",
+   "options": "Xavirgin Candidate Document"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "documents_verified",
+   "fieldtype": "Check",
+   "label": "All Mandatory Documents Verified by HR"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "verified_by",
+   "fieldtype": "Link",
+   "label": "Verified By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "verified_on",
+   "fieldtype": "Datetime",
+   "label": "Verified On",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "label": "Converted Employee ID",
+   "options": "Employee",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Xavirgin Offer Letter",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "is_submittable": 1,
+ "links": [
+  {
+   "group": "Employee Onboarding",
+   "link_doctype": "Employee",
+   "link_fieldname": "custom_source_offer_letter"
+  }
+ ],
+ "modified": "2026-11-03 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Xavirgin OS",
+ "name": "Xavirgin Offer Letter",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Xavirgin HR Admin",
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Xavirgin Recruiter",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "candidate_name",
+ "track_changes": 1
+}

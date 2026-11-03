@@ -1,0 +1,301 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"hdr_overview\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>🧬 Xavirgin HR, Recruitment & Attendance OS</b></span>\",\"col\":12}},{\"id\":\"sc_job\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Job Openings\",\"col\":3}},{\"id\":\"sc_cand\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Candidate Pipeline\",\"col\":3}},{\"id\":\"sc_int\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Interviews\",\"col\":3}},{\"id\":\"sc_eval\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Scorecards\",\"col\":3}},{\"id\":\"sc_offer\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Offer Letters & NDA\",\"col\":3}},{\"id\":\"sc_emp\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Directory\",\"col\":3}},{\"id\":\"sc_org\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Interactive Org Chart\",\"col\":3}},{\"id\":\"sc_att\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Attendance (Start/Stop)\",\"col\":3}},{\"id\":\"sc_sync\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"8:00 PM Daily Sync\",\"col\":3}},{\"id\":\"sc_leave\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Leave & Meeting Absence\",\"col\":3}},{\"id\":\"sc_rep\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Analytics & Leaderboards\",\"col\":3}},{\"id\":\"sc_set\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Global HR Settings\",\"col\":3}},{\"id\":\"spc_1\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"card_rec\",\"type\":\"card\",\"data\":{\"card_name\":\"1. Recruitment & Evaluation\",\"col\":4}},{\"id\":\"card_onb\",\"type\":\"card\",\"data\":{\"card_name\":\"2. Offer, Onboarding & Hierarchy\",\"col\":4}},{\"id\":\"card_att\",\"type\":\"card\",\"data\":{\"card_name\":\"3. Gamified Attendance & 8 PM Sync\",\"col\":4}}]",
+ "creation": "2026-11-03 12:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "users",
+ "idx": 0,
+ "indicator_color": "purple",
+ "is_hidden": 0,
+ "label": "Xavirgin OS",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "1. Recruitment & Evaluation",
+   "link_count": 5,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Xavirgin Job Opening",
+   "link_count": 0,
+   "link_to": "Xavirgin Job Opening",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Xavirgin Candidate",
+   "link_count": 0,
+   "link_to": "Xavirgin Candidate",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Xavirgin Interview",
+   "link_count": 0,
+   "link_to": "Xavirgin Interview",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Xavirgin Interview Evaluation",
+   "link_count": 0,
+   "link_to": "Xavirgin Interview Evaluation",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Xavirgin Assessment Template",
+   "link_count": 0,
+   "link_to": "Xavirgin Assessment Template",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "2. Offer, Onboarding & Hierarchy",
+   "link_count": 5,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Xavirgin Offer Letter",
+   "link_count": 0,
+   "link_to": "Xavirgin Offer Letter",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Employee Directory",
+   "link_count": 0,
+   "link_to": "Employee",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Interactive Org Chart",
+   "link_count": 0,
+   "link_to": "xavirgin-org-chart",
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Department",
+   "link_count": 0,
+   "link_to": "Department",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Designation",
+   "link_count": 0,
+   "link_to": "Designation",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "3. Gamified Attendance & 8 PM Sync",
+   "link_count": 5,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Xavirgin Attendance Session",
+   "link_count": 0,
+   "link_to": "Xavirgin Attendance Session",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Xavirgin Daily Meeting Log",
+   "link_count": 0,
+   "link_to": "Xavirgin Daily Meeting Log",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Xavirgin Leave Request",
+   "link_count": 0,
+   "link_to": "Xavirgin Leave Request",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Attendance, Leave & Leaderboard Analytics",
+   "link_count": 0,
+   "link_to": "Xavirgin Attendance Analytics",
+   "link_type": "Report",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Xavirgin HR Settings",
+   "link_count": 0,
+   "link_to": "Xavirgin HR Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-11-03 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Xavirgin OS",
+ "name": "Xavirgin OS",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [
+  { "role": "System Manager" },
+  { "role": "Xavirgin HR Admin" },
+  { "role": "Xavirgin HR Manager" },
+  { "role": "Xavirgin Recruiter" },
+  { "role": "Xavirgin Interviewer" },
+  { "role": "Xavirgin Team Lead" },
+  { "role": "Xavirgin Intern" },
+  { "role": "Employee" }
+ ],
+ "sequence_id": 1.0,
+ "shortcuts": [
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "Job Openings",
+   "link_to": "Xavirgin Job Opening",
+   "stats_filter": "{\"status\": \"Open\"}",
+   "type": "DocType"
+  },
+  {
+   "color": "Purple",
+   "doc_view": "Kanban",
+   "label": "Candidate Pipeline",
+   "link_to": "Xavirgin Candidate",
+   "stats_filter": "{\"pipeline_stage\": [\"not in\", [\"Rejected\", \"Withdrawn\", \"Hired\"]]}",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "List",
+   "label": "Interviews",
+   "link_to": "Xavirgin Interview",
+   "stats_filter": "{\"status\": \"Scheduled\"}",
+   "type": "DocType"
+  },
+  {
+   "color": "Cyan",
+   "doc_view": "List",
+   "label": "Scorecards",
+   "link_to": "Xavirgin Interview Evaluation",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Offer Letters & NDA",
+   "link_to": "Xavirgin Offer Letter",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Employee Directory",
+   "link_to": "Employee",
+   "stats_filter": "{\"status\": \"Active\"}",
+   "type": "DocType"
+  },
+  {
+   "color": "Pink",
+   "label": "Interactive Org Chart",
+   "link_to": "xavirgin-org-chart",
+   "type": "Page"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Attendance (Start/Stop)",
+   "link_to": "Xavirgin Attendance Session",
+   "stats_filter": "{\"status\": \"Working\"}",
+   "type": "DocType"
+  },
+  {
+   "color": "Yellow",
+   "doc_view": "List",
+   "label": "8:00 PM Daily Sync",
+   "link_to": "Xavirgin Daily Meeting Log",
+   "type": "DocType"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "Leave & Meeting Absence",
+   "link_to": "Xavirgin Leave Request",
+   "stats_filter": "{\"status\": \"Pending Approval\"}",
+   "type": "DocType"
+  },
+  {
+   "color": "Purple",
+   "label": "Analytics & Leaderboards",
+   "link_to": "Xavirgin Attendance Analytics",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "label": "Global HR Settings",
+   "link_to": "Xavirgin HR Settings",
+   "type": "DocType"
+  }
+ ],
+ "title": "Xavirgin OS"
+}
