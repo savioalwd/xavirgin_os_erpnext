@@ -12,6 +12,23 @@ def normalize_phone(phone: str) -> str:
 		digits = digits[2:]
 	return digits[-10:] if len(digits) >= 10 else digits
 
+@frappe.whitelist()
+def has_app_permission():
+    """Allows any logged-in user with System Manager, Employee, or Xavirgin roles to see the app icon."""
+    if frappe.session.user in ("Administrator", "Guest"):
+        return True
+    user_roles = set(frappe.get_roles())
+    allowed = {
+        "System Manager",
+        "Xavirgin HR Admin",
+        "Xavirgin HR Manager",
+        "Xavirgin Recruiter",
+        "Xavirgin Interviewer",
+        "Xavirgin Team Lead",
+        "Xavirgin Intern",
+        "Employee",
+    }
+    return bool(user_roles.intersection(allowed))
 
 @frappe.whitelist()
 def resolve_current_user_employee_context(target_user: str = None) -> dict:

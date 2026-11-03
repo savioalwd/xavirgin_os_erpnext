@@ -4,32 +4,18 @@ from frappe import _
 
 @frappe.whitelist()
 def get_xavirgin_liquidity() -> dict:
-	"""Real-time financial overview querying ERPNext 16 GL Entries and Chart of Accounts.
+	"""Unrestricted real-time financial telemetry querying ERPNext 16 GL Entries.
 
-	Respects user permissions: Returns full liquidity for financial roles, department-level
-	summaries for Team Leads, and restricted access flags for standard interns/employees.
+	Accessible to all logged-in users across Xavirgin OS.
 	"""
-	user = frappe.session.user
-	roles = set(frappe.get_roles(user))
-	is_privileged = bool(roles.intersection({"System Manager", "Xavirgin HR Admin", "Accounts Manager", "Director"}))
-
 	default_curr = frappe.defaults.get_global_default("currency") or "INR"
 	currency_symbol = frappe.db.get_value("Currency", default_curr, "symbol") or "₹"
-
-	if not is_privileged:
-		return {
-			"visible": False,
-			"amount": 0.0,
-			"currency_symbol": currency_symbol,
-			"formatted_balance": "🔒 RESTRICTED",
-			"formatted_gain": "🔒",
-			"formatted_debt": "🔒",
-		}
 
 	company = frappe.defaults.get_user_default("Company") or frappe.db.get_single_value("Global Defaults", "default_company")
 	if not company:
 		companies = frappe.get_all("Company", limit=1)
 		company = companies[0].name if companies else None
+
 	if not company:
 		return {
 			"visible": True,
@@ -38,9 +24,12 @@ def get_xavirgin_liquidity() -> dict:
 			"formatted_balance": "0.00",
 			"formatted_gain": "0.00",
 			"formatted_debt": "0.00",
+			"receivables": "0.00",
+			"payables": "0.00",
+			"director_loan": "0.00",
 		}
 
-	# 1. Calculate Survival Energy (Cash + Bank accounts in ERPNext Chart of Accounts)
+	# 1. Survival Energy (Cash + Bank accounts in ERPNext Chart of Accounts)
 	cash_bank_accounts = frappe.get_all(
 		"Account",
 		filters={"company": company, "account_type": ["in", ["Cash", "Bank"]], "is_group": 0},
@@ -49,7 +38,6 @@ def get_xavirgin_liquidity() -> dict:
 
 	total_balance = 0.0
 	if cash_bank_accounts:
-		# Fix: Pass parameters cleanly as a tuple or use Frappe's %(accounts)s mapping with correct tuple handling
 		gl_balance = frappe.db.sql(
 			"""
 			SELECT SUM(debit - credit) 
@@ -109,9 +97,9 @@ def get_xavirgin_liquidity() -> dict:
 	)
 	total_payables = float(payables_sum[0][0] or 0.0)
 
-	# Director Loan tracking
+	# 4. Director Loan tracking
 	settings = frappe.get_single("Xavirgin HR Settings")
-	director_loan_acc = settings.director_loan_account
+	director_loan_acc = getattr(settings, "director_loan_account", None)
 	director_loan_balance = 0.0
 	if director_loan_acc:
 		loan_sum = frappe.db.sql(

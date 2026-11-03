@@ -214,6 +214,7 @@
  "modified": "2026-11-03 18:30:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
+ "icon": "play-circle",
  "name": "Xavirgin Attendance Session",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",

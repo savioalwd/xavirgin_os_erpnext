@@ -235,6 +235,7 @@
  "modified": "2026-11-03 19:30:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
+ "icon": "calendar",
  "name": "Xavirgin Interview",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",

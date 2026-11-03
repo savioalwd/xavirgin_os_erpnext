@@ -168,6 +168,7 @@
  "modified": "2026-11-03 20:00:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
+ "icon": "clock",
  "name": "Xavirgin Leave Request",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
