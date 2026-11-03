@@ -10,6 +10,31 @@
   "col_break_ai",
   "enable_ai_candidate_screening",
   "enable_ai_job_description_helper",
+  "gemini_poa_chat_history",
+  "github_section",
+  "github_webhook_secret",
+  "github_organization",
+  "github_pat",
+  "col_break_gh",
+  "commit_xp",
+  "pr_opened_xp",
+  "pr_merged_xp",
+  "issue_created_xp",
+  "poa_gamification_section",
+  "poa_base_xp",
+  "poa_duration_bonus_xp",
+  "col_break_poa",
+  "poa_unverified_xp",
+  "min_work_log_chars",
+  "checkin_xp",
+  "checkout_full_xp",
+  "checkout_partial_xp",
+  "finance_section",
+  "director_loan_account",
+  "director_equity_account",
+  "col_break_fin",
+  "employee_payable_account",
+  "cash_warning_threshold",
   "meeting_section",
   "default_meet_link",
   "default_meeting_platform",
@@ -28,12 +53,7 @@
   "monthly_general_leave_limit",
   "monthly_meeting_leave_limit",
   "default_supervisor",
-  "default_hiring_manager",
-  "gamification_section",
-  "checkin_xp",
-  "checkout_full_xp",
-  "checkout_partial_xp",
-  "min_work_log_chars"
+  "default_hiring_manager"
  ],
  "fields": [
   {
@@ -68,6 +88,146 @@
    "fieldname": "enable_ai_job_description_helper",
    "fieldtype": "Check",
    "label": "Enable AI Job Description Helper"
+  },
+  {
+   "default": "[]",
+   "fieldname": "gemini_poa_chat_history",
+   "fieldtype": "Code",
+   "hidden": 1,
+   "label": "Rolling Path CEO Context History"
+  },
+  {
+   "fieldname": "github_section",
+   "fieldtype": "Section Break",
+   "label": "GitHub Webhook & Engineering Telemetry"
+  },
+  {
+   "fieldname": "github_webhook_secret",
+   "fieldtype": "Password",
+   "label": "GitHub Webhook Secret (HMAC SHA-256)"
+  },
+  {
+   "default": "xavirgin",
+   "fieldname": "github_organization",
+   "fieldtype": "Data",
+   "label": "GitHub Organization / Owner Name"
+  },
+  {
+   "fieldname": "github_pat",
+   "fieldtype": "Password",
+   "label": "GitHub Personal Access Token (Optional)"
+  },
+  {
+   "fieldname": "col_break_gh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "5",
+   "fieldname": "commit_xp",
+   "fieldtype": "Int",
+   "label": "XP per Push / Commit Batch"
+  },
+  {
+   "default": "15",
+   "fieldname": "pr_opened_xp",
+   "fieldtype": "Int",
+   "label": "XP per Pull Request Opened"
+  },
+  {
+   "default": "50",
+   "fieldname": "pr_merged_xp",
+   "fieldtype": "Int",
+   "label": "XP per Pull Request Merged"
+  },
+  {
+   "default": "10",
+   "fieldname": "issue_created_xp",
+   "fieldtype": "Int",
+   "label": "XP per Actionable Issue / PR Review"
+  },
+  {
+   "fieldname": "poa_gamification_section",
+   "fieldtype": "Section Break",
+   "label": "Daily POA & Attendance Gamification XP Rules"
+  },
+  {
+   "default": "15",
+   "fieldname": "poa_base_xp",
+   "fieldtype": "Int",
+   "label": "POA Task Completion Base XP (With Attendance)"
+  },
+  {
+   "default": "10",
+   "fieldname": "poa_duration_bonus_xp",
+   "fieldtype": "Int",
+   "label": "POA Deep-Work Bonus XP (Task >= 2.0 Hours)"
+  },
+  {
+   "fieldname": "col_break_poa",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "2",
+   "fieldname": "poa_unverified_xp",
+   "fieldtype": "Int",
+   "label": "Unverified Task XP (Completed Without Check-In)"
+  },
+  {
+   "default": "20",
+   "fieldname": "min_work_log_chars",
+   "fieldtype": "Int",
+   "label": "Minimum Work Log Characters Required on Check-Out"
+  },
+  {
+   "default": "10",
+   "fieldname": "checkin_xp",
+   "fieldtype": "Int",
+   "label": "Daily First Check-In XP"
+  },
+  {
+   "default": "20",
+   "fieldname": "checkout_full_xp",
+   "fieldtype": "Int",
+   "label": "Full Session Check-Out Bonus XP (>= Min Hours)"
+  },
+  {
+   "default": "5",
+   "fieldname": "checkout_partial_xp",
+   "fieldtype": "Int",
+   "label": "Partial Session Check-Out Bonus XP (>= 1 Hour)"
+  },
+  {
+   "fieldname": "finance_section",
+   "fieldtype": "Section Break",
+   "label": "Cash Meter & Accounting Ledger Mapping"
+  },
+  {
+   "fieldname": "director_loan_account",
+   "fieldtype": "Link",
+   "label": "Director Loan Account (Liability)",
+   "options": "Account"
+  },
+  {
+   "fieldname": "director_equity_account",
+   "fieldtype": "Link",
+   "label": "Director Capital / Equity Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "col_break_fin",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "employee_payable_account",
+   "fieldtype": "Link",
+   "label": "Employee / Payroll Payable Account",
+   "options": "Account"
+  },
+  {
+   "default": "10000",
+   "fieldname": "cash_warning_threshold",
+   "fieldtype": "Currency",
+   "label": "Cash Meter Warning Threshold (INR)"
   },
   {
    "fieldname": "meeting_section",
@@ -178,40 +338,11 @@
    "fieldtype": "Link",
    "label": "Default Hiring Manager",
    "options": "Employee"
-  },
-  {
-   "fieldname": "gamification_section",
-   "fieldtype": "Section Break",
-   "label": "Gamification & Anti-Cheat XP Parameters"
-  },
-  {
-   "default": "10",
-   "fieldname": "checkin_xp",
-   "fieldtype": "Int",
-   "label": "Daily First Check-In XP"
-  },
-  {
-   "default": "20",
-   "fieldname": "checkout_full_xp",
-   "fieldtype": "Int",
-   "label": "Full Session Check-Out Bonus XP (>= Min Hours)"
-  },
-  {
-   "default": "5",
-   "fieldname": "checkout_partial_xp",
-   "fieldtype": "Int",
-   "label": "Partial Session Check-Out Bonus XP (>= 1 Hour)"
-  },
-  {
-   "default": "20",
-   "fieldname": "min_work_log_chars",
-   "fieldtype": "Int",
-   "label": "Minimum Work Log Characters Required on Check-Out"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-11-03 17:00:00.000000",
+ "modified": "2026-11-03 21:00:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin HR Settings",

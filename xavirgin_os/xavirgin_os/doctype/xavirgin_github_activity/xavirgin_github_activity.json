@@ -1,0 +1,213 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2026-11-03 21:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "delivery_id",
+  "employee",
+  "employee_name",
+  "department",
+  "github_username",
+  "author_email",
+  "col_break_1",
+  "event_type",
+  "action",
+  "repository",
+  "branch",
+  "reference_id",
+  "commit_count",
+  "xp_awarded",
+  "activity_date",
+  "event_timestamp",
+  "daily_poa",
+  "details_section",
+  "summary",
+  "raw_payload"
+ ],
+ "fields": [
+  {
+   "default": "XAV-GH-.YYYY.-",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "XAV-GH-.YYYY.-"
+  },
+  {
+   "fieldname": "delivery_id",
+   "fieldtype": "Data",
+   "label": "GitHub Delivery UUID (Idempotency Key)",
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee ID",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "employee.department",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Department",
+   "options": "Department",
+   "read_only": 1
+  },
+  {
+   "fieldname": "github_username",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "GitHub Handle",
+   "reqd": 1
+  },
+  {
+   "fieldname": "author_email",
+   "fieldtype": "Data",
+   "label": "Commit Author Email"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "event_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Event Type",
+   "options": "push\npull_request\npull_request_review\nissues\nissue_comment\nrelease",
+   "reqd": 1
+  },
+  {
+   "fieldname": "action",
+   "fieldtype": "Data",
+   "label": "Action (opened / merged / closed / pushed)"
+  },
+  {
+   "fieldname": "repository",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Repository"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Data",
+   "label": "Branch"
+  },
+  {
+   "fieldname": "reference_id",
+   "fieldtype": "Data",
+   "label": "PR / Issue / Commit SHA"
+  },
+  {
+   "default": "0",
+   "fieldname": "commit_count",
+   "fieldtype": "Int",
+   "label": "Commits Count"
+  },
+  {
+   "default": "0",
+   "fieldname": "xp_awarded",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "XP Awarded",
+   "read_only": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "activity_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Activity Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "event_timestamp",
+   "fieldtype": "Datetime",
+   "label": "Event Timestamp",
+   "read_only": 1
+  },
+  {
+   "fieldname": "daily_poa",
+   "fieldtype": "Link",
+   "label": "Linked Daily POA",
+   "options": "Xavirgin Daily POA",
+   "read_only": 1
+  },
+  {
+   "fieldname": "details_section",
+   "fieldtype": "Section Break",
+   "label": "Contribution Summary & Raw Webhook Payload"
+  },
+  {
+   "fieldname": "summary",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Activity Summary"
+  },
+  {
+   "fieldname": "raw_payload",
+   "fieldtype": "Code",
+   "label": "Raw JSON Payload",
+   "options": "JSON",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-03 21:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Xavirgin OS",
+ "name": "Xavirgin GitHub Activity",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Xavirgin HR Admin"
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Xavirgin Team Lead"
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Intern"
+  },
+  {
+   "read": 1,
+   "role": "Employee"
+  }
+ ],
+ "sort_field": "event_timestamp",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "summary",
+ "track_changes": 0
+}

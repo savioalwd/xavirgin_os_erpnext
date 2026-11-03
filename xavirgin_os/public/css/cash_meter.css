@@ -1,0 +1,73 @@
+.xavirgin-cyber-meter {
+	position: absolute !important;
+	left: 50% !important;
+	transform: translateX(-50%) !important;
+	z-index: 1020 !important;
+	background: #0b0f19;
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
+	border: 1px solid rgba(56, 189, 248, 0.45);
+	border-radius: 18px;
+	padding: 0px 14px !important;
+	height: 38px !important;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), inset 0 0 10px rgba(56, 189, 248, 0.1);
+	cursor: pointer !important;
+	user-select: none;
+	transition: box-shadow 0.2s ease, border-color 0.2s ease;
+	margin-top: 6px;
+}
+
+.xavirgin-cyber-meter:hover {
+	border-color: rgba(56, 189, 248, 0.9);
+	box-shadow: 0 0 24px rgba(56, 189, 248, 0.4);
+}
+
+.hud-status-indicator {
+	position: relative;
+	width: 10px;
+	height: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.status-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+}
+
+.pulse-ring {
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	animation: hud-pulse 2s infinite;
+}
+
+@keyframes hud-pulse {
+	0% { transform: scale(0.5); opacity: 0.9; }
+	100% { transform: scale(1.8); opacity: 0; }
+}
+
+.xavirgin-safe { color: #38bdf8 !important; text-shadow: 0 0 8px rgba(56, 189, 248, 0.6); }
+.xavirgin-warning { color: #fbbf24 !important; text-shadow: 0 0 8px rgba(251, 191, 36, 0.6); }
+.xavirgin-crisis { color: #f87171 !important; text-shadow: 0 0 8px rgba(248, 113, 113, 0.6); }
+
+.pulse-safe { border: 2px solid #38bdf8; }
+.pulse-warning { border: 2px solid #fbbf24; }
+.pulse-crisis { border: 2px solid #ef4444; }
+
+.hud-content-wrapper { line-height: 1.1; }
+.hud-label-cyber { font-size: 8px; font-weight: 800; letter-spacing: 1.2px; color: #cbd5e1; text-transform: uppercase; }
+.hud-icon-bolt { font-size: 9px; color: #fbbf24; }
+.balance-cyber-value { font-size: 14px; font-weight: 900; font-family: monospace; letter-spacing: 0.5px; }
+
+.hud-divider { width: 1px; height: 24px; background: rgba(255, 255, 255, 0.25); }
+
+.hud-stats-grid { font-family: monospace; font-size: 9px; line-height: 1.25; }
+.stat-row { display: flex; align-items: center; gap: 4px; }
+.stat-prefix { font-size: 7px; color: #94a3b8; font-weight: 800; }
+.stat-num { font-weight: 800; }
+.text-neon-green { color: #34d399; text-shadow: 0 0 6px rgba(52, 211, 153, 0.4); }
+.text-neon-red { color: #f87171; text-shadow: 0 0 6px rgba(248, 113, 113, 0.4); }

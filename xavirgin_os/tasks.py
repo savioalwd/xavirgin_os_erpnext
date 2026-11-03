@@ -40,3 +40,11 @@ def expire_overdue_offer_letters():
 		doc.db_set("workflow_state", "Expired", update_modified=False)
 		if doc.candidate:
 			frappe.db.set_value("Xavirgin Candidate", doc.candidate, "pipeline_stage", "Withdrawn", update_modified=False)
+
+def scheduled_daily_path_ceo_insight():
+	"""7:30 PM IST Cron: Generates the daily Path CEO Organization Insight prior to the 8:00 PM Sync."""
+	from xavirgin_os.ai import generate_organization_path_insight
+	try:
+		generate_organization_path_insight()
+	except Exception:
+		frappe.log_error(frappe.get_traceback(), "Scheduled Path CEO Insight Failed")

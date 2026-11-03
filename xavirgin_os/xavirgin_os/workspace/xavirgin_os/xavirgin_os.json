@@ -1,13 +1,13 @@
 {
  "charts": [],
- "content": "[{\"id\":\"hdr_overview\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>🧬 Xavirgin HR, Recruitment & Attendance OS</b></span>\",\"col\":12}},{\"id\":\"sc_job\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Job Openings\",\"col\":3}},{\"id\":\"sc_cand\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Candidate Pipeline\",\"col\":3}},{\"id\":\"sc_int\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Interviews\",\"col\":3}},{\"id\":\"sc_eval\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Scorecards\",\"col\":3}},{\"id\":\"sc_offer\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Offer Letters & NDA\",\"col\":3}},{\"id\":\"sc_emp\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Directory\",\"col\":3}},{\"id\":\"sc_org\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Interactive Org Chart\",\"col\":3}},{\"id\":\"sc_att\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Attendance (Start/Stop)\",\"col\":3}},{\"id\":\"sc_sync\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"8:00 PM Daily Sync\",\"col\":3}},{\"id\":\"sc_leave\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Leave & Meeting Absence\",\"col\":3}},{\"id\":\"sc_rep\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Analytics & Leaderboards\",\"col\":3}},{\"id\":\"sc_set\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Global HR Settings\",\"col\":3}},{\"id\":\"spc_1\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"card_rec\",\"type\":\"card\",\"data\":{\"card_name\":\"1. Recruitment & Evaluation\",\"col\":4}},{\"id\":\"card_onb\",\"type\":\"card\",\"data\":{\"card_name\":\"2. Offer, Onboarding & Hierarchy\",\"col\":4}},{\"id\":\"card_att\",\"type\":\"card\",\"data\":{\"card_name\":\"3. Gamified Attendance & 8 PM Sync\",\"col\":4}}]",
+ "content": "[{\"id\":\"hdr_overview\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>🧬 Xavirgin OS — Autonomous Enterprise Operations</b></span>\",\"col\":12}},{\"id\":\"sc_poa\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Daily POA\",\"col\":3}},{\"id\":\"sc_gh\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"GitHub Raw Telemetry\",\"col\":3}},{\"id\":\"sc_ai\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Path CEO AI Insights\",\"col\":3}},{\"id\":\"sc_dms\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Secure Docs & Passwords\",\"col\":3}},{\"id\":\"sc_job\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Job Openings\",\"col\":3}},{\"id\":\"sc_cand\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Candidate Pipeline\",\"col\":3}},{\"id\":\"sc_int\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Interviews\",\"col\":3}},{\"id\":\"sc_eval\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Scorecards\",\"col\":3}},{\"id\":\"sc_offer\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Offer Letters & NDA\",\"col\":3}},{\"id\":\"sc_emp\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Employee Directory\",\"col\":3}},{\"id\":\"sc_org\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Interactive Org Chart\",\"col\":3}},{\"id\":\"sc_att\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Attendance Sessions\",\"col\":3}},{\"id\":\"sc_sync\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"8:00 PM Daily Sync\",\"col\":3}},{\"id\":\"sc_leave\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Leave Requests\",\"col\":3}},{\"id\":\"sc_set\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Global HR Settings\",\"col\":3}},{\"id\":\"spc_1\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"card_poa\",\"type\":\"card\",\"data\":{\"card_name\":\"1. Daily POA & Engineering Telemetry\",\"col\":4}},{\"id\":\"card_rec\",\"type\":\"card\",\"data\":{\"card_name\":\"2. Recruitment & Evaluation\",\"col\":4}},{\"id\":\"card_onb\",\"type\":\"card\",\"data\":{\"card_name\":\"3. Offer, Onboarding & Hierarchy\",\"col\":4}},{\"id\":\"card_att\",\"type\":\"card\",\"data\":{\"card_name\":\"4. Gamified Attendance & Sync\",\"col\":4}},{\"id\":\"card_dms\",\"type\":\"card\",\"data\":{\"card_name\":\"5. Secure DMS & Passwords\",\"col\":4}},{\"id\":\"card_ai\",\"type\":\"card\",\"data\":{\"card_name\":\"6. Path CEO AI Intelligence\",\"col\":4}}]",
  "creation": "2026-11-03 12:00:00.000000",
  "custom_blocks": [],
  "docstatus": 0,
  "doctype": "Workspace",
  "for_user": "",
  "hide_custom": 0,
- "icon": "users",
+ "icon": "cpu",
  "idx": 0,
  "indicator_color": "purple",
  "is_hidden": 0,
@@ -16,7 +16,35 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "1. Recruitment & Evaluation",
+   "label": "1. Daily POA & Engineering Telemetry",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Xavirgin Daily POA",
+   "link_count": 0,
+   "link_to": "Xavirgin Daily POA",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Xavirgin GitHub Activity",
+   "link_count": 0,
+   "link_to": "Xavirgin GitHub Activity",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "2. Recruitment & Evaluation",
    "link_count": 5,
    "onboard": 0,
    "type": "Card Break"
@@ -74,7 +102,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "2. Offer, Onboarding & Hierarchy",
+   "label": "3. Offer, Onboarding & Hierarchy",
    "link_count": 5,
    "onboard": 0,
    "type": "Card Break"
@@ -132,8 +160,8 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "3. Gamified Attendance & 8 PM Sync",
-   "link_count": 5,
+   "label": "4. Gamified Attendance & Sync",
+   "link_count": 3,
    "onboard": 0,
    "type": "Card Break"
   },
@@ -169,11 +197,47 @@
   },
   {
    "hidden": 0,
-   "is_query_report": 1,
-   "label": "Attendance, Leave & Leaderboard Analytics",
+   "is_query_report": 0,
+   "label": "5. Secure DMS & Passwords",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Xavirgin DMS Folder",
    "link_count": 0,
-   "link_to": "Xavirgin Attendance Analytics",
-   "link_type": "Report",
+   "link_to": "Xavirgin DMS Folder",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Xavirgin DMS Audit Log",
+   "link_count": 0,
+   "link_to": "Xavirgin DMS Audit Log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "6. Path CEO AI Intelligence",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Xavirgin AI Summary Log",
+   "link_count": 0,
+   "link_to": "Xavirgin AI Summary Log",
+   "link_type": "DocType",
    "onboard": 1,
    "type": "Link"
   },
@@ -188,7 +252,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-11-03 12:00:00.000000",
+ "modified": "2026-11-03 22:00:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin OS",
@@ -210,11 +274,38 @@
  "sequence_id": 1.0,
  "shortcuts": [
   {
+   "color": "Indigo",
+   "doc_view": "List",
+   "label": "Daily POA",
+   "link_to": "Xavirgin Daily POA",
+   "type": "DocType"
+  },
+  {
+   "color": "Cyan",
+   "doc_view": "List",
+   "label": "GitHub Raw Telemetry",
+   "link_to": "Xavirgin GitHub Activity",
+   "type": "DocType"
+  },
+  {
+   "color": "Purple",
+   "doc_view": "List",
+   "label": "Path CEO AI Insights",
+   "link_to": "Xavirgin AI Summary Log",
+   "type": "DocType"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "Secure Docs & Passwords",
+   "link_to": "Xavirgin DMS Folder",
+   "type": "DocType"
+  },
+  {
    "color": "Blue",
    "doc_view": "List",
    "label": "Job Openings",
    "link_to": "Xavirgin Job Opening",
-   "stats_filter": "{\"status\": \"Open\"}",
    "type": "DocType"
   },
   {
@@ -222,7 +313,6 @@
    "doc_view": "Kanban",
    "label": "Candidate Pipeline",
    "link_to": "Xavirgin Candidate",
-   "stats_filter": "{\"pipeline_stage\": [\"not in\", [\"Rejected\", \"Withdrawn\", \"Hired\"]]}",
    "type": "DocType"
   },
   {
@@ -230,7 +320,6 @@
    "doc_view": "List",
    "label": "Interviews",
    "link_to": "Xavirgin Interview",
-   "stats_filter": "{\"status\": \"Scheduled\"}",
    "type": "DocType"
   },
   {
@@ -252,7 +341,6 @@
    "doc_view": "List",
    "label": "Employee Directory",
    "link_to": "Employee",
-   "stats_filter": "{\"status\": \"Active\"}",
    "type": "DocType"
   },
   {
@@ -264,9 +352,8 @@
   {
    "color": "Green",
    "doc_view": "List",
-   "label": "Attendance (Start/Stop)",
+   "label": "Attendance Sessions",
    "link_to": "Xavirgin Attendance Session",
-   "stats_filter": "{\"status\": \"Working\"}",
    "type": "DocType"
   },
   {
@@ -279,16 +366,9 @@
   {
    "color": "Red",
    "doc_view": "List",
-   "label": "Leave & Meeting Absence",
+   "label": "Leave Requests",
    "link_to": "Xavirgin Leave Request",
-   "stats_filter": "{\"status\": \"Pending Approval\"}",
    "type": "DocType"
-  },
-  {
-   "color": "Purple",
-   "label": "Analytics & Leaderboards",
-   "link_to": "Xavirgin Attendance Analytics",
-   "type": "Report"
   },
   {
    "color": "Grey",

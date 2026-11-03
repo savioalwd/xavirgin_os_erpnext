@@ -1,0 +1,89 @@
+{
+ "actions": [],
+ "creation": "2026-11-03 21:30:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "item_type",
+  "folder",
+  "col_break_1",
+  "file_attachment",
+  "credential_url",
+  "credential_username",
+  "credential_password",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title / Identifier",
+   "reqd": 1
+  },
+  {
+   "default": "File Attachment",
+   "fieldname": "item_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Item Type",
+   "options": "File Attachment\nLogin Credential",
+   "reqd": 1
+  },
+  {
+   "fieldname": "folder",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Folder",
+   "options": "Xavirgin DMS Folder",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "file_attachment",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "File (Private Storage)",
+   "mandatory_depends_on": "eval:doc.item_type=='File Attachment'"
+  },
+  {
+   "fieldname": "credential_url",
+   "fieldtype": "Data",
+   "label": "Portal URL",
+   "depends_on": "eval:doc.item_type=='Login Credential'"
+  },
+  {
+   "fieldname": "credential_username",
+   "fieldtype": "Data",
+   "label": "Username / Email",
+   "depends_on": "eval:doc.item_type=='Login Credential'"
+  },
+  {
+   "fieldname": "credential_password",
+   "fieldtype": "Password",
+   "label": "Password / Secret Key (AES Encrypted)",
+   "depends_on": "eval:doc.item_type=='Login Credential'"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Metadata & Usage Notes"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-03 21:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Xavirgin OS",
+ "name": "Xavirgin DMS File",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

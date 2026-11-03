@@ -1,0 +1,98 @@
+{
+ "actions": [],
+ "autoname": "naming_series:",
+ "creation": "2026-11-03 21:30:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "timestamp",
+  "user",
+  "action_type",
+  "col_break_1",
+  "folder",
+  "file_title",
+  "ip_address"
+ ],
+ "fields": [
+  {
+   "default": "XAV-DMS-LOG-.YYYY.-",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "XAV-DMS-LOG-.YYYY.-"
+  },
+  {
+   "fieldname": "timestamp",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Timestamp",
+   "read_only": 1
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "action_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Action",
+   "options": "View Folder\nDownload File\nReveal Credential\nExport ZIP Archive",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "folder",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Folder",
+   "options": "Xavirgin DMS Folder",
+   "read_only": 1
+  },
+  {
+   "fieldname": "file_title",
+   "fieldtype": "Data",
+   "label": "File / Credential Title",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ip_address",
+   "fieldtype": "Data",
+   "label": "IP Address",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-03 21:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Xavirgin OS",
+ "name": "Xavirgin DMS Audit Log",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Xavirgin HR Admin"
+  }
+ ],
+ "sort_field": "timestamp",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "action_type",
+ "track_changes": 0
+}
