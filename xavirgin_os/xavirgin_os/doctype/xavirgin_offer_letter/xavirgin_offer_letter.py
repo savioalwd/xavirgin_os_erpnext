@@ -2,6 +2,9 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_days, getdate, now_datetime
+from xavirgin_os.xavirgin_os.doctype.xavirgin_attendance_session.xavirgin_attendance_session import (
+	resolve_employee_context,
+)
 
 
 def calculate_working_end_date(start_date, active_days: int = 90):
@@ -18,16 +21,107 @@ def calculate_working_end_date(start_date, active_days: int = 90):
 
 class XavirginOfferLetter(Document):
 	def before_validate(self):
+		self.resolve_intelligent_offer_defaults()
+		self.sync_candidate_documents()
+
+	def resolve_intelligent_offer_defaults(self):
+		"""Intelligently pulls missing terms from Candidate, Job Opening, and Global HR Settings."""
+		settings = frappe.get_single("Xavirgin HR Settings")
+
+		# 1. Dates
 		if not self.issue_date:
 			self.issue_date = frappe.utils.today()
 		if not self.acceptance_deadline:
-			self.acceptance_deadline = add_days(self.issue_date, 2)
+			acceptance_days = int(settings.offer_acceptance_deadline_days or 2)
+			self.acceptance_deadline = add_days(self.issue_date, acceptance_days)
+
+		# 2. Candidate Fallbacks
+		if self.candidate:
+			cand = frappe.db.get_value(
+				"Xavirgin Candidate",
+				self.candidate,
+				["full_name", "email", "phone", "address_line", "job_opening", "department", "designation", "skill_area", "engagement_category"],
+				as_dict=True,
+			)
+			if cand:
+				if not self.candidate_name:
+					self.candidate_name = cand.full_name
+				if not self.candidate_email:
+					self.candidate_email = cand.email
+				if not self.candidate_phone:
+					self.candidate_phone = cand.phone
+				if not self.candidate_address:
+					self.candidate_address = cand.address_line
+				if not self.job_opening:
+					self.job_opening = cand.job_opening
+				if not self.department:
+					self.department = cand.department
+				if not self.designation:
+					self.designation = cand.designation
+				if not self.skill_area:
+					self.skill_area = cand.skill_area or cand.designation
+				if not self.engagement_category and cand.engagement_category:
+					self.engagement_category = cand.engagement_category
+
+		# 3. Job Opening Fallbacks
+		if self.job_opening:
+			job = frappe.db.get_value(
+				"Xavirgin Job Opening",
+				self.job_opening,
+				["internship_duration_days", "hiring_manager", "employment_type", "skill_area"],
+				as_dict=True,
+			)
+			if job:
+				if not self.active_working_days_required and job.internship_duration_days:
+					self.active_working_days_required = job.internship_duration_days
+				if not self.reporting_manager and job.hiring_manager:
+					self.reporting_manager = job.hiring_manager
+				if not self.employment_type and job.employment_type:
+					self.employment_type = job.employment_type
+				if not self.skill_area and job.skill_area:
+					self.skill_area = job.skill_area
+
+		# 4. Global Settings Fallbacks
+		if not self.active_working_days_required:
+			self.active_working_days_required = settings.internship_required_active_days or 90
+		if not self.initial_evaluation_days:
+			self.initial_evaluation_days = settings.initial_evaluation_days or 15
+		if not self.reporting_manager:
+			self.reporting_manager = settings.default_supervisor or frappe.db.get_value("Employee", {"employee_name": "Savio Babu"}, "name")
+
+		# 5. Calculate End Date based on active working days
 		if self.start_date and not self.end_date:
 			days_req = int(self.active_working_days_required or 90)
 			self.end_date = calculate_working_end_date(self.start_date, days_req)
+
+		# 6. Version Incrementing
 		if self.amended_from and self.is_new():
 			prev_ver = frappe.db.get_value("Xavirgin Offer Letter", self.amended_from, "offer_version") or 1
 			self.offer_version = int(prev_ver) + 1
+
+	def sync_candidate_documents(self):
+		"""Pulls all submitted/verified documents from Candidate into the Offer Letter's verification table."""
+		if not self.candidate:
+			return
+
+		cand_docs = frappe.get_all(
+			"Xavirgin Candidate Document",
+			filters={"parent": self.candidate},
+			fields=["document_type", "file_url", "document_name", "verified_by_hr", "verified_by"],
+		)
+		existing_urls = {d.file_url for d in self.submitted_documents if d.file_url}
+
+		for cd in cand_docs:
+			if cd.file_url and cd.file_url not in existing_urls:
+				self.append("submitted_documents", {
+					"document_type": cd.document_type,
+					"file_url": cd.file_url,
+					"document_name": cd.document_name,
+					"uploaded_via": "Candidate Master Sync",
+					"uploaded_on": now_datetime(),
+					"verified_by_hr": cd.verified_by_hr,
+					"verified_by": cd.verified_by,
+				})
 
 	def validate(self):
 		if self.reporting_manager:
@@ -140,11 +234,7 @@ class XavirginOfferLetter(Document):
 
 	@frappe.whitelist()
 	def convert_to_employee(self):
-		"""
-		Section 9.1 (Improvement #1): Transactional, Idempotent Candidate-to-Employee Conversion.
-		Guarantees zero orphan records and full bidirectional foreign-key integrity.
-		Locks user down to the Xavirgin OS workspace by applying module blocklists and the dedicated Role Profile.
-		"""
+		"""Section 9.1: Transactional, Idempotent Candidate-to-Employee Conversion."""
 		if self.docstatus != 1:
 			frappe.throw(_("Offer Letter must be Submitted before converting to an Employee."))
 		if self.workflow_state != "Accepted":
@@ -152,7 +242,7 @@ class XavirginOfferLetter(Document):
 		if not self.documents_verified:
 			frappe.throw(_("HR must verify the Signed Offer/NDA and ID Proof ('All Mandatory Documents Verified') before hiring."))
 
-		# 1. Idempotency check: Return existing Employee if already converted
+		# Idempotency check: Return existing Employee if already converted
 		existing_emp = frappe.db.get_value(
 			"Employee",
 			{"custom_source_candidate": self.candidate},
@@ -176,7 +266,7 @@ class XavirginOfferLetter(Document):
 
 		frappe.db.savepoint("xavirgin_hire_candidate")
 		try:
-			# 2. Provision or retrieve Frappe User account
+			# Provision or retrieve Frappe User account
 			user_id = frappe.db.get_value("User", {"email": self.candidate_email}, "name")
 			first_name, *rest = (self.candidate_name or "Intern").strip().split(" ")
 			last_name = " ".join(rest) if rest else ""
@@ -206,7 +296,7 @@ class XavirginOfferLetter(Document):
 				}).insert(ignore_permissions=True)
 				user_id = user_doc.name
 
-			# 3. Create ERPNext Core Employee Record with complete lineage
+			# Create ERPNext Core Employee Record with complete lineage
 			settings = frappe.get_single("Xavirgin HR Settings")
 
 			emp_doc = frappe.get_doc({
@@ -245,7 +335,7 @@ class XavirginOfferLetter(Document):
 			})
 			emp_doc.insert(ignore_permissions=True)
 
-			# 4. Bidirectional Back-Linking & Immutable Audit Log
+			# Bidirectional Back-Linking & Immutable Audit Log
 			self.db_set("employee", emp_doc.name, update_modified=False)
 			cand.employee = emp_doc.name
 			cand.converted_on = now_datetime()

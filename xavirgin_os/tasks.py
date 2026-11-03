@@ -1,36 +1,42 @@
 import frappe
-from frappe.utils import get_datetime, today
+from frappe.utils import add_days, getdate, now_datetime, time_diff_in_hours
 
 
 def auto_close_abandoned_attendance_sessions():
-	"""Improvement #12: Nightly job to close abandoned 'Working' sessions without awarding unearned bonus XP."""
-	open_sessions = frappe.get_all(
+	"""Nightly scheduler: Closes active 'Working' sessions older than 14 hours as Auto-Closed."""
+	cutoff_time = now_datetime()
+	abandoned = frappe.get_all(
 		"Xavirgin Attendance Session",
 		filters={"status": "Working"},
-		fields=["name", "check_in", "employee"],
+		fields=["name", "check_in"],
 	)
-	for s in open_sessions:
-		doc = frappe.get_doc("Xavirgin Attendance Session", s.name)
-		doc.check_out = get_datetime(f"{doc.attendance_date} 23:59:00")
-		doc.status = "Auto-Closed"
-		doc.correction_remarks = "Auto-closed by nightly scheduler (User forgot to check out)."
-		doc.save(ignore_permissions=True)
-	frappe.db.commit()
+
+	for s in abandoned:
+		hours = time_diff_in_hours(cutoff_time, s.check_in)
+		if hours >= 14:
+			doc = frappe.get_doc("Xavirgin Attendance Session", s.name)
+			doc.status = "Auto-Closed"
+			doc.check_out = cutoff_time
+			doc.worked_hours = 0.0
+			doc.correction_remarks = "System auto-closed unstopped session after 14 hours."
+			doc.save(ignore_permissions=True)
 
 
 def expire_overdue_offer_letters():
-	"""Improvement #17: Expire 'Sent' Offer Letters that have passed their 2-day acceptance_deadline."""
+	"""Nightly scheduler: Flags offer letters past their acceptance deadline as Expired."""
+	today_date = getdate(frappe.utils.today())
 	overdue = frappe.get_all(
 		"Xavirgin Offer Letter",
 		filters={
 			"workflow_state": "Sent",
-			"acceptance_deadline": ["<", today()],
+			"acceptance_deadline": ["<", today_date],
 			"docstatus": 1,
 		},
 		pluck="name",
 	)
-	for offer_name in overdue:
-		doc = frappe.get_doc("Xavirgin Offer Letter", offer_name)
+
+	for name in overdue:
+		doc = frappe.get_doc("Xavirgin Offer Letter", name)
 		doc.db_set("workflow_state", "Expired", update_modified=False)
-		doc.sync_to_candidate()
-	frappe.db.commit()
+		if doc.candidate:
+			frappe.db.set_value("Xavirgin Candidate", doc.candidate, "pipeline_stage", "Withdrawn", update_modified=False)

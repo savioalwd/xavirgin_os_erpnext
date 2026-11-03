@@ -55,7 +55,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Candidate",
+   "label": "Candidate ID",
    "options": "Xavirgin Candidate",
    "reqd": 1
   },
@@ -85,7 +85,7 @@
   },
   {
    "fetch_from": "candidate.address_line",
-   " fetch_if_empty": 1,
+   "fetch_if_empty": 1,
    "fieldname": "candidate_address",
    "fieldtype": "Small Text",
    "label": "Candidate Address (Printed on Offer Letter)"
@@ -172,10 +172,9 @@
    "label": "Nature of Engagement"
   },
   {
-   "default": "Software Development",
    "fieldname": "skill_area",
    "fieldtype": "Data",
-   "label": "Primary Learning / Skill Area (e.g. Quality Assurance, Flutter, UI/UX)",
+   "label": "Primary Learning / Skill Area (e.g. Flutter, UI/UX, QA)",
    "reqd": 1
   },
   {
@@ -308,7 +307,7 @@
    "link_fieldname": "custom_source_offer_letter"
   }
  ],
- "modified": "2026-11-03 10:00:00.000000",
+ "modified": "2026-11-03 20:00:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin Offer Letter",

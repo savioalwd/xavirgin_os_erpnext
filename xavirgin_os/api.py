@@ -13,37 +13,111 @@ def normalize_phone(phone: str) -> str:
 	return digits[-10:] if len(digits) >= 10 else digits
 
 
+@frappe.whitelist()
+def resolve_current_user_employee_context(target_user: str = None) -> dict:
+	"""Centralized resolver that delivers active Employee ID & Profile across all modules.
+
+	Order of resolution:
+	1. Direct Employee mapping by user_id
+	2. Employee company_email or personal_email match
+	3. Xavirgin Candidate conversion record match (employee field)
+	"""
+	user = target_user or frappe.session.user
+	if not user or user in ("Administrator", "Guest"):
+		# Fallback for local admin or testing
+		emp_name = frappe.db.get_value("Employee", {"status": "Active"}, "name")
+	else:
+		emp_name = frappe.db.get_value("Employee", {"user_id": user, "status": "Active"}, "name")
+		if not emp_name:
+			user_email = frappe.db.get_value("User", user, "email") or user
+			emp_name = frappe.db.get_value(
+				"Employee",
+				{"company_email": user_email, "status": "Active"},
+				"name",
+			) or frappe.db.get_value(
+				"Employee",
+				{"personal_email": user_email, "status": "Active"},
+				"name",
+			)
+
+		if not emp_name:
+			user_email = frappe.db.get_value("User", user, "email") or user
+			emp_name = frappe.db.get_value("Xavirgin Candidate", {"email": user_email}, "employee")
+
+	if emp_name and frappe.db.exists("Employee", emp_name):
+		emp_data = frappe.db.get_value(
+			"Employee",
+			emp_name,
+			[
+				"name",
+				"employee_name",
+				"department",
+				"designation",
+				"custom_team_lead",
+				"company_email",
+				"personal_email",
+				"cell_number",
+				"custom_employment_category",
+				"custom_is_intern",
+				"custom_is_team_lead",
+			],
+			as_dict=True,
+		)
+		emp_data["has_employee"] = True
+		return emp_data
+
+	return {"has_employee": False, "user": user}
+
+
 def enforce_private_hr_files(doc, method=None):
-	"""Improvement #16: Force private storage for sensitive HR attachments."""
+	"""Forces private storage for sensitive HR attachments across all Xavirgin OS DocTypes."""
 	sensitive_doctypes = {
 		"Xavirgin Candidate",
+		"Xavirgin Candidate Document",
 		"Xavirgin Offer Letter",
 		"Xavirgin Leave Request",
 		"Xavirgin Interview Evaluation",
+		"Xavirgin Attendance Session",
 	}
 	if doc.attached_to_doctype in sensitive_doctypes:
 		doc.is_private = 1
 
 
 def match_inbound_candidate_attachments(doc, method=None):
-	"""Improvement #20: Match incoming candidate email attachments to active Sent Offer Letters."""
+	"""Matches incoming candidate email attachments to active Sent Offer Letters.
+
+	Matches by sender email OR by offer reference series in subject.
+	"""
 	if doc.communication_type != "Communication" or doc.sent_or_received != "Received":
 		return
 	sender_email = (doc.sender or "").strip().lower()
-	if not sender_email:
+	subject = doc.subject or ""
+
+	offer = None
+	# 1. Try finding by sender email
+	if sender_email:
+		offers = frappe.get_all(
+			"Xavirgin Offer Letter",
+			filters={"candidate_email": sender_email, "workflow_state": ["in", ["Sent", "Approved"]]},
+			fields=["name", "candidate"],
+			order_by="creation desc",
+			limit=1,
+		)
+		if offers:
+			offer = offers[0]
+
+	# 2. Try regex lookup on Subject line (e.g. XAV-OFFER-2026-00001)
+	if not offer and subject:
+		match = re.search(r"XAV-OFFER-\d{4}-\d+", subject)
+		if match:
+			ref_name = match.group(0)
+			if frappe.db.exists("Xavirgin Offer Letter", ref_name):
+				offer = frappe.get_doc("Xavirgin Offer Letter", ref_name)
+
+	if not offer:
 		return
 
-	offers = frappe.get_all(
-		"Xavirgin Offer Letter",
-		filters={"candidate_email": sender_email, "workflow_state": ["in", ["Sent", "Approved"]]},
-		fields=["name", "candidate"],
-		order_by="creation desc",
-		limit=1,
-	)
-	if not offers:
-		return
-
-	offer_name = offers[0].name
+	offer_name = offer.name if hasattr(offer, "name") else offer.get("name")
 	files = frappe.get_all(
 		"File",
 		filters={"attached_to_doctype": "Communication", "attached_to_name": doc.name},
@@ -57,6 +131,7 @@ def match_inbound_candidate_attachments(doc, method=None):
 		offer_doc.append("submitted_documents", {
 			"document_type": "Signed Offer & NDA",
 			"file_url": f.file_url,
+			"document_name": f.file_name or "Signed Offer / ID Proof",
 			"uploaded_via": "Inbound Email",
 			"uploaded_on": now_datetime(),
 			"verified_by_hr": 0,
@@ -66,19 +141,16 @@ def match_inbound_candidate_attachments(doc, method=None):
 
 
 def send_custom_welcome_email(doc, method=None):
-	"""Hook: Dispatches a branded Xavirgin onboarding email with an activation key on new User creation."""
-	# Bypass service users and guest accounts
+	"""Dispatches a branded Xavirgin onboarding email with an activation key on new User creation."""
 	if doc.name in ("Administrator", "Guest") or doc.user_type == "Website User":
 		return
 
-	# Generate a password reset/activation key
 	reset_key = frappe.generate_hash()
 	doc.db_set("reset_password_key", reset_key, update_modified=False)
 
 	setup_url = f"{get_url()}/update-password?key={reset_key}"
 	recipient_name = doc.first_name or doc.full_name or "Team Member"
 
-	# Fetch linked employee details if already established
 	emp_details = frappe.db.get_value(
 		"Employee",
 		{"user_id": doc.name},

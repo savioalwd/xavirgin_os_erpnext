@@ -16,9 +16,9 @@ doc_events = {
 	"File": {
 		"before_insert": "xavirgin_os.api.enforce_private_hr_files"
 	},
-    "User": {
-        "after_insert": "xavirgin_os.api.send_custom_welcome_email"
-    }
+	"User": {
+		"after_insert": "xavirgin_os.api.send_custom_welcome_email"
+	}
 }
 
 permission_query_conditions = {

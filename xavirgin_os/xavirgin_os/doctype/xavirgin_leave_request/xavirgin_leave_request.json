@@ -9,6 +9,8 @@
   "employee",
   "employee_name",
   "department",
+  "designation",
+  "team_lead",
   "leave_type",
   "is_half_day",
   "col_break_1",
@@ -17,9 +19,11 @@
   "to_date",
   "leave_days",
   "approved_by",
+  "decision_on",
   "details_section",
   "reason",
-  "proof_attachment"
+  "proof_attachment",
+  "rejection_reason"
  ],
  "fields": [
   {
@@ -34,7 +38,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Employee / Intern",
+   "label": "Employee ID",
    "options": "Employee",
    "reqd": 1
   },
@@ -43,7 +47,7 @@
    "fieldname": "employee_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Name",
+   "label": "Full Name",
    "read_only": 1
   },
   {
@@ -53,6 +57,22 @@
    "in_standard_filter": 1,
    "label": "Department",
    "options": "Department",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "employee.designation",
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "label": "Designation",
+   "options": "Designation",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "employee.custom_team_lead",
+   "fieldname": "team_lead",
+   "fieldtype": "Link",
+   "label": "Squad Team Lead",
+   "options": "Employee",
    "read_only": 1
   },
   {
@@ -117,6 +137,12 @@
    "read_only": 1
   },
   {
+   "fieldname": "decision_on",
+   "fieldtype": "Datetime",
+   "label": "Decision Timestamp",
+   "read_only": 1
+  },
+  {
    "fieldname": "details_section",
    "fieldtype": "Section Break",
    "label": "Reason & Supporting Proof"
@@ -131,10 +157,15 @@
    "fieldname": "proof_attachment",
    "fieldtype": "Attach",
    "label": "Supporting Document / Medical Proof (Private)"
+  },
+  {
+   "fieldname": "rejection_reason",
+   "fieldtype": "Small Text",
+   "label": "Rejection Remarks"
   }
  ],
  "links": [],
- "modified": "2026-11-03 10:00:00.000000",
+ "modified": "2026-11-03 20:00:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin Leave Request",

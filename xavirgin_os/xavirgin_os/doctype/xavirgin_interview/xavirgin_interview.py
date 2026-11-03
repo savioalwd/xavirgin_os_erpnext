@@ -1,41 +1,101 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import format_time, formatdate
+from frappe.utils import add_to_date, format_time, formatdate, now_datetime
+from xavirgin_os.xavirgin_os.doctype.xavirgin_attendance_session.xavirgin_attendance_session import (
+	resolve_employee_context,
+)
 
 
 class XavirginInterview(Document):
 	def before_validate(self):
+		self.resolve_intelligent_interview_defaults()
+
+	def validate(self):
+		self.resolve_and_validate_participants()
+
+	def resolve_intelligent_interview_defaults(self):
+		"""Intelligently pulls defaults from Candidate, Job Opening, and Global HR Settings."""
 		settings = frappe.get_single("Xavirgin HR Settings")
+
+		# 1. Fallback meeting settings
 		if not self.meeting_url:
 			self.meeting_url = settings.default_meet_link or "https://meet.google.com/xzx-icxk-uje"
 		if not self.meeting_platform:
 			self.meeting_platform = settings.default_meeting_platform or "Google Meet"
-		if not self.assessment_template and self.job_opening:
-			self.assessment_template = frappe.db.get_value(
-				"Xavirgin Job Opening", self.job_opening, "assessment_template"
-			)
 
-	def validate(self):
-		seen_emails = set()
-		for row in self.interviewers:
-			if row.employee and not row.email:
-				emp = frappe.db.get_value(
-					"Employee",
-					row.employee,
-					["employee_name", "company_email", "personal_email", "user_id", "designation", "department"],
+		# 2. Timing defaults: Default to today, +1 hour if not specified
+		if not self.interview_date:
+			self.interview_date = frappe.utils.today()
+		if not self.start_time:
+			now_time = now_datetime()
+			self.start_time = now_time.strftime("%H:%M:%S")
+		if not self.end_time and self.start_time:
+			duration = int(settings.default_meeting_duration_mins or 40)
+			# Calculate end_time
+			start_dt = frappe.utils.to_timedelta(self.start_time)
+			end_dt = start_dt + frappe.utils.to_timedelta(f"00:{duration}:00")
+			self.end_time = str(end_dt)
+
+		# 3. Cascade Assessment Template from Candidate -> Job Opening -> Designation
+		if not self.assessment_template:
+			if self.candidate:
+				cand = frappe.db.get_value(
+					"Xavirgin Candidate",
+					self.candidate,
+					["job_opening", "designation", "full_name", "email", "phone", "department"],
 					as_dict=True,
 				)
-				if emp:
-					row.full_name = emp.employee_name
-					row.email = emp.company_email or emp.personal_email or emp.user_id
-					row.interviewer_user = emp.user_id
-					row.designation = emp.designation
-					row.department = emp.department
-			email_clean = (row.email or "").strip().lower()
-			if email_clean in seen_emails:
-				frappe.throw(_("Duplicate interviewer {0} in the panel table.").format(row.email))
-			seen_emails.add(email_clean)
+				if cand:
+					if not self.candidate_name:
+						self.candidate_name = cand.full_name
+					if not self.candidate_email:
+						self.candidate_email = cand.email
+					if not self.candidate_phone:
+						self.candidate_phone = cand.phone
+					if not self.job_opening:
+						self.job_opening = cand.job_opening
+					if not self.department:
+						self.department = cand.department
+					if not self.designation:
+						self.designation = cand.designation
+
+			if self.job_opening:
+				self.assessment_template = frappe.db.get_value(
+					"Xavirgin Job Opening", self.job_opening, "assessment_template"
+				)
+
+			if not self.assessment_template and self.designation:
+				self.assessment_template = frappe.db.get_value(
+					"Xavirgin Assessment Template",
+					{"template_name": ["like", f"%{self.designation}%"], "is_active": 1},
+					"name",
+				)
+
+	def resolve_and_validate_participants(self):
+		"""Ensures interviewer details are populated bidirectionally and deduplicated."""
+		seen_emails = set()
+		for row in self.interviewers:
+			# Auto-resolve identity via centralized helper
+			if row.employee or row.interviewer_user or row.email:
+				ctx = resolve_employee_context(employee=row.employee, user_id=row.interviewer_user)
+				if ctx:
+					row.employee = ctx.get("name")
+					row.full_name = ctx.get("employee_name") or row.full_name
+					row.interviewer_user = frappe.db.get_value("Employee", row.employee, "user_id") or row.interviewer_user
+					row.email = (
+						frappe.db.get_value("Employee", row.employee, "company_email")
+						or frappe.db.get_value("Employee", row.employee, "personal_email")
+						or row.email
+					)
+					row.designation = ctx.get("designation") or row.designation
+					row.department = ctx.get("department") or row.department
+
+			clean_email = (row.email or "").strip().lower()
+			if clean_email:
+				if clean_email in seen_emails:
+					frappe.throw(_("Duplicate interviewer '{0}' found in the panel.").format(row.email))
+				seen_emails.add(clean_email)
 
 	def on_update(self):
 		self.sync_candidate_stage()
@@ -56,7 +116,7 @@ class XavirginInterview(Document):
 			cand.db_set("latest_interview", self.name, update_modified=False)
 
 	def notify_assigned_interviewers(self):
-		"""Section 5.3: Send email & in-app notifications to assigned interviewers without duplicates."""
+		"""Dispatches email & system alerts to panel members upon assignment."""
 		settings = frappe.get_single("Xavirgin HR Settings")
 		formatted_date = formatdate(self.interview_date, "dd MMMM yyyy")
 		formatted_start = format_time(self.start_time)
@@ -65,6 +125,7 @@ class XavirginInterview(Document):
 		for row in self.interviewers:
 			if row.notification_sent:
 				continue
+
 			if settings.send_interviewer_email_notifications and row.email:
 				frappe.sendmail(
 					recipients=[row.email],
@@ -73,7 +134,7 @@ class XavirginInterview(Document):
 					<div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
 						<h3 style="color: #0000FF; margin-top: 0;">🧬 Xavirgin Interview Assignment</h3>
 						<p>Hello <strong>{row.full_name}</strong>,</p>
-						<p>You have been assigned as <strong>{row.interview_role}</strong> for the upcoming interview:</p>
+						<p>You have been scheduled as <strong>{row.interview_role}</strong> for the upcoming candidate evaluation:</p>
 						<ul>
 							<li><strong>Candidate:</strong> {self.candidate_name} ({self.candidate})</li>
 							<li><strong>Round:</strong> {self.interview_round}</li>
@@ -81,11 +142,12 @@ class XavirginInterview(Document):
 							<li><strong>Time:</strong> {formatted_start} – {formatted_end} ({self.timezone})</li>
 							<li><strong>Meeting Link:</strong> <a href="{self.meeting_url}">{self.meeting_url}</a></li>
 						</ul>
-						<p>After the session, please submit your independent scorecard in ERPNext.</p>
+						<p>Please review their profile and prepare to submit your scorecard in Xavirgin OS immediately after the interview.</p>
 					</div>
 					""",
 					delayed=False,
 				)
+
 			if settings.send_interviewer_system_notifications and row.interviewer_user:
 				frappe.get_doc({
 					"doctype": "Notification Log",
@@ -100,16 +162,16 @@ class XavirginInterview(Document):
 
 	@frappe.whitelist()
 	def send_candidate_interview_invitation(self):
-		"""Ported & upgraded from Odoo action_send_interview_invitation with timezone-explicit formatting."""
+		"""Dispatches interview invitation to candidate with explicit scheduling terms."""
 		if not self.interview_date or not self.start_time:
-			frappe.throw(_("Please set the Interview Date and Start Time first!"))
+			frappe.throw(_("Please specify Interview Date and Start Time."))
 		if not self.candidate_email:
-			frappe.throw(_("Candidate email address is missing!"))
+			frappe.throw(_("Candidate email is required."))
 
 		job_title = (
 			frappe.db.get_value("Xavirgin Job Opening", self.job_opening, "job_title")
 			if self.job_opening
-			else "Remote Internship Program"
+			else (self.designation or "Software Engineering Internship")
 		)
 		formatted_date = formatdate(self.interview_date, "dd MMMM yyyy")
 		formatted_start = format_time(self.start_time)
@@ -128,7 +190,7 @@ class XavirginInterview(Document):
 						Hello <strong style="color: #0000FF;">{self.candidate_name}</strong>,
 					</p>
 					<p style="color: #4a5568; line-height: 1.7; font-size: 15px;">
-						This is the HR Team from <strong>Xavirgin.com</strong>. We have reviewed your application for the <strong style="color: #0000FF;">{job_title}</strong>.
+						This is the HR Team from <strong>Xavirgin.com</strong>. We have reviewed your application for the <strong style="color: #0000FF;">{job_title}</strong> track.
 					</p>
 					<div style="background: #f0f4ff; border-left: 4px solid #0000FF; padding: 18px; margin: 20px 0; border-radius: 6px;">
 						<h4 style="margin: 0 0 10px 0; color: #0000FF; font-size: 15px; font-weight: 700;">📅 Scheduled Interview Slot ({self.interview_round})</h4>
@@ -152,13 +214,8 @@ class XavirginInterview(Document):
 							<li><strong>Daily Work Requirement:</strong> Minimum 4 Hours</li>
 							<li><strong>Daily Team Meeting:</strong> 8:00 PM IST (approx. 40 minutes)</li>
 							<li><strong>Weekly Off:</strong> Sunday</li>
-							<li><strong>Evaluation:</strong> All candidates must clear a technical interview in their chosen domain.</li>
-							<li><strong>Certification:</strong> An Internship Completion Certificate &amp; LOR will be awarded upon successful completion.</li>
+							<li><strong>Certification:</strong> Internship Completion Certificate &amp; LOR awarded upon successful completion.</li>
 						</ul>
-					</div>
-					<div style="background: #fffaf0; border-left: 4px solid #dd6b20; padding: 18px; margin: 20px 0; border-radius: 6px; font-size: 13px; color: #7b341e; line-height: 1.6;">
-						<strong style="font-size: 14px; display: block; margin-bottom: 5px; color: #c05621;">⚠️ Important Notice:</strong>
-						Xavirgin is a startup focused on building its products and services. At present, we <strong>do not offer job placements or employment guarantees</strong> upon completion of the internship. This program is intended solely as a practical learning experience.
 					</div>
 					<p style="margin-top: 25px; margin-bottom: 5px; font-size: 14px; color: #4a5568;">Regards,</p>
 					<p style="margin: 0; font-size: 15px; color: #0000FF; font-weight: 700;">HR Team</p>
@@ -170,20 +227,17 @@ class XavirginInterview(Document):
 
 		frappe.sendmail(
 			recipients=[self.candidate_email],
-			subject=f"🧬 Technical Interview Invitation: {job_title} - Xavirgin",
+			subject=f"🧬 Technical Interview Invitation: {job_title} — Xavirgin",
 			message=html_body,
 			reference_doctype=self.doctype,
 			reference_name=self.name,
 			delayed=False,
 		)
 		self.db_set("candidate_invitation_sent", 1, update_modified=False)
-		return _("Interview invitation email sent to {0} ({1}) successfully!").format(
-			self.candidate_name, self.candidate_email
-		)
+		return _("Interview invitation emailed to {0}.").format(self.candidate_email)
 
 
 def get_permission_query_conditions(user: str) -> str:
-	"""Section 5.3 & 14: Interviewers only see interviews assigned to them unless they have HR/Admin role."""
 	if not user:
 		user = frappe.session.user
 	roles = set(frappe.get_roles(user))

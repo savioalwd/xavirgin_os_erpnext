@@ -2,15 +2,15 @@ import math
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import add_days, get_first_day, get_last_day, getdate
+from frappe.utils import add_days, get_first_day, get_last_day, getdate, now_datetime
+from xavirgin_os.xavirgin_os.doctype.xavirgin_attendance_session.xavirgin_attendance_session import (
+	resolve_employee_context,
+)
 from xavirgin_os.xavirgin_os.doctype.xavirgin_offer_letter.xavirgin_offer_letter import calculate_working_end_date
 
 
 def recalculate_intern_extension(employee: str):
-	"""
-	Improvement #2: Mathematical enforcement of Section 2 of the Offer Letter.
-	Extends custom_internship_end_date by the exact number of approved general leave days.
-	"""
+	"""Section 2 Enforcement: Extends custom_internship_end_date by the exact number of approved general leave days."""
 	if not employee:
 		return
 	emp_data = frappe.db.get_value(
@@ -49,35 +49,47 @@ def recalculate_intern_extension(employee: str):
 
 class XavirginLeaveRequest(Document):
 	def before_validate(self):
-		if not self.employee:
-			self.employee = frappe.db.get_value("Employee", {"user_id": frappe.session.user}, "name")
+		self.resolve_intelligent_employee_fields()
+
+	def resolve_intelligent_employee_fields(self):
+		"""Intelligently pulls employee context if left blank or logged in via user account."""
+		ctx = resolve_employee_context(self.employee)
+		if ctx:
+			self.employee = ctx.get("name")
+			self.employee_name = ctx.get("employee_name")
+			self.department = ctx.get("department")
+			self.designation = ctx.get("designation")
+			self.team_lead = ctx.get("custom_team_lead")
 
 	def validate(self):
+		if not self.employee:
+			frappe.throw(_("Employee ID could not be identified. Please ensure an active employee profile is linked."))
+
 		start = getdate(self.from_date)
 		end = getdate(self.to_date)
 		if end < start:
 			frappe.throw(_("End Date cannot be earlier than Start Date."))
 
-		# Improvement #9: Count working days excluding Sundays
+		# Count working days excluding Sundays
 		if self.is_half_day:
 			self.leave_days = 0.5
 		else:
 			days = 0
 			curr = start
 			while curr <= end:
-				if curr.weekday() != 6:  # Exclude Sunday
+				if curr.weekday() != 6:  # 6 = Sunday
 					days += 1
 				curr = add_days(curr, 1)
 			self.leave_days = float(days)
 
 		if self.leave_type == "Medical / Sick Leave" and self.leave_days > 1 and not self.proof_attachment:
-			frappe.throw(_("Supporting medical proof attachment is required for Sick Leave exceeding 1 day."))
+			frappe.throw(_("Medical proof attachment is required for Sick Leave exceeding 1 day."))
 
 		if self.is_new():
 			self.auto_evaluate_monthly_limits()
 
 	def auto_evaluate_monthly_limits(self):
-		"""Ported & fixed from Odoo _auto_evaluate_leave_limits (sums leave_days instead of search_count)."""
+		"""Evaluates monthly allowances (auto-approves within limit, flags pending or rejects if exceeded)."""
 		first_day = get_first_day(self.from_date)
 		last_day = get_last_day(self.from_date)
 		settings = frappe.get_single("Xavirgin HR Settings")
@@ -105,8 +117,11 @@ class XavirginLeaveRequest(Document):
 			taken = sum(float(r.leave_days or 0) for r in existing_rows)
 			if (taken + self.leave_days) <= limit:
 				self.status = "Approved"
+				self.approved_by = "System Auto-Approval"
+				self.decision_on = now_datetime()
 			else:
 				self.status = "Rejected"
+				self.rejection_reason = f"Monthly meeting leave limit exceeded ({taken + self.leave_days}/{limit} days)."
 		else:
 			limit = int(emp_limits.get("custom_monthly_leave_limit") or settings.monthly_general_leave_limit or 3)
 			existing_rows = frappe.get_all(
@@ -123,6 +138,8 @@ class XavirginLeaveRequest(Document):
 			taken = sum(float(r.leave_days or 0) for r in existing_rows)
 			if (taken + self.leave_days) <= limit:
 				self.status = "Approved"
+				self.approved_by = "System Auto-Approval"
+				self.decision_on = now_datetime()
 			else:
 				self.status = "Pending Approval"
 
@@ -133,10 +150,10 @@ class XavirginLeaveRequest(Document):
 		recalculate_intern_extension(self.employee)
 
 	@frappe.whitelist()
-	def decide_leave(self, new_status: str):
-		"""Improvement #10: Allow HR Admins or Department Team Leads to approve/reject pending requests."""
+	def decide_leave(self, new_status: str, rejection_reason: str = ""):
+		"""Enables HR Admins or Squad Team Leads to approve or reject pending leave requests."""
 		if new_status not in ("Approved", "Rejected"):
-			frappe.throw(_("Invalid status"))
+			frappe.throw(_("Invalid status value."))
 
 		roles = set(frappe.get_roles(frappe.session.user))
 		is_hr = bool(roles.intersection({"System Manager", "Xavirgin HR Admin", "Xavirgin HR Manager"}))
@@ -148,11 +165,14 @@ class XavirginLeaveRequest(Document):
 				as_dict=True,
 			)
 			if not approver_emp or approver_emp.department != self.department:
-				frappe.throw(_("Only an HR Administrator or a Team Lead of the {0} department can approve this request.").format(self.department))
+				frappe.throw(_("Only HR or a Team Lead of the {0} department can decide on this request.").format(self.department))
 			if approver_emp.name == self.employee:
-				frappe.throw(_("Team Leads cannot self-approve their own over-limit leave requests."))
+				frappe.throw(_("Team Leads cannot self-approve over-limit leave requests."))
 
 		self.status = new_status
 		self.approved_by = frappe.session.user
+		self.decision_on = now_datetime()
+		if rejection_reason:
+			self.rejection_reason = rejection_reason
 		self.save(ignore_permissions=True)
 		return self.status

@@ -9,8 +9,10 @@
   "candidate",
   "candidate_name",
   "candidate_email",
+  "candidate_phone",
   "job_opening",
   "department",
+  "designation",
   "assessment_template",
   "col_break_1",
   "interview_round",
@@ -44,7 +46,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Candidate",
+   "label": "Candidate ID",
    "options": "Xavirgin Candidate",
    "reqd": 1
   },
@@ -64,6 +66,13 @@
    "read_only": 1
   },
   {
+   "fetch_from": "candidate.phone",
+   "fieldname": "candidate_phone",
+   "fieldtype": "Data",
+   "label": "Candidate Phone",
+   "read_only": 1
+  },
+  {
    "fetch_from": "candidate.job_opening",
    "fieldname": "job_opening",
    "fieldtype": "Link",
@@ -79,6 +88,14 @@
    "in_standard_filter": 1,
    "label": "Department",
    "options": "Department",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "candidate.designation",
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "label": "Designation",
+   "options": "Designation",
    "read_only": 1
   },
   {
@@ -148,7 +165,7 @@
   {
    "fieldname": "meeting_url",
    "fieldtype": "Data",
-   "label": "Meeting URL (Auto-filled from Global HR Settings, Overridable)",
+   "label": "Meeting URL",
    "reqd": 1
   },
   {
@@ -215,7 +232,7 @@
    "link_fieldname": "interview"
   }
  ],
- "modified": "2026-11-03 10:00:00.000000",
+ "modified": "2026-11-03 19:30:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin Interview",

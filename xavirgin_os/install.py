@@ -58,16 +58,13 @@ def create_intern_role_profile():
 
 def configure_intern_role_security():
 	"""Enforces that non-admin roles land exclusively on Xavirgin OS and blocks core workspaces."""
-	# 1. Force Xavirgin Intern role to route directly to desk/xavirgin-os
+	# 1. Enable desk_access on Role DocType (only valid fields on Role table)
 	if frappe.db.exists("Role", "Xavirgin Intern"):
 		frappe.db.set_value(
 			"Role",
 			"Xavirgin Intern",
-			{
-				"desk_access": 1,
-				"search_bar": 1,
-				"notifications": 1,
-			},
+			"desk_access",
+			1,
 			update_modified=False,
 		)
 
@@ -91,32 +88,37 @@ def configure_intern_role_security():
 	]
 	for ws_name in core_workspaces:
 		if frappe.db.exists("Workspace", ws_name):
-			ws = frappe.get_doc("Workspace", ws_name)
-			# Retain access only for System Manager and Administrator
-			ws.roles = [r for r in ws.roles if r.role in ("System Manager", "Administrator")]
-			ws.flags.ignore_permissions = True
-			ws.save()
+			try:
+				ws = frappe.get_doc("Workspace", ws_name)
+				ws.roles = [r for r in ws.roles if r.role in ("System Manager", "Administrator")]
+				ws.flags.ignore_permissions = True
+				ws.save()
+			except Exception:
+				pass
 
 	# 3. Ensure the Xavirgin OS workspace allows access to Xavirgin roles and standard employees
 	if frappe.db.exists("Workspace", "Xavirgin OS"):
-		xav_ws = frappe.get_doc("Workspace", "Xavirgin OS")
-		existing_roles = {r.role for r in xav_ws.roles}
-		target_roles = [
-			"System Manager",
-			"Xavirgin HR Admin",
-			"Xavirgin HR Manager",
-			"Xavirgin Recruiter",
-			"Xavirgin Interviewer",
-			"Xavirgin Team Lead",
-			"Xavirgin Intern",
-			"Employee",
-		]
-		for tr in target_roles:
-			if tr not in existing_roles:
-				xav_ws.append("roles", {"role": tr})
-		xav_ws.public = 1
-		xav_ws.flags.ignore_permissions = True
-		xav_ws.save()
+		try:
+			xav_ws = frappe.get_doc("Workspace", "Xavirgin OS")
+			existing_roles = {r.role for r in xav_ws.roles}
+			target_roles = [
+				"System Manager",
+				"Xavirgin HR Admin",
+				"Xavirgin HR Manager",
+				"Xavirgin Recruiter",
+				"Xavirgin Interviewer",
+				"Xavirgin Team Lead",
+				"Xavirgin Intern",
+				"Employee",
+			]
+			for tr in target_roles:
+				if tr not in existing_roles:
+					xav_ws.append("roles", {"role": tr})
+			xav_ws.public = 1
+			xav_ws.flags.ignore_permissions = True
+			xav_ws.save()
+		except Exception:
+			pass
 
 
 def seed_candidate_kanban_board():
@@ -371,6 +373,9 @@ def seed_default_hr_settings():
 			settings.checkin_xp = 10
 			settings.checkout_full_xp = 20
 			settings.checkout_partial_xp = 5
+			settings.gemini_model = "gemini-2.5-flash"
+			settings.enable_ai_candidate_screening = 1
+			settings.enable_ai_job_description_helper = 1
 			settings.save(ignore_permissions=True)
 
 
@@ -380,53 +385,46 @@ def seed_assessment_templates():
 
 	templates = {
 		"UI/UX Designer": [
-			("Design Fundamentals", 2),
-			("UI/UX Knowledge", 2),
-			("Creativity", 2),
-			("Figma / Design Tools", 2),
-			("Communication and Reasoning", 2),
+			("Design Fundamentals", "Technical", 2.0, "Visual balance, typography, accessibility"),
+			("UI/UX Knowledge", "Technical", 2.0, "Wireframing, user journeys, design systems"),
+			("Creativity", "Problem Solving", 2.0, "Innovative solutions to UX friction points"),
+			("Figma / Design Tools", "Architecture & Code Quality", 2.0, "Auto-layout, component variants, prototypes"),
+			("Communication & Reasoning", "Communication & Reasoning", 2.0, "Articulation of design choices and trade-offs"),
 		],
 		"Flutter Developer": [
-			("Dart Fundamentals", 2),
-			("Flutter Architecture", 2),
-			("State Management", 2),
-			("Problem Solving", 2),
-			("Communication and Reasoning", 2),
+			("Dart Fundamentals", "Technical", 2.0, "Async/await, streams, null safety, OOP"),
+			("Flutter Architecture", "Architecture & Code Quality", 2.0, "Widget tree structure, clean code organization"),
+			("State Management", "Technical", 2.0, "Bloc/Provider/Riverpod lifecycle handling"),
+			("Problem Solving", "Problem Solving", 2.0, "Debugging layout exceptions and API sync"),
+			("Communication & Reasoning", "Communication & Reasoning", 2.0, "Clarity in explaining technical implementations"),
 		],
 		"Backend Developer": [
-			("Programming Fundamentals", 2),
-			("API Development", 2),
-			("Database Knowledge", 2),
-			("Architecture and Problem Solving", 2),
-			("Communication and Reasoning", 2),
+			("Programming Fundamentals", "Technical", 2.0, "Python/PHP/Node core syntax and efficiency"),
+			("API Development", "Architecture & Code Quality", 2.0, "RESTful design, authentication, JSON schemas"),
+			("Database Knowledge", "Technical", 2.0, "PostgreSQL/MySQL queries, relations, indexing"),
+			("Architecture & Problem Solving", "Problem Solving", 2.0, "System resilience, error propagation, rollbacks"),
+			("Communication & Reasoning", "Communication & Reasoning", 2.0, "System architecture defense and documentation"),
 		],
 		"Frontend Developer": [
-			("HTML/CSS/Tailwind Fundamentals", 2),
-			("JavaScript / TypeScript & React", 2),
-			("Component Architecture & State", 2),
-			("UI Responsiveness & Debugging", 2),
-			("Communication and Reasoning", 2),
+			("HTML/CSS/Tailwind Fundamentals", "Technical", 2.0, "Responsive layout design, flexbox, grid"),
+			("JavaScript / TypeScript & React", "Technical", 2.0, "Hooks, TypeScript typing, component lifecycle"),
+			("Component Architecture & State", "Architecture & Code Quality", 2.0, "Reusable UI kits, state normalization"),
+			("UI Responsiveness & Debugging", "Problem Solving", 2.0, "Cross-device rendering and performance"),
+			("Communication & Reasoning", "Communication & Reasoning", 2.0, "Constructive code review and team reasoning"),
 		],
 		"Software Tester / QA": [
-			("Testing Fundamentals & SDLC", 2),
-			("Test Case Design & Bug Reporting", 2),
-			("API & Automation Awareness", 2),
-			("Analytical & Edge-Case Thinking", 2),
-			("Communication and Reasoning", 2),
+			("Testing Fundamentals & SDLC", "Technical", 2.0, "Test lifecycle, severity vs priority"),
+			("Test Case Design & Bug Reporting", "Architecture & Code Quality", 2.0, "Reproduction steps, expected vs actual"),
+			("API & Automation Awareness", "Technical", 2.0, "Postman testing, test assertions"),
+			("Analytical & Edge-Case Thinking", "Problem Solving", 2.0, "Finding boundary conditions and race issues"),
+			("Communication & Reasoning", "Communication & Reasoning", 2.0, "Clear bug reports and technical coordination"),
 		],
 		"HR Department": [
-			("HR Fundamentals", 2),
-			("Communication", 2),
-			("Problem Solving", 2),
-			("People Management", 2),
-			("Professionalism", 2),
-		],
-		"Market Research & Digital Marketing": [
-			("Market Research & Competitor Analysis", 2),
-			("Content Strategy & Copywriting", 2),
-			("Social Media & Growth Execution", 2),
-			("Analytical Thinking & Metrics", 2),
-			("Communication and Reasoning", 2),
+			("HR Fundamentals", "Technical", 2.0, "Compliance, labor terms, onboarding pipelines"),
+			("Communication", "Communication & Reasoning", 2.0, "Professional tone, candidate dispute resolution"),
+			("Problem Solving", "Problem Solving", 2.0, "Handling scheduling bottlenecks and attendance queries"),
+			("People Management", "Professionalism & Culture", 2.0, "Empathy, confidentiality, and active listening"),
+			("Professionalism", "Professionalism & Culture", 2.0, "Compliance with organizational SOPs and data safety"),
 		],
 	}
 
@@ -436,10 +434,17 @@ def seed_assessment_templates():
 				"doctype": "Xavirgin Assessment Template",
 				"template_name": template_name,
 				"is_active": 1,
+				"target_total_marks": 10.0,
 				"total_max_marks": 10.0,
 				"criteria": [
-					{"criterion_name": c_name, "max_marks": c_max}
-					for c_name, c_max in criteria_list
+					{
+						"criterion_name": c_name,
+						"category": cat,
+						"max_marks": m_marks,
+						"weightage": 1.0,
+						"description": desc,
+					}
+					for c_name, cat, m_marks, desc in criteria_list
 				],
 			})
 			doc.insert(ignore_permissions=True)

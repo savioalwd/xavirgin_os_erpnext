@@ -3,55 +3,41 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_days, get_datetime, getdate, now_datetime, time_diff_in_hours, today
 
+from xavirgin_os.api import resolve_current_user_employee_context as _resolve_user_emp_context
+
 
 def resolve_employee_context(employee: str = None, user_id: str = None) -> dict:
-	"""Centralized resolver that determines Employee ID using multiple fallback sources.
+	"""Bridge resolver that inspects explicit employee ID first, or routes
 
-	Order of resolution:
-	1. Direct Employee Link.
-	2. User ID linked to an Employee.
-	3. Personal or Company Email matching the User's email.
-	4. Converted Employee reference on Xavirgin Candidate matching the User's email.
+	directly into the centralized xavirgin_os.api context resolution chain.
 	"""
 	if employee and frappe.db.exists("Employee", employee):
 		emp_data = frappe.db.get_value(
 			"Employee",
 			employee,
-			["name", "employee_name", "department", "designation", "custom_team_lead", "status", "company", "holiday_list"],
+			[
+				"name",
+				"employee_name",
+				"department",
+				"designation",
+				"custom_team_lead",
+				"status",
+				"company",
+				"holiday_list",
+			],
 			as_dict=True,
 		)
 		if emp_data and emp_data.status == "Active":
+			emp_data["has_employee"] = True
 			return emp_data
 
-	target_user = user_id or frappe.session.user
-
-	# Direct User ID match
-	emp_name = frappe.db.get_value("Employee", {"user_id": target_user, "status": "Active"}, "name")
-	if not emp_name:
-		# Email lookup fallback
-		user_email = frappe.db.get_value("User", target_user, "email") or target_user
-		emp_name = frappe.db.get_value(
-			"Employee",
-			{"company_email": user_email, "status": "Active"},
-			"name",
-		) or frappe.db.get_value(
-			"Employee",
-			{"personal_email": user_email, "status": "Active"},
-			"name",
-		)
-
-	if not emp_name:
-		# Check candidate conversion record
-		user_email = frappe.db.get_value("User", target_user, "email") or target_user
-		emp_name = frappe.db.get_value("Xavirgin Candidate", {"email": user_email}, "employee")
-
-	if emp_name and frappe.db.exists("Employee", emp_name):
-		return frappe.db.get_value(
-			"Employee",
-			emp_name,
-			["name", "employee_name", "department", "designation", "custom_team_lead", "status", "company", "holiday_list"],
-			as_dict=True,
-		)
+	# Centralized fallback via user_id, email, or candidate-conversion lineage
+	ctx = _resolve_user_emp_context(target_user=user_id or frappe.session.user)
+	if ctx and ctx.get("has_employee"):
+		# Ensure holiday_list and company are present for streak calculations
+		extra = frappe.db.get_value("Employee", ctx["name"], ["company", "holiday_list"], as_dict=True) or {}
+		ctx.update(extra)
+		return ctx
 
 	return {}
 
@@ -80,6 +66,7 @@ def get_company_holidays(employee: str) -> set:
 
 def update_daily_aggregates_and_employee_stats(employee: str, attendance_date):
 	"""Recalculates:
+
 	1. Total check-in count for that employee on attendance_date.
 	2. Cumulative worked hours across all sessions on attendance_date.
 	3. Cumulative day classification (Full Day >= 4h, Half Day 2-4h, Short < 2h).

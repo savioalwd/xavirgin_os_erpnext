@@ -47,18 +47,16 @@
    "reqd": 1
   },
   {
-   "fetch_from": "interview.candidate",
    "fieldname": "candidate",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Candidate",
+   "label": "Candidate ID",
    "options": "Xavirgin Candidate",
    "read_only": 1,
    "reqd": 1
   },
   {
-   "fetch_from": "interview.candidate_name",
    "fieldname": "candidate_name",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -66,7 +64,6 @@
    "read_only": 1
   },
   {
-   "fetch_from": "interview.job_opening",
    "fieldname": "job_opening",
    "fieldtype": "Link",
    "label": "Job Opening",
@@ -74,7 +71,6 @@
    "read_only": 1
   },
   {
-   "fetch_from": "interview.assessment_template",
    "fieldname": "assessment_template",
    "fieldtype": "Link",
    "label": "Assessment Template",
@@ -96,21 +92,22 @@
   {
    "fieldname": "interviewer_employee",
    "fieldtype": "Link",
-   "label": "Interviewer Employee Record",
-   "options": "Employee"
+   "label": "Interviewer Employee ID",
+   "options": "Employee",
+   "read_only": 1
   },
   {
    "fieldname": "interviewer_name",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Interviewer Name",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "interviewer_email",
    "fieldtype": "Data",
    "label": "Interviewer Email",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "default": "Today",
@@ -194,7 +191,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-03 10:00:00.000000",
+ "modified": "2026-11-03 19:30:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin Interview Evaluation",
