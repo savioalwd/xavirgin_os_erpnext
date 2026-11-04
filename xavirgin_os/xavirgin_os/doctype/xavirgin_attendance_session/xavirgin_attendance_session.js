@@ -31,24 +31,38 @@ frappe.ui.form.on("Xavirgin Attendance Session", {
 
         if (frm.doc.status === "Working" && !frm.is_new()) {
             frm.add_custom_button(__("🔴 Stop Session & Log Tasks"), () => {
-                frappe.prompt(
-                    [
+                let d = new frappe.ui.Dialog({
+                    title: __("Check Out of Session #{0}", [frm.doc.daily_session_number || 1]),
+                    fields: [
                         {
                             fieldname: "work_log",
-                            label: __("Session Work Summary / Tasks Completed (Min 20 chars)"),
+                            label: __("Session Work Summary / Tasks Completed (Min 20 characters)"),
                             fieldtype: "Small Text",
                             reqd: 1,
                             default: frm.doc.work_log || "",
                         },
                     ],
-                    (values) => {
+                    primary_action_label: __("Submit Work Log & Check Out"),
+                    primary_action: function(values) {
+                        let log = (values.work_log || "").trim();
+                        if (log.length < 20) {
+                            frappe.msgprint({
+                                title: __("Work Summary Too Short"),
+                                message: __("Please enter at least <b>20 characters</b>. Currently: <b>{0} characters</b>.", [log.length]),
+                                indicator: "red"
+                            });
+                            return;
+                        }
+                        d.hide();
                         frappe.call({
                             method: "xavirgin_os.xavirgin_os.doctype.xavirgin_attendance_session.xavirgin_attendance_session.stop_session",
                             args: {
-                                work_log: values.work_log,
+                                work_log: log,
                                 target_employee: frm.doc.employee,
+                                session_name: frm.doc.name,
                             },
                             freeze: true,
+                            freeze_message: __("Stopping session..."),
                             callback(r) {
                                 if (r.message) {
                                     frappe.show_alert({ message: r.message.message, indicator: "blue" });
@@ -56,10 +70,9 @@ frappe.ui.form.on("Xavirgin Attendance Session", {
                                 }
                             },
                         });
-                    },
-                    __("Check Out of Session #{0}", [frm.doc.daily_session_number || 1]),
-                    __("Submit Work Log & Check Out")
-                );
+                    }
+                });
+                d.show();
             }).addClass("btn-danger");
         }
     },

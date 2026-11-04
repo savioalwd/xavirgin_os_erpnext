@@ -9,6 +9,7 @@ def after_install():
     setup_standard_hr_fixtures()
     setup_employee_custom_fields()
     seed_default_hr_settings()
+    seed_attendance_analytics_report()
     seed_assessment_templates()
     seed_candidate_kanban_board()
     configure_intern_role_security()
@@ -24,6 +25,7 @@ def after_migrate():
     setup_standard_hr_fixtures()
     setup_employee_custom_fields()
     seed_default_hr_settings()
+    seed_attendance_analytics_report()
     seed_assessment_templates()
     seed_candidate_kanban_board()
     configure_intern_role_security()
@@ -35,43 +37,97 @@ def after_migrate():
 
 
 def setup_standard_hr_fixtures():
-    """Ensure standard ERPNext reference doc records exist without failing validation."""
+    """Ensure standard ERPNext reference doc records exist without failing validation or missing table exceptions."""
     # 1. Standard Genders
-    genders = ["Male", "Female", "Other", "Prefer not to say"]
-    for g in genders:
-        if not frappe.db.exists("Gender", g):
+    if frappe.db.exists("DocType", "Gender") and frappe.db.table_exists("Gender"):
+        genders = ["Male", "Female", "Other", "Prefer not to say"]
+        for g in genders:
             try:
-                doc = frappe.new_doc("Gender")
-                doc.gender = g
-                doc.flags.ignore_permissions = True
-                doc.flags.ignore_mandatory = True
-                doc.insert()
+                if not frappe.db.exists("Gender", g):
+                    doc = frappe.new_doc("Gender")
+                    doc.gender = g
+                    doc.flags.ignore_permissions = True
+                    doc.flags.ignore_mandatory = True
+                    doc.insert()
             except Exception:
                 pass
 
     # 2. Standard Salutations
-    salutations = ["Mr", "Ms", "Mx", "Dr"]
-    for s in salutations:
-        if not frappe.db.exists("Salutation", s):
+    if frappe.db.exists("DocType", "Salutation") and frappe.db.table_exists("Salutation"):
+        salutations = ["Mr", "Ms", "Mx", "Dr"]
+        for s in salutations:
             try:
-                doc = frappe.new_doc("Salutation")
-                doc.salutation = s
-                doc.flags.ignore_permissions = True
-                doc.insert()
+                if not frappe.db.exists("Salutation", s):
+                    doc = frappe.new_doc("Salutation")
+                    doc.salutation = s
+                    doc.flags.ignore_permissions = True
+                    doc.insert()
             except Exception:
                 pass
 
-    # 3. Standard Employment Types
-    emp_types = ["Intern", "Full-time", "Part-time", "Contract"]
-    for et in emp_types:
-        if not frappe.db.exists("Employment Type", et):
+    # 3. Standard Employment Types (Guarded table check so missing table never raises SQL error)
+    if frappe.db.exists("DocType", "Employment Type") and frappe.db.table_exists("Employment Type"):
+        emp_types = ["Intern", "Full-time", "Part-time", "Contract"]
+        for et in emp_types:
             try:
-                doc = frappe.new_doc("Employment Type")
-                doc.employee_type_name = et
-                doc.flags.ignore_permissions = True
-                doc.insert()
+                if not frappe.db.exists("Employment Type", et):
+                    doc = frappe.new_doc("Employment Type")
+                    doc.employee_type_name = et
+                    doc.flags.ignore_permissions = True
+                    doc.insert()
             except Exception:
                 pass
+
+
+def seed_attendance_analytics_report():
+    """Ensures Xavirgin Attendance Analytics report is bound and never triggers developer mode exceptions."""
+    report_name = "Xavirgin Attendance Analytics"
+    ref_dt = "Xavirgin Attendance Session"
+
+    if not frappe.db.exists("DocType", ref_dt):
+        return
+
+    was_in_import = getattr(frappe.flags, "in_import", False)
+    try:
+        frappe.flags.in_import = True
+
+        if not frappe.db.exists("Report", report_name):
+            doc = frappe.get_doc({
+                "doctype": "Report",
+                "name": report_name,
+                "report_name": report_name,
+                "report_type": "Script Report",
+                "ref_doctype": ref_dt,
+                "module": "Xavirgin OS",
+                "is_standard": "Yes",
+                "disabled": 0,
+                "add_total_row": 1,
+                "roles": [
+                    {"role": "System Manager"},
+                    {"role": "Xavirgin HR Admin"},
+                    {"role": "Xavirgin Team Lead"},
+                    {"role": "Employee"},
+                    {"role": "Xavirgin Intern"}
+                ]
+            })
+            doc.flags.ignore_permissions = True
+            doc.insert()
+        else:
+            frappe.db.set_value(
+                "Report",
+                report_name,
+                {
+                    "ref_doctype": ref_dt,
+                    "report_type": "Script Report",
+                    "is_standard": "Yes",
+                    "disabled": 0,
+                },
+                update_modified=False,
+            )
+    except Exception:
+        pass
+    finally:
+        frappe.flags.in_import = was_in_import
 
 
 def create_xavirgin_roles():
