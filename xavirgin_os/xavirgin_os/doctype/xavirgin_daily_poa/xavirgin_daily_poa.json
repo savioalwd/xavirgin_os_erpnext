@@ -59,7 +59,7 @@
    "fieldname": "employee_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Employee Name",
+   "label": "Team Member Name",
    "read_only": 1
   },
   {
@@ -76,7 +76,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Department",
+   "label": "Department / Squad",
    "options": "Department",
    "read_only": 1
   },
@@ -84,7 +84,7 @@
    "fetch_from": "employee.designation",
    "fieldname": "designation",
    "fieldtype": "Link",
-   "label": "Designation",
+   "label": "Role / Designation",
    "options": "Designation",
    "read_only": 1
   },
@@ -92,7 +92,7 @@
    "fetch_from": "employee.reports_to",
    "fieldname": "reporting_manager",
    "fieldtype": "Link",
-   "label": "Reporting Manager",
+   "label": "Team Lead / Manager",
    "options": "Employee",
    "read_only": 1
   },
@@ -106,30 +106,30 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "POA Date",
+   "label": "Work Date",
    "reqd": 1
   },
   {
-   "default": "Draft / Morning Plan",
+   "default": "Morning Plan",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "POA Status",
-   "options": "Draft / Morning Plan\nIn Progress\nBlocked\nSubmitted (EOD Report)",
+   "label": "Today's Work Status",
+   "options": "Morning Plan\nWorking\nStuck / Blocked\nCompleted for Today",
    "reqd": 1
   },
   {
    "fieldname": "submitted_at",
    "fieldtype": "Datetime",
-   "label": "EOD Submission Timestamp",
+   "label": "Submission Timestamp",
    "read_only": 1
   },
   {
    "default": "Not Checked In",
    "fieldname": "attendance_status",
    "fieldtype": "Data",
-   "label": "Today's Attendance Status",
+   "label": "Attendance Check-In Status",
    "read_only": 1
   },
   {
@@ -144,7 +144,7 @@
    "default": "0",
    "fieldname": "attendance_hours_logged",
    "fieldtype": "Float",
-   "label": "Attendance Hours Today",
+   "label": "Hours Clocked in Attendance",
    "precision": "2",
    "read_only": 1
   },
@@ -152,31 +152,31 @@
    "default": "0",
    "fieldname": "github_events_count",
    "fieldtype": "Int",
-   "label": "GitHub Events Today",
+   "label": "GitHub Commits / PRs Today",
    "read_only": 1
   },
   {
    "fieldname": "tasks_section",
    "fieldtype": "Section Break",
-   "label": "Daily Planned & Executed Tasks"
+   "label": "Today's Work Tasks"
   },
   {
    "fieldname": "tasks",
    "fieldtype": "Table",
-   "label": "POA Tasks",
+   "label": "Task Deliverables",
    "options": "Xavirgin POA Task",
    "reqd": 1
   },
   {
    "fieldname": "metrics_section",
    "fieldtype": "Section Break",
-   "label": "Daily Execution Rollup & Gamification"
+   "label": "Daily Summary & Points"
   },
   {
    "default": "0",
    "fieldname": "total_planned_hours",
    "fieldtype": "Float",
-   "label": "Planned Hours",
+   "label": "Estimated Hours",
    "precision": "2",
    "read_only": 1
   },
@@ -185,7 +185,7 @@
    "fieldname": "total_actual_hours",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Actual Task Hours",
+   "label": "Actual Hours Worked",
    "precision": "2",
    "read_only": 1
   },
@@ -194,7 +194,7 @@
    "fieldname": "completed_tasks_count",
    "fieldtype": "Int",
    "in_list_view": 1,
-   "label": "Tasks Completed",
+   "label": "Tasks Done",
    "read_only": 1
   },
   {
@@ -212,8 +212,7 @@
    "default": "0",
    "fieldname": "blocked_tasks_count",
    "fieldtype": "Int",
-   "in_list_view": 1,
-   "label": "Blockers Count",
+   "label": "Blocked Tasks",
    "read_only": 1
   },
   {
@@ -221,40 +220,40 @@
    "fieldname": "total_poa_xp",
    "fieldtype": "Int",
    "in_list_view": 1,
-   "label": "POA XP Earned",
+   "label": "Daily XP Points Earned",
    "read_only": 1
   },
   {
    "fieldname": "summary_section",
    "fieldtype": "Section Break",
-   "label": "Blockers, GitHub Telemetry & Supporting Files"
+   "label": "Blockers & Proof Files"
   },
   {
    "fieldname": "blockers_summary",
    "fieldtype": "Small Text",
-   "label": "Aggregated Blockers & Dependency Notes",
+   "label": "Active Problems / Blockers",
    "read_only": 1
   },
   {
    "fieldname": "github_contributions_summary",
    "fieldtype": "Small Text",
-   "label": "Auto-Synced GitHub Contributions Today",
+   "label": "GitHub Work Synced Today",
    "read_only": 1
   },
   {
    "fieldname": "supporting_attachment",
    "fieldtype": "Attach",
-   "label": "Daily Deliverable Bundle / Supporting Document"
+   "label": "Upload Work Screenshot / File"
   },
   {
    "fieldname": "ai_section",
    "fieldtype": "Section Break",
-   "label": "Gemini AI Daily Performance Summary"
+   "label": "AI Performance Feedback"
   },
   {
    "fieldname": "ai_summary",
    "fieldtype": "Text Editor",
-   "label": "AI Individual POA Analysis",
+   "label": "AI Daily Feedback",
    "read_only": 1
   }
  ],
@@ -270,7 +269,7 @@
    "link_fieldname": "source_poa"
   }
  ],
- "modified": "2026-11-03 21:00:00.000000",
+ "modified": "2026-11-04 20:30:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "icon": "check-square",
@@ -294,14 +293,12 @@
    "create": 1,
    "delete": 1,
    "read": 1,
-   "report": 1,
    "role": "Xavirgin HR Admin",
    "write": 1
   },
   {
    "create": 1,
    "read": 1,
-   "report": 1,
    "role": "Xavirgin Team Lead",
    "write": 1
   },

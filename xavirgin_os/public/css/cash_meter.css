@@ -156,6 +156,33 @@
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E");
 }
 
+/* --- Custom Xavirgin Splash Screen & Loading Logo --- */
+body > .splash,
+.splash-image,
+.desktop-app .splash-icon,
+.frappe-loader {
+    background-color: #0f172a !important; /* matches dark theme */
+}
+
+/* Target the container logo box */
+.splash .splash-logo {
+    background-image: url("/assets/xavirgin_os/images/xavirgin_logo.jpeg") !important;
+    background-size: contain !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Hide the default built-in Frappe SVG branding symbol inside the loader */
+.splash .splash-logo svg,
+.splash .splash-logo img {
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
 /* 1. Daily POA: Checklist */
 .sidebar-item-container[item-name*="Daily POA"] .sidebar-item-icon::before,
 .sidebar-item-container[data-id*="Daily POA"] .sidebar-item-icon::before {

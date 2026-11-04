@@ -1,11 +1,21 @@
 app_name = "xavirgin_os"
-app_title = "Xavirgin OS"
+
 app_publisher = "XAVIRGIN (OPC) PRIVATE LIMITED"
 app_description = "Enterprise HR, Recruitment, Offer Letter, Daily POA & Financial Intelligence System for Xavirgin"
 app_email = "contact@xavirgin.com"
 app_license = "mit"
 required_apps = ["frappe", "erpnext"]
+# 1. Browser Tab Favicon (Replaces the black [E] icon in tabs)
+favicon = "/assets/xavirgin_os/images/xavirgin_logo.jpeg"
 
+# 2. Desk & Splash Screen Logo (Replaces the blue [E] refresh screen)
+app_logo_url = "/assets/xavirgin_os/images/xavirgin_logo.jpeg"
+
+# 3. Brand Title (Replaces standard Frappe title tags in Desk)
+app_title = "Xavirgin OS"
+
+# 4. Splash Screen Custom Background & Loading screen setup
+splash_image = "/assets/xavirgin_os/images/xavirgin_logo.jpeg"
 # Force "/" to load www/index.html instead of redirecting to /login
 home_page = "index"
 
