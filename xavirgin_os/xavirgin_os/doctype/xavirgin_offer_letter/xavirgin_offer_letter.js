@@ -92,13 +92,35 @@ frappe.ui.form.on("Xavirgin Offer Letter", {
                     doc: frm.doc,
                     method: "send_offer_letter_email",
                     freeze: true,
-                    freeze_message: __("Generating 2-Page PDF & Sending Email..."),
+                    freeze_message: __("Compiling PDF & Dispatching Email..."),
                     callback(r) {
-                        if (r.message) {
-                            frappe.show_alert({ message: r.message, indicator: "green" });
+                        if (!r.message) return;
+
+                        if (r.message.status === "error") {
+                            frappe.msgprint({
+                                title: __("Execution Error"),
+                                indicator: "red",
+                                message: `<p><b>Error:</b> ${r.message.message}</p>
+                                        <details>
+                                            <summary style="cursor:pointer; color:#0066cc;">View Full Traceback</summary>
+                                            <pre style="max-height: 300px; overflow: auto; background: #1e1e1e; color: #fff; padding: 10px; border-radius: 4px; font-size: 11px;">${r.message.traceback || "No traceback captured."}</pre>
+                                        </details>`
+                            });
+                        } else {
+                            frappe.show_alert({ message: r.message.message, indicator: "green" });
                             frm.reload_doc();
                         }
                     },
+                    error(r) {
+                        let errorText = r._server_messages 
+                            ? JSON.parse(r._server_messages).join("\n") 
+                            : (r.responseText || "Internal Server Error");
+                        frappe.msgprint({
+                            title: __("Server 500 Intercepted"),
+                            indicator: "red",
+                            message: `<pre style="max-height: 300px; overflow: auto;">${frappe.utils.escape_html(errorText)}</pre>`
+                        });
+                    }
                 });
             });
 

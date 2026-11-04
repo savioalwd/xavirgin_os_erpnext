@@ -1,3 +1,6 @@
+import os
+import subprocess
+import tempfile
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -181,28 +184,98 @@ class XavirginOfferLetter(Document):
 
     @frappe.whitelist()
     def send_offer_letter_email(self):
-        """Renders 2-page Offer Letter & NDA PDF, saves as private file, and emails candidate."""
+        """Renders 2-page Offer Letter & NDA PDF using stable wkhtmltopdf, saves as private file, and queues email."""
         self.check_permission("write")
         if self.docstatus != 1:
             frappe.throw(_("Please Submit (Approve) the Offer Letter before sending it to the candidate."))
 
+        # 1. Verify Outgoing Email Account exists early to prevent silent worker crashes
+        from frappe.email.doctype.email_account.email_account import EmailAccount
+        email_account = EmailAccount.find_outgoing(
+            match_by_doctype=self.doctype, 
+            match_by_email=self.candidate_email, 
+            _raise_error=False
+        )
+        if not email_account:
+            frappe.throw(
+                _("No default outgoing Email Account configured. Please configure an Email Account with 'Default Outgoing' checked under Tools > Email Account.")
+            )
+
+        # 2. Render Raw HTML from Jinja Template
         try:
-            pdf_bytes = frappe.get_print(
+            # Fallback if print format is named with or without spaces
+            format_name = "Xavirgin Offer Letter and NDA"
+            if not frappe.db.exists("Print Format", format_name):
+                if frappe.db.exists("Print Format", "XavirginOfferLetterandNDA"):
+                    format_name = "XavirginOfferLetterandNDA"
+
+            html = frappe.get_print(
                 doctype=self.doctype,
                 name=self.name,
-                print_format="Xavirgin Offer Letter and NDA",
-                as_pdf=True,
+                print_format=format_name,
+                as_pdf=False,
+                no_letterhead=0
             )
-        except OSError as e:
-            if "wkhtmltopdf" in str(e):
-                frappe.throw(
-                    _("PDF generation failed: 'wkhtmltopdf' is not installed or configured on the server. Run: sudo apt install -y wkhtmltopdf")
-                )
-            raise
+        except Exception as e:
+            frappe.log_error(frappe.get_traceback(), "Xavirgin Offer Letter HTML Render Failure")
+            frappe.throw(_("Failed to render Offer Letter HTML: {0}").format(str(e)))
 
+        # 3. Convert HTML to PDF using wkhtmltopdf directly (Bypasses CDP connection timeout)
+        pdf_bytes = None
+        pdf_options = {
+            "page-size": "A4",
+            "margin-top": "15mm",
+            "margin-bottom": "15mm",
+            "margin-left": "20mm",
+            "margin-right": "20mm",
+            "encoding": "UTF-8",
+            "no-outline": None,
+            "disable-javascript": "",
+            "enable-local-file-access": ""
+        }
+
+        try:
+            from frappe.utils.pdf import get_pdf
+            pdf_bytes = get_pdf(html, options=pdf_options, generator="wkhtmltopdf")
+        except Exception:
+            # Direct binary invocation fallback if Frappe wrapper hooks into CDP
+            wkhtmltopdf_bin = "/usr/local/bin/wkhtmltopdf" if os.path.exists("/usr/local/bin/wkhtmltopdf") else "/usr/bin/wkhtmltopdf"
+            with tempfile.NamedTemporaryFile(suffix=".html", delete=False, mode="w", encoding="utf-8") as html_file:
+                html_file.write(html)
+                html_path = html_file.name
+
+            with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as pdf_file:
+                pdf_path = pdf_file.name
+
+            try:
+                cmd = [
+                    wkhtmltopdf_bin,
+                    "--page-size", "A4",
+                    "--margin-top", "15mm",
+                    "--margin-bottom", "15mm",
+                    "--margin-left", "20mm",
+                    "--margin-right", "20mm",
+                    "--encoding", "UTF-8",
+                    "--enable-local-file-access",
+                    "--disable-javascript",
+                    html_path,
+                    pdf_path
+                ]
+                subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                with open(pdf_path, "rb") as f:
+                    pdf_bytes = f.read()
+            except Exception as bin_err:
+                frappe.log_error(frappe.get_traceback(), "Xavirgin PDF Compilation Error")
+                frappe.throw(_("PDF Generation failed: {0}").format(str(bin_err)))
+            finally:
+                if os.path.exists(html_path):
+                    os.remove(html_path)
+                if os.path.exists(pdf_path):
+                    os.remove(pdf_path)
+
+        # 4. Attach as Private File
         safe_name = (self.candidate_name or self.name).replace(" ", "_")
         filename = f"Offer_Letter_NDA_{safe_name}_v{self.offer_version}.pdf"
-
         file_doc = frappe.get_doc({
             "doctype": "File",
             "file_name": filename,
@@ -212,8 +285,8 @@ class XavirginOfferLetter(Document):
             "content": pdf_bytes,
         }).insert(ignore_permissions=True)
 
-        email_body = f"""
-        <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 13px; color: #333333; line-height: 1.5;">
+        # 5. Email Body
+        email_body = f"""<div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif; font-size: 13px; color: #333333; line-height: 1.5;">
             <p>Dear <strong>{self.candidate_name}</strong>,</p>
             <p>Congratulations! We are pleased to offer you the <strong>{self.designation}</strong> position at <strong>XAVIRGIN (OPC) PRIVATE LIMITED</strong>.</p>
             <p>Please find attached your official <strong>Internship Offer Letter and Non-Disclosure Agreement (NDA)</strong> (Ref: <code>{self.name}</code>).</p>
@@ -226,15 +299,14 @@ class XavirginOfferLetter(Document):
             </p>
             <hr style="border: none; border-top: 1px solid #cccccc; margin: 20px 0;"/>
             <div style="font-size: 11px; color: #555555; line-height: 1.4;">
-                <strong style="color: #0000FF; font-size: 12px;">XAVIRGIN (OPC) PRIVATE LIMITED</strong><br/>
+                <strong style="color: #0066cc; font-size: 12px;">XAVIRGIN (OPC) PRIVATE LIMITED</strong><br/>
                 <strong>CIN:</strong> U62090KL2025OPC098558<br/>
                 <strong>Registered Address:</strong> 8/372, Ground Floor, Valiyaparambil, Edathala, Aluva, Ernakulam, Kerala - 683561, India<br/>
-                <strong>Website:</strong> <a href="https://xavirgin.com" style="color: #0066cc; text-decoration: none;">xavirgin.com</a> |
-                <strong>LinkedIn:</strong> <a href="https://www.linkedin.com/company/xavirgin-com/" style="color: #0066cc; text-decoration: none;">xavirgin-com</a>
+                <strong>Website:</strong> <a href="https://xavirgin.com" style="color: #0066cc; text-decoration: none;">xavirgin.com</a>
             </div>
-        </div>
-        """
+        </div>"""
 
+        # 6. Queue Email Non-Blockingly (delayed=True avoids synchronous SMTP hangs)
         frappe.sendmail(
             recipients=[self.candidate_email],
             subject=f"Xavirgin Internship Offer Letter & NDA: {self.candidate_name} ({self.name})",
@@ -242,12 +314,12 @@ class XavirginOfferLetter(Document):
             attachments=[{"fname": filename, "fcontent": pdf_bytes}],
             reference_doctype=self.doctype,
             reference_name=self.name,
-            delayed=False,
+            delayed=True,
         )
 
         self.db_set("workflow_state", "Sent", update_modified=False)
         self.sync_to_candidate()
-        return _("Offer Letter & NDA v{0} (File: {1}) emailed to {2}.").format(
+        return _("Offer Letter & NDA v{0} ({1}) successfully generated and queued for delivery to {2}.").format(
             self.offer_version, file_doc.file_name, self.candidate_email
         )
 
@@ -317,7 +389,6 @@ class XavirginOfferLetter(Document):
             if frappe.db.exists("Gender", raw_gender):
                 user_gender = raw_gender
             else:
-                # Create or map to Other if not found
                 user_gender = "Other" if frappe.db.exists("Gender", "Other") else None
         elif raw_gender == "Prefer not to say":
             user_gender = "Other" if frappe.db.exists("Gender", "Other") else None
