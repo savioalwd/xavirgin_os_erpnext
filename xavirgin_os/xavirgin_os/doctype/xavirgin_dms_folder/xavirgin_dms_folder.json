@@ -41,6 +41,17 @@
    "options": "Xavirgin DMS Folder"
   },
   {
+   "fieldname": "files_section",
+   "fieldtype": "Section Break",
+   "label": "📁 Folder Contents & Secure Vault"
+  },
+  {
+   "fieldname": "files",
+   "fieldtype": "Table",
+   "label": "Documents & Credentials",
+   "options": "Xavirgin DMS File"
+  },
+  {
    "fieldname": "department",
    "fieldtype": "Link",
    "in_list_view": 1,
