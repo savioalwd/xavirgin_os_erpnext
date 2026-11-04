@@ -4,6 +4,11 @@ no_cache = 1
 
 
 def get_context(context):
+    # If the user is logged in (not a Guest), redirect them straight into the ERP desk workspace
+    if frappe.session.user and frappe.session.user != "Guest":
+        frappe.local.flags.redirect_location = "/desk/xavirgin-os"
+        raise frappe.Redirect
+
     context.no_cache = 1
     context.title = "Xavirgin OS — Autonomous Enterprise Systems & Engineering Residency"
     context.company_legal_name = "XAVIRGIN (OPC) PRIVATE LIMITED"

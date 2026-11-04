@@ -1,7 +1,9 @@
+
 {
  "actions": [],
  "creation": "2026-11-03 12:00:00.000000",
  "custom_blocks": [],
+ "content": "[{\"id\":\"hdr_main\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>🧬 Xavirgin OS — Autonomous Enterprise Operations</b></span>\",\"col\":12}},{\"id\":\"sc_poa\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Daily POA\",\"col\":3}},{\"id\":\"sc_gh\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"GitHub Raw Telemetry\",\"col\":3}},{\"id\":\"sc_ai\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Path CEO AI Insights\",\"col\":3}},{\"id\":\"sc_state\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Company State\",\"col\":3}},{\"id\":\"sc_prmpt\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Prompt Management\",\"col\":3}},{\"id\":\"sc_dms\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Secure Docs & Passwords\",\"col\":3}},{\"id\":\"sc_job\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Job Openings\",\"col\":3}},{\"id\":\"sc_cand\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Candidate Pipeline\",\"col\":3}},{\"id\":\"spc_1\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"card_1\",\"type\":\"card\",\"data\":{\"card_name\":\"1. Daily POA & Engineering Telemetry\",\"col\":4}},{\"id\":\"card_2\",\"type\":\"card\",\"data\":{\"card_name\":\"2. Recruitment & Evaluation\",\"col\":4}},{\"id\":\"card_3\",\"type\":\"card\",\"data\":{\"card_name\":\"3. Offer, Onboarding & Hierarchy\",\"col\":4}},{\"id\":\"card_4\",\"type\":\"card\",\"data\":{\"card_name\":\"4. Gamified Attendance & Sync\",\"col\":4}},{\"id\":\"card_5\",\"type\":\"card\",\"data\":{\"card_name\":\"5. Secure DMS & Passwords\",\"col\":4}},{\"id\":\"card_6\",\"type\":\"card\",\"data\":{\"card_name\":\"6. Path CEO AI Intelligence & Persistent State\",\"col\":4}}]",
  "docstatus": 0,
  "doctype": "Workspace",
  "for_user": "",

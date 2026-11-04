@@ -79,4 +79,4 @@ def build_operational_context(start_date: str = None, end_date: str = None, cate
             "candidate_pipeline_movements": candidates
         },
         "recent_historical_reports": recent_reports
-    }
+    }   

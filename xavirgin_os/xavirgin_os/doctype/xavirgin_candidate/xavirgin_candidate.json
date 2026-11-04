@@ -7,17 +7,23 @@
  "field_order": [
   "naming_series",
   "full_name",
+  "col_break_names",
+  "first_name",
+  "last_name",
+  "contact_section",
   "email",
   "phone",
   "normalized_phone",
-  "location",
-  "address_line",
+  "date_of_birth",
+  "gender",
   "col_break_1",
   "job_opening",
   "department",
   "designation",
   "engagement_category",
   "skill_area",
+  "location",
+  "address_line",
   "pipeline_stage",
   "assigned_recruiter",
   "existing_employee",
@@ -31,6 +37,7 @@
   "portfolio_url",
   "linkedin_url",
   "github_url",
+  "github_username",
   "ai_screening_section",
   "ai_match_score",
   "ai_screening_summary",
@@ -66,8 +73,28 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Candidate Full Name",
+   "label": "Full Name",
    "reqd": 1
+  },
+  {
+   "fieldname": "col_break_names",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "first_name",
+   "fieldtype": "Data",
+   "label": "First Name (Required for Employee)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "last_name",
+   "fieldtype": "Data",
+   "label": "Last Name"
+  },
+  {
+   "fieldname": "contact_section",
+   "fieldtype": "Section Break",
+   "label": "Contact & Personal Information"
   },
   {
    "fieldname": "email",
@@ -93,14 +120,17 @@
    "read_only": 1
   },
   {
-   "fieldname": "location",
-   "fieldtype": "Data",
-   "label": "City / State / Country"
+   "default": "2002-01-01",
+   "fieldname": "date_of_birth",
+   "fieldtype": "Date",
+   "label": "Date of Birth"
   },
   {
-   "fieldname": "address_line",
-   "fieldtype": "Small Text",
-   "label": "Full Postal Address (Used on Offer Letter)"
+   "default": "Prefer not to say",
+   "fieldname": "gender",
+   "fieldtype": "Select",
+   "label": "Gender",
+   "options": "Male\nFemale\nOther\nPrefer not to say"
   },
   {
    "fieldname": "col_break_1",
@@ -116,34 +146,39 @@
    "reqd": 1
   },
   {
-   "fetch_from": "job_opening.department",
    "fieldname": "department",
    "fieldtype": "Link",
    "in_standard_filter": 1,
    "label": "Department",
-   "options": "Department",
-   "read_only": 1
+   "options": "Department"
   },
   {
-   "fetch_from": "job_opening.designation",
    "fieldname": "designation",
    "fieldtype": "Link",
    "label": "Designation",
-   "options": "Designation",
-   "read_only": 1
+   "options": "Designation"
   },
   {
-   "fetch_from": "job_opening.engagement_category",
+   "default": "Intern",
    "fieldname": "engagement_category",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "label": "Engagement Category",
-   "read_only": 1
+   "options": "Intern\nRegular Employee"
   },
   {
-   "fetch_from": "job_opening.skill_area",
    "fieldname": "skill_area",
    "fieldtype": "Data",
    "label": "Primary Skill Track"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Data",
+   "label": "City / Location"
+  },
+  {
+   "fieldname": "address_line",
+   "fieldtype": "Small Text",
+   "label": "Full Postal Address"
   },
   {
    "default": "New Application",
@@ -165,7 +200,7 @@
   {
    "fieldname": "existing_employee",
    "fieldtype": "Link",
-   "label": "Link Existing Employee / Intern Record",
+   "label": "Existing Employee (If Alumni)",
    "options": "Employee"
   },
   {
@@ -178,7 +213,7 @@
   {
    "fieldname": "profile_section",
    "fieldtype": "Section Break",
-   "label": "Qualifications, Portfolio & Links"
+   "label": "Profile & Links"
   },
   {
    "fieldname": "education",
@@ -202,7 +237,7 @@
   {
    "fieldname": "resume",
    "fieldtype": "Attach",
-   "label": "Resume / CV Upload"
+   "label": "Resume File"
   },
   {
    "fieldname": "portfolio_url",
@@ -220,29 +255,35 @@
    "label": "GitHub URL"
   },
   {
+   "fieldname": "github_username",
+   "fieldtype": "Data",
+   "label": "Parsed GitHub Handle",
+   "read_only": 1
+  },
+  {
    "fieldname": "ai_screening_section",
    "fieldtype": "Section Break",
-   "label": "Gemini AI Profile Match & Screening"
+   "label": "Gemini AI Evaluation"
   },
   {
    "default": "0",
    "fieldname": "ai_match_score",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "AI Match Score (/ 10)",
+   "label": "AI Score (/ 10)",
    "precision": "1",
    "read_only": 1
   },
   {
    "fieldname": "ai_screening_summary",
    "fieldtype": "Small Text",
-   "label": "AI Assessment & Screening Summary",
+   "label": "AI Assessment",
    "read_only": 1
   },
   {
    "fieldname": "evaluation_rollup_section",
    "fieldtype": "Section Break",
-   "label": "Interview Evaluation Summary & HR Decision"
+   "label": "Interview Evaluation & Decision"
   },
   {
    "fieldname": "latest_interview",
@@ -274,13 +315,13 @@
   {
    "fieldname": "final_decision",
    "fieldtype": "Select",
-   "label": "HR Candidate Decision",
+   "label": "HR Decision",
    "options": "\nSchedule Next Interview\nRequest Technical Assessment\nPut On Hold\nInitiate Offer Letter\nReject Candidate"
   },
   {
    "fieldname": "decision_date",
    "fieldtype": "Datetime",
-   "label": "Decision Timestamp",
+   "label": "Decision Date",
    "read_only": 1
   },
   {
@@ -293,74 +334,64 @@
   {
    "fieldname": "decision_reason",
    "fieldtype": "Small Text",
-   "label": "Decision Reason (Candidate-Safe)"
+   "label": "Decision Reason"
   },
   {
    "fieldname": "internal_remarks",
    "fieldtype": "Small Text",
-   "label": "Confidential HR Internal Remarks (Never Sent to Candidate)",
+   "label": "Internal Remarks (Confidential)",
    "permlevel": 1
   },
   {
    "fieldname": "onboarding_lineage_section",
    "fieldtype": "Section Break",
-   "label": "Offer & Employee Conversion References"
+   "label": "Conversion & Lineage"
   },
   {
    "fieldname": "latest_offer_letter",
    "fieldtype": "Link",
-   "label": "Active Offer Letter",
+   "label": "Latest Offer Letter",
    "options": "Xavirgin Offer Letter",
    "read_only": 1
   },
   {
    "fieldname": "employee",
    "fieldtype": "Link",
-   "label": "Converted Employee Record",
+   "label": "Converted Employee ID",
    "options": "Employee",
    "read_only": 1
   },
   {
    "fieldname": "converted_on",
    "fieldtype": "Datetime",
-   "label": "Converted to Employee On",
+   "label": "Converted On",
    "read_only": 1
   },
   {
    "fieldname": "documents_section",
    "fieldtype": "Section Break",
-   "label": "Candidate Documents & Verification"
+   "label": "Verification Documents"
   },
   {
    "fieldname": "documents",
    "fieldtype": "Table",
-   "label": "Submitted Documents",
+   "label": "Documents",
    "options": "Xavirgin Candidate Document"
   },
   {
    "fieldname": "history_section",
    "fieldtype": "Section Break",
-   "label": "Immutable Pipeline Stage History"
+   "label": "Audit Trail"
   },
   {
    "fieldname": "stage_history",
    "fieldtype": "Table",
-   "label": "Stage Audit Trail",
+   "label": "Stage History",
    "options": "Xavirgin Candidate Stage History",
    "read_only": 1
   }
  ],
  "links": [
-  {
-   "group": "Interviews & Scoring",
-   "link_doctype": "Xavirgin Interview",
-   "link_fieldname": "candidate"
-  },
-  {
-   "group": "Interviews & Scoring",
-   "link_doctype": "Xavirgin Interview Evaluation",
-   "link_fieldname": "candidate"
-  },
   {
    "group": "Offer & Onboarding",
    "link_doctype": "Xavirgin Offer Letter",
@@ -372,7 +403,7 @@
    "link_fieldname": "custom_source_candidate"
   }
  ],
- "modified": "2026-11-03 18:00:00.000000",
+ "modified": "2026-11-04 19:40:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin Candidate",
@@ -394,39 +425,15 @@
   {
    "create": 1,
    "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Xavirgin HR Admin",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "permlevel": 1,
    "read": 1,
    "role": "Xavirgin HR Admin",
    "write": 1
   },
   {
    "create": 1,
-   "email": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Xavirgin Recruiter",
-   "write": 1
-  },
-  {
-   "permlevel": 1,
    "read": 1,
    "role": "Xavirgin Recruiter",
    "write": 1
-  },
-  {
-   "read": 1,
-   "role": "Xavirgin Interviewer"
   }
  ],
  "sort_field": "modified",

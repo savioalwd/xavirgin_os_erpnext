@@ -35,7 +35,6 @@ app_include_js = [
 ]
 app_include_css = [
     "/assets/xavirgin_os/css/cash_meter.css"
-   
 ]
 
 # Website & Login Portal Assets (Styles /login, /, and /careers)

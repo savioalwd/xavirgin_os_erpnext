@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. Xavirgin OS — Cash Meter Financial HUD (Self-Contained Top Overlay)
+1. Xavirgin OS — Cash Meter Financial HUD (Self-Contained Top Overlay)
    ========================================================================== */
 
 #xavirgin-cash-meter-hud {
@@ -7,7 +7,7 @@
     top: 6px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
-    z-index: 100000 !important; /* Floats above Desk headers, search bars, and breadcrumbs */
+    z-index: 100000 !important;
     background: #0b0f19 !important;
     border: 1px solid rgba(56, 189, 248, 0.5) !important;
     border-radius: 20px !important;
@@ -122,16 +122,24 @@
 }
 
 /* ==========================================================================
-   Xavirgin OS — Sidebar Dynamic SVG Mask Injector (Complete)
+   2. Xavirgin OS — Sidebar Dynamic SVG Mask Injector
    ========================================================================== */
 
+/* Hide native Frappe SVG icons for custom Xavirgin items */
 .sidebar-item-container[item-name^="Xavirgin"] .sidebar-item-icon svg,
-.sidebar-item-container[item-name="Interactive Org Chart"] .sidebar-item-icon svg {
+.sidebar-item-container[item-name*="Xavirgin"] .sidebar-item-icon svg,
+.sidebar-item-container[item-name="Interactive Org Chart"] .sidebar-item-icon svg,
+.sidebar-item-container[data-id^="Xavirgin"] .sidebar-item-icon svg,
+.sidebar-item-container[data-id*="Xavirgin"] .sidebar-item-icon svg {
     display: none !important;
 }
 
+/* Base icon mask box */
 .sidebar-item-container[item-name^="Xavirgin"] .sidebar-item-icon::before,
-.sidebar-item-container[item-name="Interactive Org Chart"] .sidebar-item-icon::before {
+.sidebar-item-container[item-name*="Xavirgin"] .sidebar-item-icon::before,
+.sidebar-item-container[item-name="Interactive Org Chart"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id^="Xavirgin"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Xavirgin"] .sidebar-item-icon::before {
     content: "" !important;
     display: inline-block !important;
     width: 16px !important;
@@ -143,84 +151,129 @@
     mask-repeat: no-repeat !important;
     -webkit-mask-position: center !important;
     mask-position: center !important;
+    /* Default fallback icon: document outline (prevents solid filled block) */
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E");
 }
 
-/* Daily POA */
-.sidebar-item-container[item-name="Xavirgin Daily POA"] .sidebar-item-icon::before {
+/* 1. Daily POA: Checklist */
+.sidebar-item-container[item-name*="Daily POA"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Daily POA"] .sidebar-item-icon::before {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 11l3 3L22 4'/%3E%3Cpath d='M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11'/%3E%3C/svg%3E") !important;
 }
 
-/* GitHub Activity */
-.sidebar-item-container[item-name="Xavirgin GitHub Activity"] .sidebar-item-icon::before {
+/* 2. GitHub Activity: Git Branch */
+.sidebar-item-container[item-name*="GitHub Activity"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="GitHub Activity"] .sidebar-item-icon::before {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='6' y1='3' x2='6' y2='15'/%3E%3Ccircle cx='18' cy='6' r='3'/%3E%3Ccircle cx='6' cy='18' r='3'/%3E%3Cpath d='M18 9a9 9 0 0 1-9 9'/%3E%3C/svg%3E") !important;
 }
 
-/* Attendance Session */
-.sidebar-item-container[item-name="Xavirgin Attendance Session"] .sidebar-item-icon::before {
+/* 3. Attendance Session: Clock / Timer */
+.sidebar-item-container[item-name*="Attendance Session"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Attendance Session"] .sidebar-item-icon::before {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E") !important;
 }
 
-/* DMS Folder */
-.sidebar-item-container[item-name="Xavirgin DMS Folder"] .sidebar-item-icon::before {
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'/%3E%3C/svg%3E") !important;
-}
-
-/* DMS Audit Log */
-.sidebar-item-container[item-name="Xavirgin DMS Audit Log"] .sidebar-item-icon::before {
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E") !important;
-}
-
-/* Leave Request */
-.sidebar-item-container[item-name="Xavirgin Leave Request"] .sidebar-item-icon::before {
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important;
-}
-
-/* Candidate */
-.sidebar-item-container[item-name="Xavirgin Candidate"] .sidebar-item-icon::before {
+/* 4. Candidate: User Check */
+.sidebar-item-container[item-name*="Candidate"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Candidate"] .sidebar-item-icon::before {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='8.5' cy='7' r='4'/%3E%3Cpolyline points='17 11 19 13 23 9'/%3E%3C/svg%3E") !important;
 }
 
-/* Job Opening */
-.sidebar-item-container[item-name="Xavirgin Job Opening"] .sidebar-item-icon::before {
+/* 5. Job Opening: Briefcase */
+.sidebar-item-container[item-name*="Job Opening"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Job Opening"] .sidebar-item-icon::before {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='7' width='20' height='14' rx='2' ry='2'/%3E%3Cpath d='M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16'/%3E%3C/svg%3E") !important;
 }
 
-/* Interview */
-.sidebar-item-container[item-name="Xavirgin Interview"] .sidebar-item-icon::before {
+/* 6. Interview: Video Camera */
+.sidebar-item-container[item-name*="Interview"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Interview"] .sidebar-item-icon::before {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='23 7 16 12 23 17 23 7'/%3E%3Crect x='1' y='5' width='15' height='14' rx='2' ry='2'/%3E%3C/svg%3E") !important;
 }
 
-/* Offer Letter */
-.sidebar-item-container[item-name="Xavirgin Offer Letter"] .sidebar-item-icon::before {
+/* 7. Assessment Template: Clipboard / Rule Checklist (FIX FOR SOLID BLOCK) */
+.sidebar-item-container[item-name*="Assessment Template"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Assessment Template"] .sidebar-item-icon::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/%3E%3Crect x='8' y='2' width='8' height='4' rx='1' ry='1'/%3E%3Cpath d='M9 14l2 2 4-4'/%3E%3C/svg%3E") !important;
+}
+
+/* 8. Interview Evaluation: Star / Scorecard (FIX FOR SOLID BLOCK) */
+.sidebar-item-container[item-name*="Interview Evaluation"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Interview Evaluation"] .sidebar-item-icon::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/%3E%3C/svg%3E") !important;
+}
+
+/* 9. Offer Letter: Document Text / Contract */
+.sidebar-item-container[item-name*="Offer Letter"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Offer Letter"] .sidebar-item-icon::before {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3Cline x1='16' y1='13' x2='8' y2='13'/%3E%3Cline x1='16' y1='17' x2='8' y2='17'/%3E%3Cpolyline points='10 9 9 9 8 9'/%3E%3C/svg%3E") !important;
 }
 
-/* Daily Meeting Log */
-.sidebar-item-container[item-name="Xavirgin Daily Meeting Log"] .sidebar-item-icon::before {
+/* 10. Leave Request: Calendar */
+.sidebar-item-container[item-name*="Leave Request"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Leave Request"] .sidebar-item-icon::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important;
+}
+
+/* 11. Daily Meeting Log: Speech Bubble */
+.sidebar-item-container[item-name*="Daily Meeting Log"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Daily Meeting Log"] .sidebar-item-icon::before {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/%3E%3C/svg%3E") !important;
 }
 
-/* AI Summary Log */
-.sidebar-item-container[item-name="Xavirgin AI Summary Log"] .sidebar-item-icon::before {
+/* 12. DMS Folder: Folder */
+.sidebar-item-container[item-name*="DMS Folder"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="DMS Folder"] .sidebar-item-icon::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'/%3E%3C/svg%3E") !important;
+}
+
+/* 13. DMS Audit Log: Shield */
+.sidebar-item-container[item-name*="DMS Audit Log"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="DMS Audit Log"] .sidebar-item-icon::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E") !important;
+}
+
+/* 14. AI Summary Log: CPU Chip */
+.sidebar-item-container[item-name*="AI Summary Log"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="AI Summary Log"] .sidebar-item-icon::before {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='4' width='16' height='16' rx='2'/%3E%3Crect x='9' y='9' width='6' height='6'/%3E%3Cline x1='9' y1='1' x2='9' y2='4'/%3E%3Cline x1='15' y1='1' x2='15' y2='4'/%3E%3Cline x1='9' y1='20' x2='9' y2='23'/%3E%3Cline x1='15' y1='20' x2='15' y2='23'/%3E%3Cline x1='20' y1='9' x2='23' y2='9'/%3E%3Cline x1='20' y1='14' x2='23' y2='14'/%3E%3Cline x1='1' y1='9' x2='4' y2='9'/%3E%3Cline x1='1' y1='14' x2='4' y2='14'/%3E%3C/svg%3E") !important;
 }
 
-/* Company State */
-.sidebar-item-container[item-name="Xavirgin Company State"] .sidebar-item-icon::before {
+/* 15. Company State: Database Cylinder */
+.sidebar-item-container[item-name*="Company State"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Company State"] .sidebar-item-icon::before {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cellipse cx='12' cy='5' rx='9' ry='3'/%3E%3Cpath d='M21 12c0 1.66-4 3-9 3s-9-1.34-9-3'/%3E%3Cpath d='M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5'/%3E%3C/svg%3E") !important;
 }
 
-/* Company State History */
-.sidebar-item-container[item-name="Xavirgin Company State History"] .sidebar-item-icon::before {
+/* 16. Company State History: Clockwise History Replay */
+.sidebar-item-container[item-name*="Company State History"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Company State History"] .sidebar-item-icon::before {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 3v5h5'/%3E%3Cpath d='M3.05 13A9 9 0 1 0 6 5.3L3 8'/%3E%3Cpolyline points='12 7 12 12 15 15'/%3E%3C/svg%3E") !important;
 }
 
-/* Prompt Management */
-.sidebar-item-container[item-name="Xavirgin Prompt"] .sidebar-item-icon::before {
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='16 18 22 12 16 6'/%3E%3CPolyline points='8 6 2 12 8 18'/%3E%3C/svg%3E") !important;
+/* 17. Prompt Management: Terminal Prompt / Code Bracket */
+.sidebar-item-container[item-name*="Prompt"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Prompt"] .sidebar-item-icon::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 17 10 11 4 5'/%3E%3Cline x1='12' y1='19' x2='20' y2='19'/%3E%3C/svg%3E") !important;
 }
 
-/* HR Settings */
-.sidebar-item-container[item-name="Xavirgin HR Settings"] .sidebar-item-icon::before {
+/* 18. Organizational Chart: Hierarchy Tree Users */
+.sidebar-item-container[item-name*="Organizational"] .sidebar-item-icon::before,
+.sidebar-item-container[item-name*="Org Chart"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Organizational"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Org Chart"] .sidebar-item-icon::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3Cpath d='M23 21v-2a4 4 0 0 0-3-3.87'/%3E%3Cpath d='M16 3.13a4 4 0 0 1 0 7.75'/%3E%3C/svg%3E") !important;
+}
+
+/* 19. HR Settings: Gear */
+.sidebar-item-container[item-name*="HR Settings"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="HR Settings"] .sidebar-item-icon::before {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z'/%3E%3C/svg%3E") !important;
+}
+
+/* 20. Attendance Analytics Report: Bar Chart Icon */
+.sidebar-item-container[item-name*="Attendance Analytics"] .sidebar-item-icon::before,
+.sidebar-item-container[data-id*="Attendance Analytics"] .sidebar-item-icon::before {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='20' x2='18' y2='10'/%3E%3Cline x1='12' y1='20' x2='12' y2='4'/%3E%3Cline x1='6' y1='20' x2='6' y2='14'/%3E%3C/svg%3E") !important;
 }
