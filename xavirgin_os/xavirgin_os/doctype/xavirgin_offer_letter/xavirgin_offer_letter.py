@@ -220,7 +220,7 @@ class XavirginOfferLetter(Document):
             frappe.log_error(frappe.get_traceback(), "Xavirgin Offer Letter HTML Render Failure")
             frappe.throw(_("Failed to render Offer Letter HTML: {0}").format(str(e)))
 
-        # 3. Convert HTML to PDF using wkhtmltopdf directly (Bypasses CDP connection timeout)
+        # 3. Convert HTML to PDF using wkhtmltopdf with local asset flags
         pdf_bytes = None
         pdf_options = {
             "page-size": "A4",
@@ -236,9 +236,10 @@ class XavirginOfferLetter(Document):
 
         try:
             from frappe.utils.pdf import get_pdf
-            pdf_bytes = get_pdf(html, options=pdf_options, generator="wkhtmltopdf")
+            # Standard get_pdf call without the invalid 'generator' kwarg
+            pdf_bytes = get_pdf(html, options=pdf_options)
         except Exception:
-            # Direct binary invocation fallback if Frappe wrapper hooks into CDP
+            # Direct binary invocation handling wkhtmltopdf exit code 1 (benign asset warnings)
             wkhtmltopdf_bin = "/usr/local/bin/wkhtmltopdf" if os.path.exists("/usr/local/bin/wkhtmltopdf") else "/usr/bin/wkhtmltopdf"
             with tempfile.NamedTemporaryFile(suffix=".html", delete=False, mode="w", encoding="utf-8") as html_file:
                 html_file.write(html)
@@ -250,6 +251,7 @@ class XavirginOfferLetter(Document):
             try:
                 cmd = [
                     wkhtmltopdf_bin,
+                    "--quiet",
                     "--page-size", "A4",
                     "--margin-top", "15mm",
                     "--margin-bottom", "15mm",
@@ -261,12 +263,17 @@ class XavirginOfferLetter(Document):
                     html_path,
                     pdf_path
                 ]
-                subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                with open(pdf_path, "rb") as f:
-                    pdf_bytes = f.read()
-            except Exception as bin_err:
-                frappe.log_error(frappe.get_traceback(), "Xavirgin PDF Compilation Error")
-                frappe.throw(_("PDF Generation failed: {0}").format(str(bin_err)))
+                proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                # wkhtmltopdf frequently exits with status 1 on non-fatal warnings (e.g. SSL/asset fetch warnings)
+                # Verify if the output PDF was actually created and is non-empty
+                if os.path.exists(pdf_path) and os.path.getsize(pdf_path) > 0:
+                    with open(pdf_path, "rb") as f:
+                        pdf_bytes = f.read()
+                else:
+                    err_msg = proc.stderr.decode("utf-8", errors="ignore") or f"Process exited with code {proc.returncode}"
+                    frappe.log_error(err_msg, "Xavirgin PDF Compilation Error")
+                    frappe.throw(_("PDF Generation failed: {0}").format(err_msg))
             finally:
                 if os.path.exists(html_path):
                     os.remove(html_path)
