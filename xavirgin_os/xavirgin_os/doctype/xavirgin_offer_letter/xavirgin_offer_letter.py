@@ -184,12 +184,12 @@ class XavirginOfferLetter(Document):
 
     @frappe.whitelist()
     def send_offer_letter_email(self):
-        """Renders 2-page Offer Letter & NDA PDF using stable wkhtmltopdf, saves as private file, and queues email."""
+        """Renders 2-page Offer Letter & NDA PDF using stable wkhtmltopdf, saves as private file, and sends email immediately."""
         self.check_permission("write")
         if self.docstatus != 1:
             frappe.throw(_("Please Submit (Approve) the Offer Letter before sending it to the candidate."))
 
-        # 1. Verify Outgoing Email Account exists early to prevent silent worker crashes
+        # 1. Verify Outgoing Email Account early
         from frappe.email.doctype.email_account.email_account import EmailAccount
         email_account = EmailAccount.find_outgoing(
             match_by_doctype=self.doctype, 
@@ -202,25 +202,20 @@ class XavirginOfferLetter(Document):
             )
 
         # 2. Render Raw HTML from Jinja Template
-        try:
-            # Fallback if print format is named with or without spaces
-            format_name = "Xavirgin Offer Letter and NDA"
-            if not frappe.db.exists("Print Format", format_name):
-                if frappe.db.exists("Print Format", "XavirginOfferLetterandNDA"):
-                    format_name = "XavirginOfferLetterandNDA"
+        format_name = "Xavirgin Offer Letter and NDA"
+        if not frappe.db.exists("Print Format", format_name):
+            if frappe.db.exists("Print Format", "XavirginOfferLetterandNDA"):
+                format_name = "XavirginOfferLetterandNDA"
 
-            html = frappe.get_print(
-                doctype=self.doctype,
-                name=self.name,
-                print_format=format_name,
-                as_pdf=False,
-                no_letterhead=0
-            )
-        except Exception as e:
-            frappe.log_error(frappe.get_traceback(), "Xavirgin Offer Letter HTML Render Failure")
-            frappe.throw(_("Failed to render Offer Letter HTML: {0}").format(str(e)))
+        html = frappe.get_print(
+            doctype=self.doctype,
+            name=self.name,
+            print_format=format_name,
+            as_pdf=False,
+            no_letterhead=0
+        )
 
-        # 3. Convert HTML to PDF using wkhtmltopdf with local asset flags
+        # 3. Convert HTML to PDF using wkhtmltopdf
         pdf_bytes = None
         pdf_options = {
             "page-size": "A4",
@@ -236,10 +231,8 @@ class XavirginOfferLetter(Document):
 
         try:
             from frappe.utils.pdf import get_pdf
-            # Standard get_pdf call without the invalid 'generator' kwarg
             pdf_bytes = get_pdf(html, options=pdf_options)
         except Exception:
-            # Direct binary invocation handling wkhtmltopdf exit code 1 (benign asset warnings)
             wkhtmltopdf_bin = "/usr/local/bin/wkhtmltopdf" if os.path.exists("/usr/local/bin/wkhtmltopdf") else "/usr/bin/wkhtmltopdf"
             with tempfile.NamedTemporaryFile(suffix=".html", delete=False, mode="w", encoding="utf-8") as html_file:
                 html_file.write(html)
@@ -265,14 +258,11 @@ class XavirginOfferLetter(Document):
                 ]
                 proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-                # wkhtmltopdf frequently exits with status 1 on non-fatal warnings (e.g. SSL/asset fetch warnings)
-                # Verify if the output PDF was actually created and is non-empty
                 if os.path.exists(pdf_path) and os.path.getsize(pdf_path) > 0:
                     with open(pdf_path, "rb") as f:
                         pdf_bytes = f.read()
                 else:
                     err_msg = proc.stderr.decode("utf-8", errors="ignore") or f"Process exited with code {proc.returncode}"
-                    frappe.log_error(err_msg, "Xavirgin PDF Compilation Error")
                     frappe.throw(_("PDF Generation failed: {0}").format(err_msg))
             finally:
                 if os.path.exists(html_path):
@@ -313,20 +303,34 @@ class XavirginOfferLetter(Document):
             </div>
         </div>"""
 
-        # 6. Queue Email Non-Blockingly (delayed=True avoids synchronous SMTP hangs)
-        frappe.sendmail(
-            recipients=[self.candidate_email],
-            subject=f"Xavirgin Internship Offer Letter & NDA: {self.candidate_name} ({self.name})",
-            message=email_body,
-            attachments=[{"fname": filename, "fcontent": pdf_bytes}],
-            reference_doctype=self.doctype,
-            reference_name=self.name,
-            delayed=True,
-        )
+        # 6. Immediate Dispatch (delayed=False bypasses background worker wait)
+        try:
+            frappe.sendmail(
+                recipients=[self.candidate_email],
+                subject=f"Xavirgin Internship Offer Letter & NDA: {self.candidate_name} ({self.name})",
+                message=email_body,
+                attachments=[{"fname": filename, "fcontent": pdf_bytes}],
+                reference_doctype=self.doctype,
+                reference_name=self.name,
+                delayed=False,
+            )
+        except Exception:
+            # Fallback to queue if synchronous SMTP fails or network times out
+            frappe.sendmail(
+                recipients=[self.candidate_email],
+                subject=f"Xavirgin Internship Offer Letter & NDA: {self.candidate_name} ({self.name})",
+                message=email_body,
+                attachments=[{"fname": filename, "fcontent": pdf_bytes}],
+                reference_doctype=self.doctype,
+                reference_name=self.name,
+                delayed=True,
+            )
 
         self.db_set("workflow_state", "Sent", update_modified=False)
         self.sync_to_candidate()
-        return _("Offer Letter & NDA v{0} ({1}) successfully generated and queued for delivery to {2}.").format(
+        frappe.db.commit()
+
+        return _("Offer Letter & NDA v{0} ({1}) successfully sent to {2}.").format(
             self.offer_version, file_doc.file_name, self.candidate_email
         )
 
@@ -375,7 +379,6 @@ class XavirginOfferLetter(Document):
         if not company:
             frappe.throw(_("No default Company found in ERPNext."))
 
-        # Disaggregate names safely
         full_name = (getattr(cand, "full_name", None) or self.candidate_name or "Intern").strip()
         parts = full_name.split(" ", 1)
         first_name = getattr(cand, "first_name", None) or parts[0]
@@ -389,7 +392,7 @@ class XavirginOfferLetter(Document):
         user_address = self.candidate_address or cand.address_line or None
         user_dob = getattr(cand, "date_of_birth", None) or None
 
-        # 4. Safe Gender Resolution (Handles missing/invalid link doctype values)
+        # 3. Safe Gender Resolution
         raw_gender = getattr(cand, "gender", None)
         user_gender = None
         if raw_gender and raw_gender != "Prefer not to say":
@@ -400,7 +403,6 @@ class XavirginOfferLetter(Document):
         elif raw_gender == "Prefer not to say":
             user_gender = "Other" if frappe.db.exists("Gender", "Other") else None
 
-        # Fallback if Gender is mandatory on Employee DocType
         is_gender_reqd = frappe.get_meta("Employee").get_field("gender").reqd
         if is_gender_reqd and not user_gender:
             first_avail = frappe.db.get_value("Gender", {}, "name")
@@ -417,7 +419,7 @@ class XavirginOfferLetter(Document):
 
         frappe.db.savepoint("xavirgin_atomic_hire")
         try:
-            # 5. Provision Frappe User Account
+            # 4. Provision Frappe User Account
             user_id = frappe.db.get_value("User", {"email": user_email}, "name")
             if not user_id:
                 roles = [{"role": "Employee"}]
@@ -457,10 +459,9 @@ class XavirginOfferLetter(Document):
                 if updated:
                     existing_user.save(ignore_permissions=True)
 
-            # 6. Insert Core Employee Record (Blank fields passed as None)
+            # 5. Insert Core Employee Record
             settings = frappe.get_single("Xavirgin HR Settings")
 
-            # Check if DOB is mandatory on Employee DocType
             is_dob_reqd = frappe.get_meta("Employee").get_field("date_of_birth").reqd
             if is_dob_reqd and not user_dob:
                 user_dob = "2002-01-01"
@@ -501,7 +502,7 @@ class XavirginOfferLetter(Document):
             })
             emp_doc.insert(ignore_permissions=True)
 
-            # 7. Two-Way Backlinks and Audit Trail
+            # 6. Two-Way Backlinks and Audit Trail
             self.db_set("employee", emp_doc.name, update_modified=False)
             cand.employee = emp_doc.name
             cand.converted_on = now_datetime()
