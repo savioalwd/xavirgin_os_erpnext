@@ -37,6 +37,7 @@
   {
    "fieldname": "interviewer_user",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "System User",
    "options": "User"
   },
