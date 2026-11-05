@@ -80,13 +80,16 @@ class XavirginInterview(Document):
         # 5. Fallback Instructions
         if not self.interview_instructions:
             self.interview_instructions = (
-                "<p><strong>Mandatory Online Interview Instructions:</strong></p>"
-                "<ul>"
-                "<li>Join the meeting 5 minutes prior to start time.</li>"
-                "<li>Ensure a stable internet connection in a quiet environment.</li>"
-                "<li>Join strictly from a Laptop or Desktop (no mobile devices).</li>"
-                "<li>Be prepared for screen sharing and coding/technical evaluation.</li>"
-                "</ul>"
+                "<div style=\"font-family: Arial, sans-serif; font-size: 13px; line-height: 1.6; color: #2d3748;\">"
+                "<h4 style=\"color: #0000FF; margin-bottom: 8px;\">📌 Mandatory Online Interview Instructions</h4>"
+                "<ol style=\"margin-top: 0; padding-left: 20px;\">"
+                "<li><strong>Early Arrival:</strong> Join the meeting at least <strong>5 minutes prior</strong> to the scheduled start time to test audio and camera readiness.</li>"
+                "<li><strong>Hardware & Platform:</strong> Join <strong>exclusively via Laptop or Desktop</strong> with a working webcam and microphone. Mobile logins are strictly disallowed unless explicitly pre-approved by HR.</li>"
+                "<li><strong>Connectivity:</strong> Ensure a stable broadband/high-speed internet connection in a quiet, well-lit, distraction-free environment.</li>"
+                "<li><strong>Screen Sharing & IDE:</strong> Be ready to share your entire desktop screen and demonstrate live problem-solving using your primary local development environment / IDE.</li>"
+                "<li><strong>Verification:</strong> Keep a valid government identity card accessible for visual identity verification at the start of the round.</li>"
+                "</ol>"
+                "</div>"
             )
 
     def resolve_and_validate_participants(self):
@@ -99,7 +102,7 @@ class XavirginInterview(Document):
                     "Employee",
                     row.employee,
                     ["employee_name", "company_email", "personal_email", "user_id", "designation", "department"],
-                    as_dict=True
+                    as_dict=True,
                 )
                 if emp:
                     row.full_name = row.full_name or emp.employee_name
@@ -144,7 +147,7 @@ class XavirginInterview(Document):
         settings = frappe.get_single("Xavirgin HR Settings")
         formatted_date = formatdate(self.interview_date, "dd MMMM yyyy")
         
-        # 12-Hour AM/PM formatting for outbound emails
+        # 12-Hour AM/PM formatting for outbound notification emails
         formatted_start = frappe.utils.format_time(self.start_time, "hh:mm a")
         formatted_end = frappe.utils.format_time(self.end_time, "hh:mm a")
 
@@ -270,3 +273,44 @@ class XavirginInterview(Document):
         )
         self.db_set("candidate_invitation_sent", 1, update_modified=False)
         return _("Interview invitation emailed to {0}.").format(self.candidate_email)
+
+
+# =====================================================================
+# Module-level Permission Hooks (MUST sit OUTSIDE XavirginInterview class)
+# =====================================================================
+
+def get_permission_query_conditions(user: str = None) -> str:
+    """Restricts interview view list to HR/Admins and assigned panel interviewers."""
+    if not user:
+        user = frappe.session.user
+    roles = set(frappe.get_roles(user))
+    if roles.intersection({"System Manager", "Administrator", "Xavirgin HR Admin", "Xavirgin HR Manager", "Xavirgin Recruiter"}):
+        return ""
+
+    escaped_user = frappe.db.escape(user)
+    return f"""`tabXavirgin Interview`.name IN (
+        SELECT parent FROM `tabXavirgin Interview Participant`
+        WHERE interviewer_user = {escaped_user} OR email = {escaped_user}
+    )"""
+
+
+def has_permission(doc, ptype="read", user=None, debug=False) -> bool:
+    """Document-level access control hook called by Frappe permission engine."""
+    user = user or frappe.session.user
+    roles = set(frappe.get_roles(user))
+
+    # 1. Full access for Admins and HR
+    if roles.intersection({"System Manager", "Administrator", "Xavirgin HR Admin", "Xavirgin HR Manager", "Xavirgin Recruiter"}):
+        return True
+
+    # 2. Allow document owner
+    if doc.owner == user:
+        return True
+
+    # 3. Read access for assigned interviewers in the participant child table
+    if hasattr(doc, "interviewers"):
+        for row in doc.interviewers:
+            if row.interviewer_user == user or (row.email and row.email.lower() == user.lower()):
+                return ptype in ("read", "print", "email")
+
+    return False
