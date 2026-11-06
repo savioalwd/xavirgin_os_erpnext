@@ -37,23 +37,14 @@
   {
    "fieldname": "parent_folder",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Parent Folder",
    "options": "Xavirgin DMS Folder"
   },
   {
-   "fieldname": "files_section",
-   "fieldtype": "Section Break",
-   "label": "📁 Folder Contents & Secure Vault"
-  },
-  {
-   "fieldname": "files",
-   "fieldtype": "Table",
-   "label": "Documents & Credentials",
-   "options": "Xavirgin DMS File"
-  },
-  {
    "fieldname": "department",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Department Restriction",
@@ -77,6 +68,7 @@
    "default": "__user",
    "fieldname": "created_by_user",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Created By",
    "options": "User",
    "read_only": 1
@@ -102,7 +94,7 @@
   {
    "fieldname": "files_section",
    "fieldtype": "Section Break",
-   "label": "Folder Contents (Files & Credentials)"
+   "label": "📁 Folder Contents (Files & Credentials Vault)"
   },
   {
    "fieldname": "files",
@@ -112,7 +104,7 @@
   }
  ],
  "links": [],
- "modified": "2026-11-03 21:30:00.000000",
+ "modified": "2026-11-06 14:30:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "icon": "folder",

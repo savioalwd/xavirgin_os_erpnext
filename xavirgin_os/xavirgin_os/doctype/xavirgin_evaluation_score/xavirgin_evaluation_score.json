@@ -30,8 +30,7 @@
    "options": "Technical\nProblem Solving\nArchitecture & Code Quality\nCommunication & Reasoning\nProfessionalism & Culture",
    "read_only": 1
   },
-  {
-   "default": "2.0",
+{
    "fieldname": "max_marks",
    "fieldtype": "Float",
    "in_list_view": 1,

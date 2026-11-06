@@ -37,12 +37,12 @@
    "options": "User",
    "read_only": 1
   },
-  {
+{
    "fieldname": "action_type",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Action",
-   "options": "View Folder\nDownload File\nReveal Credential\nExport ZIP Archive",
+   "options": "View Folder\nDownload File\nReveal Credential\nExport ZIP Archive\nUpload File\nAdd Credential\nDelete Item",
    "reqd": 1
   },
   {

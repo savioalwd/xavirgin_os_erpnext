@@ -72,22 +72,23 @@ doc_events = {
 # Permission Query Conditions (List-View / REST Filter Hooks)
 # ==============================================================================
 permission_query_conditions = {
+    "Xavirgin Candidate": "xavirgin_os.xavirgin_os.doctype.xavirgin_candidate.xavirgin_candidate.get_permission_query_conditions",
     "Xavirgin Interview": "xavirgin_os.xavirgin_os.doctype.xavirgin_interview.xavirgin_interview.get_permission_query_conditions",
     "Xavirgin Interview Evaluation": "xavirgin_os.xavirgin_os.doctype.xavirgin_interview_evaluation.xavirgin_interview_evaluation.get_permission_query_conditions",
     "Xavirgin Daily POA": "xavirgin_os.xavirgin_os.doctype.xavirgin_daily_poa.xavirgin_daily_poa.get_permission_query_conditions",
     "Xavirgin Attendance Session": "xavirgin_os.xavirgin_os.doctype.xavirgin_attendance_session.xavirgin_attendance_session.get_permission_query_conditions",
     "Xavirgin Offer Letter": "xavirgin_os.xavirgin_os.doctype.xavirgin_offer_letter.xavirgin_offer_letter.get_permission_query_conditions",
+    "Xavirgin DMS Folder": "xavirgin_os.xavirgin_os.doctype.xavirgin_dms_folder.xavirgin_dms_folder.get_permission_query_conditions",
 }
 
-# ==============================================================================
-# Document-Level Permission Hooks (Read, Write, Create, Delete Authorization)
-# ==============================================================================
 has_permission = {
+    "Xavirgin Candidate": "xavirgin_os.xavirgin_os.doctype.xavirgin_candidate.xavirgin_candidate.has_permission",
     "Xavirgin Interview": "xavirgin_os.xavirgin_os.doctype.xavirgin_interview.xavirgin_interview.has_permission",
     "Xavirgin Interview Evaluation": "xavirgin_os.xavirgin_os.doctype.xavirgin_interview_evaluation.xavirgin_interview_evaluation.has_permission",
     "Xavirgin Daily POA": "xavirgin_os.xavirgin_os.doctype.xavirgin_daily_poa.xavirgin_daily_poa.has_permission",
     "Xavirgin Attendance Session": "xavirgin_os.xavirgin_os.doctype.xavirgin_attendance_session.xavirgin_attendance_session.has_permission",
     "Xavirgin Offer Letter": "xavirgin_os.xavirgin_os.doctype.xavirgin_offer_letter.xavirgin_offer_letter.has_permission",
+    "Xavirgin DMS Folder": "xavirgin_os.xavirgin_os.doctype.xavirgin_dms_folder.xavirgin_dms_folder.has_permission",
 }
 
 scheduler_events = {

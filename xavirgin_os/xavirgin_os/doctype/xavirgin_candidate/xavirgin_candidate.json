@@ -139,6 +139,7 @@
   {
    "fieldname": "job_opening",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Job Opening",
@@ -148,6 +149,7 @@
   {
    "fieldname": "department",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "in_standard_filter": 1,
    "label": "Department",
    "options": "Department"
@@ -155,6 +157,7 @@
   {
    "fieldname": "designation",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Designation",
    "options": "Designation"
   },
@@ -193,6 +196,7 @@
   {
    "fieldname": "assigned_recruiter",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "in_standard_filter": 1,
    "label": "Assigned Recruiter",
    "options": "User"
@@ -200,6 +204,7 @@
   {
    "fieldname": "existing_employee",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Existing Employee (If Alumni)",
    "options": "Employee"
   },
@@ -207,6 +212,7 @@
    "default": "Public Portal",
    "fieldname": "source",
    "fieldtype": "Select",
+   "in_standard_filter": 1,
    "label": "Application Source",
    "options": "Public Portal\nHR Manual Entry\nLinkedIn\nReferral\nCampus Drive"
   },
@@ -270,7 +276,7 @@
    "fieldname": "ai_match_score",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "AI Score (/ 10)",
+   "label": "AI Score (/10)",
    "precision": "1",
    "read_only": 1
   },
@@ -288,6 +294,7 @@
   {
    "fieldname": "latest_interview",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Latest Interview",
    "options": "Xavirgin Interview",
    "read_only": 1
@@ -297,7 +304,7 @@
    "fieldname": "average_evaluation_score",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Avg Score (/ 10)",
+   "label": "Avg Evaluation Score",
    "precision": "2",
    "read_only": 1
   },
@@ -327,6 +334,7 @@
   {
    "fieldname": "decision_maker",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Decision Maker",
    "options": "User",
    "read_only": 1
@@ -350,6 +358,7 @@
   {
    "fieldname": "latest_offer_letter",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Latest Offer Letter",
    "options": "Xavirgin Offer Letter",
    "read_only": 1
@@ -357,6 +366,7 @@
   {
    "fieldname": "employee",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Converted Employee ID",
    "options": "Employee",
    "read_only": 1
@@ -401,9 +411,19 @@
    "group": "Offer & Onboarding",
    "link_doctype": "Employee",
    "link_fieldname": "custom_source_candidate"
+  },
+  {
+   "group": "Interviews & Evaluations",
+   "link_doctype": "Xavirgin Interview",
+   "link_fieldname": "candidate"
+  },
+  {
+   "group": "Interviews & Evaluations",
+   "link_doctype": "Xavirgin Interview Evaluation",
+   "link_fieldname": "candidate"
   }
  ],
- "modified": "2026-11-04 19:40:00.000000",
+ "modified": "2026-11-06 14:30:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin Candidate",
@@ -434,6 +454,22 @@
    "read": 1,
    "role": "Xavirgin Recruiter",
    "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Interviewer"
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Team Lead"
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Intern"
+  },
+  {
+   "read": 1,
+   "role": "Employee"
   }
  ],
  "sort_field": "modified",
