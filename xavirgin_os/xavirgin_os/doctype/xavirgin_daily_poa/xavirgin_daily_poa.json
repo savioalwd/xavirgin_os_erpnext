@@ -267,9 +267,14 @@
    "group": "Engineering & AI Telemetry",
    "link_doctype": "Xavirgin AI Summary Log",
    "link_fieldname": "source_poa"
+  },
+  {
+   "group": "Engineering & AI Telemetry",
+   "link_doctype": "Xavirgin Daily POA",
+   "link_fieldname": "carried_from_poa"
   }
  ],
- "modified": "2026-11-04 20:30:00.000000",
+ "modified": "2026-11-06 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "icon": "check-square",

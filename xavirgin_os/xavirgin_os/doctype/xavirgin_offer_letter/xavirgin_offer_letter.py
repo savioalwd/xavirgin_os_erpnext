@@ -523,3 +523,26 @@ class XavirginOfferLetter(Document):
             frappe.db.rollback(save_point="xavirgin_atomic_hire")
             frappe.log_error(frappe.get_traceback(), "Xavirgin Candidate Conversion Failure")
             frappe.throw(_("Conversion transaction aborted: {0}").format(str(exc)))
+
+def get_permission_query_conditions(user: str = None) -> str:
+    """Restricts Offer Letter list view to HR Admins, Recruiters, and the specific candidate user."""
+    user = user or frappe.session.user
+    roles = set(frappe.get_roles(user))
+    if roles.intersection({"System Manager", "Administrator", "Xavirgin HR Admin", "Xavirgin HR Manager", "Xavirgin Recruiter"}):
+        return ""
+
+    escaped_user = frappe.db.escape(user)
+    return f"""(`tabXavirgin Offer Letter`.owner = {escaped_user} OR `tabXavirgin Offer Letter`.candidate_email = {escaped_user})"""
+
+
+def has_permission(doc, ptype="read", user=None, debug=False) -> bool:
+    """Admins and Recruiters have full control; candidates have read-only access to their own letter."""
+    user = user or frappe.session.user
+    roles = set(frappe.get_roles(user))
+    if roles.intersection({"System Manager", "Administrator", "Xavirgin HR Admin", "Xavirgin HR Manager", "Xavirgin Recruiter"}):
+        return True
+
+    if doc.owner == user or (doc.candidate_email and doc.candidate_email.lower() == user.lower()):
+        return ptype in ("read", "print")
+
+    return False

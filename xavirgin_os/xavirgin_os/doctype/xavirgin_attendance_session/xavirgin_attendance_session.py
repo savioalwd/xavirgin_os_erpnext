@@ -3,46 +3,127 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_days, get_datetime, getdate, now_datetime, time_diff_in_hours, today
 
-from xavirgin_os.api import resolve_current_user_employee_context as _resolve_user_emp_context
+try:
+    from xavirgin_os.api import resolve_current_user_employee_context as _resolve_user_emp_context
+except ImportError:
+    _resolve_user_emp_context = None
 
 
 def resolve_employee_context(employee: str = None, user_id: str = None) -> dict:
-    """Bridge resolver that inspects explicit employee ID first, or routes
-    directly into the centralized xavirgin_os.api context resolution chain.
+    """Robustly resolves Employee record from explicit employee ID or logged-in user session.
+    Handles cases where Employee.user_id is NULL by matching company_email, personal_email,
+    or Xavirgin Candidate lineage, and self-heals the user_id link.
     """
+    emp_fields = [
+        "name",
+        "employee_name",
+        "user_id",
+        "department",
+        "designation",
+        "reports_to",
+        "custom_team_lead",
+        "custom_is_team_lead",
+        "custom_source_candidate",
+        "custom_source_job_opening",
+        "custom_source_offer_letter",
+        "status",
+        "company",
+        "holiday_list",
+    ]
+
+    # 1. Explicit Employee ID lookup
     if employee and frappe.db.exists("Employee", employee):
-        emp_data = frappe.db.get_value(
-            "Employee",
-            employee,
-            [
-                "name",
-                "employee_name",
-                "department",
-                "designation",
-                "custom_team_lead",
-                "status",
-                "company",
-                "holiday_list",
-            ],
-            as_dict=True,
-        )
-        if emp_data and emp_data.status == "Active":
+        emp_data = frappe.db.get_value("Employee", employee, emp_fields, as_dict=True)
+        if emp_data:
             emp_data["has_employee"] = True
             return emp_data
 
-    # Fallback via user_id, email, or candidate-conversion lineage
-    ctx = _resolve_user_emp_context(target_user=user_id or frappe.session.user)
-    if ctx and ctx.get("has_employee"):
-        extra = frappe.db.get_value("Employee", ctx["name"], ["company", "holiday_list"], as_dict=True) or {}
-        ctx.update(extra)
-        return ctx
+    target_user = (user_id or frappe.session.user or "").strip()
+    if not target_user or target_user == "Guest":
+        return {}
 
-    # Fallback for Administrator testing
-    if frappe.session.user == "Administrator":
-        first_emp = frappe.db.get_value("Employee", {"status": "Active"}, ["name", "employee_name", "department", "designation", "custom_team_lead", "company", "holiday_list"], as_dict=True)
-        if first_emp:
-            first_emp["has_employee"] = True
-            return first_emp
+    # 2. Direct match on Employee.user_id (Active preferred, fallback to any)
+    for filters in [{"user_id": target_user, "status": "Active"}, {"user_id": target_user}]:
+        emp_data = frappe.db.get_value("Employee", filters, emp_fields, as_dict=True)
+        if emp_data:
+            emp_data["has_employee"] = True
+            return emp_data
+
+    # 3. Fallback via centralized xavirgin_os.api if available
+    if _resolve_user_emp_context:
+        try:
+            ctx = _resolve_user_emp_context(target_user=target_user)
+            if ctx and ctx.get("name") and frappe.db.exists("Employee", ctx["name"]):
+                emp_data = frappe.db.get_value("Employee", ctx["name"], emp_fields, as_dict=True)
+                if emp_data:
+                    emp_data["has_employee"] = True
+                    return emp_data
+        except Exception:
+            pass
+
+    # 4. Match by User email against company_email or personal_email (handles NULL user_id)
+    user_email = (frappe.db.get_value("User", target_user, "email") or target_user).strip().lower()
+    if user_email and "@" in user_email:
+        for email_field in ("company_email", "personal_email"):
+            emp_data = frappe.db.get_value(
+                "Employee",
+                {email_field: user_email, "status": "Active"},
+                emp_fields,
+                as_dict=True,
+            ) or frappe.db.get_value(
+                "Employee",
+                {email_field: user_email},
+                emp_fields,
+                as_dict=True,
+            )
+            if emp_data:
+                if not emp_data.get("user_id") and frappe.db.exists("User", target_user):
+                    frappe.db.set_value("Employee", emp_data["name"], "user_id", target_user, update_modified=False)
+                    emp_data["user_id"] = target_user
+                emp_data["has_employee"] = True
+                return emp_data
+
+        # 5. Match via Xavirgin Candidate conversion lineage
+        if frappe.db.exists("DocType", "Xavirgin Candidate"):
+            cand_emp = frappe.db.get_value(
+                "Xavirgin Candidate",
+                {"email": user_email, "employee": ["is", "set"]},
+                "employee",
+            )
+            if cand_emp and frappe.db.exists("Employee", cand_emp):
+                emp_data = frappe.db.get_value("Employee", cand_emp, emp_fields, as_dict=True)
+                if emp_data:
+                    if not emp_data.get("user_id") and frappe.db.exists("User", target_user):
+                        frappe.db.set_value("Employee", emp_data["name"], "user_id", target_user, update_modified=False)
+                        emp_data["user_id"] = target_user
+                    emp_data["has_employee"] = True
+                    return emp_data
+
+    # 6. Match by User Full Name against Employee Name if unique active record exists
+    user_full_name = frappe.db.get_value("User", target_user, "full_name")
+    if user_full_name and target_user != "Administrator":
+        matches = frappe.get_all(
+            "Employee",
+            filters={"employee_name": user_full_name, "status": "Active"},
+            fields=emp_fields,
+        )
+        if len(matches) == 1:
+            emp_data = matches[0]
+            if not emp_data.get("user_id") and frappe.db.exists("User", target_user):
+                frappe.db.set_value("Employee", emp_data["name"], "user_id", target_user, update_modified=False)
+                emp_data["user_id"] = target_user
+            emp_data["has_employee"] = True
+            return emp_data
+
+    # 7. Fallback for Administrator
+    if target_user == "Administrator":
+        admin_emp = (
+            frappe.db.get_value("Employee", {"employee_name": ["like", "%Savio Babu%"], "status": "Active"}, emp_fields, as_dict=True)
+            or frappe.db.get_value("Employee", {"status": "Active"}, emp_fields, as_dict=True)
+        )
+        if admin_emp:
+            admin_emp["has_employee"] = True
+            return admin_emp
 
     return {}
 
@@ -74,7 +155,7 @@ def update_daily_aggregates_and_employee_stats(employee: str, attendance_date):
     1. Total check-in count for that employee on attendance_date.
     2. Cumulative worked hours across all sessions on attendance_date.
     3. Cumulative day classification (Full Day >= 4h, Half Day 2-4h, Short < 2h).
-    4. Denormalized Employee master telemetry.
+    4. Denormalized Employee master telemetry & linked Daily POA attendance metrics.
     """
     if not employee or not attendance_date:
         return
@@ -83,7 +164,7 @@ def update_daily_aggregates_and_employee_stats(employee: str, attendance_date):
     day_sessions = frappe.get_all(
         "Xavirgin Attendance Session",
         filters={"employee": employee, "attendance_date": day_date},
-        fields=["name", "worked_hours", "status", "check_in"],
+        fields=["name", "worked_hours", "status", "check_in", "check_out"],
         order_by="check_in asc",
     )
 
@@ -117,6 +198,42 @@ def update_daily_aggregates_and_employee_stats(employee: str, attendance_date):
             update_modified=False,
         )
 
+    # Sync attendance status into existing Xavirgin Daily POA for this date (if present)
+    poa_name = frappe.db.get_value(
+        "Xavirgin Daily POA",
+        {"employee": employee, "poa_date": day_date},
+        "name",
+    )
+    if poa_name:
+        if day_sessions:
+            active_working = any(s.status == "Working" for s in day_sessions)
+            att_status = (
+                f"Checked In (Active - {cumulative_hours}h logged)"
+                if active_working
+                else f"{day_class} ({cumulative_hours}h)"
+            )
+            frappe.db.set_value(
+                "Xavirgin Daily POA",
+                poa_name,
+                {
+                    "attendance_verified": 1,
+                    "attendance_hours_logged": cumulative_hours,
+                    "attendance_status": att_status,
+                },
+                update_modified=False,
+            )
+        else:
+            frappe.db.set_value(
+                "Xavirgin Daily POA",
+                poa_name,
+                {
+                    "attendance_verified": 0,
+                    "attendance_hours_logged": 0.0,
+                    "attendance_status": "Not Checked In",
+                },
+                update_modified=False,
+            )
+
     # Rollup across all dates for the Employee master record
     all_completed = frappe.get_all(
         "Xavirgin Attendance Session",
@@ -137,7 +254,17 @@ def update_daily_aggregates_and_employee_stats(employee: str, attendance_date):
         filters={"employee": employee},
         fields=["xp_earned"],
     )
-    total_xp = sum(int(r.xp_earned or 0) for r in all_xp_rows)
+    att_xp = sum(int(r.xp_earned or 0) for r in all_xp_rows)
+
+    poa_xp = sum(
+        int(r.total_poa_xp or 0)
+        for r in frappe.get_all("Xavirgin Daily POA", filters={"employee": employee}, fields=["total_poa_xp"])
+    )
+    gh_xp = sum(
+        int(r.xp_awarded or 0)
+        for r in frappe.get_all("Xavirgin GitHub Activity", filters={"employee": employee}, fields=["xp_awarded"])
+    )
+    total_xp = att_xp + poa_xp + gh_xp
     badge = compute_badge_tier(total_xp)
 
     frappe.db.set_value(
@@ -160,9 +287,9 @@ class XavirginAttendanceSession(Document):
 
     def resolve_intelligent_employee_fields(self):
         """Pulls biographical and organizational context automatically."""
-        if not self.employee_name or not self.department:
+        if not self.employee or not self.employee_name or not self.department:
             ctx = resolve_employee_context(self.employee)
-            if ctx:
+            if ctx and ctx.get("name"):
                 if not self.employee:
                     self.employee = ctx.get("name")
                 if not self.employee_name:
@@ -200,15 +327,14 @@ def get_today_session_status(target_employee: str = None):
 
     emp_id = ctx["name"]
     current_date = getdate(today())
-    
-    # Check for any active working session
+
     active_session_doc = frappe.db.get_value(
         "Xavirgin Attendance Session",
         {"employee": emp_id, "status": "Working"},
         ["name", "attendance_date"],
-        as_dict=True
+        as_dict=True,
     )
-    
+
     active_session = active_session_doc.name if active_session_doc else None
     query_date = active_session_doc.attendance_date if active_session_doc else current_date
 
@@ -260,10 +386,8 @@ def start_session(target_employee: str = None):
     )
     session_number = prior_checkins_today + 1
 
-    # Award Check-In XP only on Session #1 of the day
     xp_gained = int(settings.checkin_xp or 10) if session_number == 1 else 0
 
-    # Calculate streak on first check-in of the day
     if session_number == 1:
         holidays = get_company_holidays(employee)
         prev_work_day = add_days(current_date, -1)
@@ -312,7 +436,7 @@ def stop_session(work_log: str, target_employee: str = None, session_name: str =
     """Allows check-out only if an active 'Working' session exists. Validates work log length."""
     settings = frappe.get_single("Xavirgin HR Settings")
     min_chars = int(getattr(settings, "min_work_log_chars", None) or 20)
-    
+
     clean_log = (work_log or "").strip()
     if len(clean_log) < min_chars:
         frappe.throw(
@@ -348,7 +472,6 @@ def stop_session(work_log: str, target_employee: str = None, session_name: str =
     session_hours = round(time_diff_in_hours(doc.check_out, doc.check_in), 2)
     doc.worked_hours = session_hours
 
-    # Calculate cumulative hours worked today to award capped XP accurately
     other_sessions_today = frappe.get_all(
         "Xavirgin Attendance Session",
         filters={
@@ -393,3 +516,45 @@ def stop_session(work_log: str, target_employee: str = None, session_name: str =
             total_checkins_today, session_hours, new_cumulative_hours, bonus_xp
         ),
     }
+
+def get_permission_query_conditions(user: str = None) -> str:
+    """Allows all authenticated internal staff to view attendance analytics while keeping guest users blocked."""
+    user = user or frappe.session.user
+    if user == "Guest":
+        return "1=0"
+    return ""
+
+
+def has_permission(doc, ptype="read", user=None, debug=False) -> bool:
+    """Read is public to team members; write/edit is restricted to Admins, Team Leads (for squad), and self."""
+    user = user or frappe.session.user
+    if user == "Guest":
+        return False
+
+    roles = set(frappe.get_roles(user))
+    if roles.intersection({"System Manager", "Administrator", "Xavirgin HR Admin", "Xavirgin HR Manager"}):
+        return True
+
+    if ptype in ("read", "select", "print", "report"):
+        return True
+
+    if ptype == "delete":
+        return False
+
+    # Check ownership / team-lead scope
+    target_emp = getattr(doc, "employee", None)
+    ctx = resolve_employee_context(user_id=user)
+    if not ctx or not ctx.get("name"):
+        return False
+
+    my_emp = ctx.get("name")
+    if target_emp == my_emp:
+        return True
+
+    if "Xavirgin Team Lead" in roles:
+        lead_dept = ctx.get("department")
+        doc_dept = getattr(doc, "department", None)
+        if lead_dept and doc_dept and lead_dept == doc_dept:
+            return True
+
+    return False

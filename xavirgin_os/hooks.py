@@ -1,10 +1,10 @@
 app_name = "xavirgin_os"
-
 app_publisher = "XAVIRGIN (OPC) PRIVATE LIMITED"
 app_description = "Enterprise HR, Recruitment, Offer Letter, Daily POA & Financial Intelligence System for Xavirgin"
 app_email = "contact@xavirgin.com"
 app_license = "mit"
 required_apps = ["frappe", "erpnext"]
+
 # 1. Browser Tab Favicon (Replaces the black [E] icon in tabs)
 favicon = "/assets/xavirgin_os/images/xavirgin_logo.jpeg"
 
@@ -16,6 +16,7 @@ app_title = "Xavirgin OS"
 
 # 4. Splash Screen Custom Background & Loading screen setup
 splash_image = "/assets/xavirgin_os/images/xavirgin_logo.jpeg"
+
 # Force "/" to load www/index.html instead of redirecting to /login
 home_page = "index"
 
@@ -31,7 +32,7 @@ add_to_apps_screen = [
         "logo": "/assets/xavirgin_os/images/xavirgin_logo.jpeg",
         "icon": "octicon octicon-cpu",
         "route": "/desk/xavirgin-os",
-        "has_permission": "xavirgin_os.api.has_app_permission"
+        "has_permission": "xavirgin_os.api.has_app_permission",
     }
 ]
 
@@ -41,18 +42,18 @@ after_migrate = "xavirgin_os.install.after_migrate"
 # Desk (Internal ERP) Assets
 app_include_js = [
     "/assets/xavirgin_os/js/cash_meter.js",
-    "/assets/xavirgin_os/js/xavirgin_ui.js"
+    "/assets/xavirgin_os/js/xavirgin_ui.js",
 ]
 app_include_css = [
-    "/assets/xavirgin_os/css/cash_meter.css"
+    "/assets/xavirgin_os/css/cash_meter.css",
 ]
 
 # Website & Login Portal Assets (Styles /login, /, and /careers)
 web_include_css = [
-    "/assets/xavirgin_os/css/xavirgin_web.css"
+    "/assets/xavirgin_os/css/xavirgin_web.css",
 ]
 web_include_js = [
-    "/assets/xavirgin_os/js/xavirgin_web.js"
+    "/assets/xavirgin_os/js/xavirgin_web.js",
 ]
 
 doc_events = {
@@ -64,18 +65,29 @@ doc_events = {
     },
     "User": {
         "after_insert": "xavirgin_os.api.send_custom_welcome_email"
-    }
+    },
 }
 
+# ==============================================================================
+# Permission Query Conditions (List-View / REST Filter Hooks)
+# ==============================================================================
 permission_query_conditions = {
     "Xavirgin Interview": "xavirgin_os.xavirgin_os.doctype.xavirgin_interview.xavirgin_interview.get_permission_query_conditions",
     "Xavirgin Interview Evaluation": "xavirgin_os.xavirgin_os.doctype.xavirgin_interview_evaluation.xavirgin_interview_evaluation.get_permission_query_conditions",
     "Xavirgin Daily POA": "xavirgin_os.xavirgin_os.doctype.xavirgin_daily_poa.xavirgin_daily_poa.get_permission_query_conditions",
+    "Xavirgin Attendance Session": "xavirgin_os.xavirgin_os.doctype.xavirgin_attendance_session.xavirgin_attendance_session.get_permission_query_conditions",
+    "Xavirgin Offer Letter": "xavirgin_os.xavirgin_os.doctype.xavirgin_offer_letter.xavirgin_offer_letter.get_permission_query_conditions",
 }
 
+# ==============================================================================
+# Document-Level Permission Hooks (Read, Write, Create, Delete Authorization)
+# ==============================================================================
 has_permission = {
     "Xavirgin Interview": "xavirgin_os.xavirgin_os.doctype.xavirgin_interview.xavirgin_interview.has_permission",
     "Xavirgin Interview Evaluation": "xavirgin_os.xavirgin_os.doctype.xavirgin_interview_evaluation.xavirgin_interview_evaluation.has_permission",
+    "Xavirgin Daily POA": "xavirgin_os.xavirgin_os.doctype.xavirgin_daily_poa.xavirgin_daily_poa.has_permission",
+    "Xavirgin Attendance Session": "xavirgin_os.xavirgin_os.doctype.xavirgin_attendance_session.xavirgin_attendance_session.has_permission",
+    "Xavirgin Offer Letter": "xavirgin_os.xavirgin_os.doctype.xavirgin_offer_letter.xavirgin_offer_letter.has_permission",
 }
 
 scheduler_events = {
@@ -87,5 +99,5 @@ scheduler_events = {
         "30 19 * * *": [
             "xavirgin_os.tasks.scheduled_daily_path_ceo_insight"
         ]
-    }
+    },
 }
