@@ -688,16 +688,22 @@ def get_candidate_workspace_overview(candidate_name: str) -> dict:
     for ev in evaluations:
         ev["formatted_date"] = formatdate(ev.evaluation_date, "dd MMM yyyy") if ev.evaluation_date else "-"
 
-    # 4. Offer Letters
+   # 4. Offer Letters
     offers = []
     if frappe.db.exists("DocType", "Xavirgin Offer Letter"):
+        # Safely detect existing fields without triggering SQL 1054
+        offer_meta = frappe.get_meta("Xavirgin Offer Letter")
+        valid_fields = ["name", "workflow_state"]
+        for opt_field in ("issue_date", "expected_joining_date", "joining_date", "employee"):
+            if offer_meta.has_field(opt_field):
+                valid_fields.append(opt_field)
+
         offers = frappe.get_all(
             "Xavirgin Offer Letter",
             filters={"candidate": cand.name},
-            fields=["name", "workflow_state", "issue_date", "joining_date"],
+            fields=valid_fields,
             order_by="creation desc",
         )
-
     # 5. Employee & Attendance Telemetry (if converted/hired)
     emp_id = cand.employee or frappe.db.get_value("Employee", {"custom_source_candidate": cand.name}, "name")
     emp_info = {}

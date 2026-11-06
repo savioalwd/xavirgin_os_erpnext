@@ -35,7 +35,20 @@ frappe.listview_settings["Xavirgin Candidate"] = {
         listview._xav_job = "";
         listview._xav_source = "";
         listview._xav_search = "";
-        listview._xav_collapsed = false;
+        listview._xav_show_table = false; // By default: keep standard table hidden to prevent congestion
+
+        // Helper to toggle Frappe's standard underlying table & filter bar
+        listview.toggle_underlying_table = function (show) {
+            const $standardList = listview.page.wrapper.find(".result-list, .frappe-list, .list-row-container, .list-paging-area");
+            const $standardFilters = listview.page.wrapper.find(".standard-filter-section, .filter-section");
+            if (show) {
+                $standardList.show();
+                $standardFilters.show();
+            } else {
+                $standardList.hide();
+                $standardFilters.hide();
+            }
+        };
 
         if (!listview.page.wrapper.find(".xav-candidate-pipeline-hub").length) {
             const $hub = $(`<div class="xav-candidate-pipeline-hub" style="padding: 12px 15px 4px 15px;"></div>`);
@@ -121,6 +134,9 @@ frappe.listview_settings["Xavirgin Candidate"] = {
             const $container = listview.page.wrapper.find(".xav-candidate-pipeline-hub");
             if (!$container.length) return;
 
+            // Enforce clean view without congested table underneath
+            listview.toggle_underlying_table(listview._xav_show_table);
+
             const k = data.kpis || {};
             const opts = data.filter_options || {};
             const tab = listview._xav_tab || "kanban";
@@ -141,7 +157,7 @@ frappe.listview_settings["Xavirgin Candidate"] = {
                             .map((c) => listview.render_cand_card(c, data.can_manage, opts.stages))
                             .join("");
                         return `
-                        <div style="min-width:255px; max-width:275px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:10px; display:flex; flex-direction:column; max-height:460px;">
+                        <div style="min-width:255px; max-width:275px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:10px; display:flex; flex-direction:column; max-height:560px;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding-bottom:6px; border-bottom:2px solid #cbd5e1;">
                                 <span style="font-size:12px; font-weight:800; color:#0f172a;">${frappe.utils.escape_html(col.stage)}</span>
                                 <span style="background:#e2e8f0; color:#1e293b; padding:1px 8px; border-radius:999px; font-size:11px; font-weight:800;">${col.count}</span>
@@ -283,13 +299,13 @@ frappe.listview_settings["Xavirgin Candidate"] = {
                         <select class="form-control input-xs xav-cand-dept-filter" style="width:150px; height:28px; font-weight:600;">${deptOptions}</select>
                         <select class="form-control input-xs xav-cand-source-filter" style="width:140px; height:28px; font-weight:600;">${sourceOptions}</select>
                         <input type="text" class="form-control input-xs xav-cand-search-input" placeholder="Search candidate / skill..." value="${frappe.utils.escape_html(listview._xav_search)}" style="width:160px; height:28px;" />
-                        <button class="btn btn-xs btn-default xav-cand-collapse-btn" style="font-weight:600;">
-                            ${listview._xav_collapsed ? "▼ Expand" : "▲ Collapse"}
+                        <button class="btn btn-xs btn-default xav-cand-toggle-table-btn" style="font-weight:700;">
+                            ${listview._xav_show_table ? "▲ Hide Standard Table" : "▼ Show Standard Table"}
                         </button>
                     </div>
                 </div>
 
-                <div style="display:${listview._xav_collapsed ? "none" : "block"};">
+                <div>
                     <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;">
                         ${kpiCard("Total Applied", k.total_applications || 0, `+${k.today_applications || 0} Today`, "#f8fafc", "#0f172a")}
                         ${kpiCard("Active Pipeline", k.active_pipeline || 0, `${k.awaiting_interview || 0} Awaiting Interview`, "#eff6ff", "#1d4ed8")}
@@ -324,8 +340,9 @@ frappe.listview_settings["Xavirgin Candidate"] = {
                 listview.refresh_pipeline_hub();
             });
 
-            $container.find(".xav-cand-collapse-btn").on("click", function () {
-                listview._xav_collapsed = !listview._xav_collapsed;
+            // Toggle standard table below Kanban
+            $container.find(".xav-cand-toggle-table-btn").on("click", function () {
+                listview._xav_show_table = !listview._xav_show_table;
                 listview.render_pipeline_hub(data);
             });
 
@@ -383,6 +400,9 @@ frappe.listview_settings["Xavirgin Candidate"] = {
     refresh(listview) {
         if (listview.refresh_pipeline_hub) {
             listview.refresh_pipeline_hub();
+        }
+        if (listview.toggle_underlying_table) {
+            listview.toggle_underlying_table(listview._xav_show_table);
         }
     },
 };

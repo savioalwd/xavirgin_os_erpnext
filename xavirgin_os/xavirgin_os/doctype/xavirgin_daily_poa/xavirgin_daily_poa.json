@@ -45,7 +45,7 @@
    "label": "Series",
    "options": "XAV-POA-.YYYY.-"
   },
- {
+  {
    "fieldname": "employee",
    "fieldtype": "Link",
    "ignore_user_permissions": 1,
@@ -67,6 +67,7 @@
    "fetch_from": "employee.user_id",
    "fieldname": "user_id",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "User Account",
    "options": "User",
    "read_only": 1
@@ -75,6 +76,7 @@
    "fetch_from": "employee.department",
    "fieldname": "department",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Department / Squad",
@@ -85,11 +87,12 @@
    "fetch_from": "employee.designation",
    "fieldname": "designation",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Role / Designation",
    "options": "Designation",
    "read_only": 1
   },
-{
+  {
    "fetch_from": "employee.reports_to",
    "fieldname": "reporting_manager",
    "fieldtype": "Link",
@@ -276,7 +279,7 @@
    "link_fieldname": "carried_from_poa"
   }
  ],
- "modified": "2026-11-06 12:00:00.000000",
+ "modified": "2026-11-06 15:30:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "icon": "check-square",

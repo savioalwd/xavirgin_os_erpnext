@@ -1,8 +1,15 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import format_datetime, get_datetime, getdate, now_datetime, time_diff_in_hours, today
-from xavirgin_os.ai import generate_employee_poa_summary
+from frappe.utils import (
+    add_days,
+    format_datetime,
+    get_datetime,
+    getdate,
+    now_datetime,
+    time_diff_in_hours,
+    today,
+)
 from xavirgin_os.xavirgin_os.doctype.xavirgin_attendance_session.xavirgin_attendance_session import (
     compute_badge_tier,
     resolve_employee_context,
@@ -63,6 +70,133 @@ def can_user_manage_employee_poa(target_employee: str, user: str = None) -> bool
     return False
 
 
+def resolve_and_fetch_employee_github_events(
+    employee: str, poa_date, gh_username: str = None, poa_name: str = None
+) -> list:
+    """Reliably retrieves and self-heals GitHub webhook events for `(employee, poa_date)`:
+    - Matches by `employee` ID OR `github_username` (case-insensitive) OR candidate lineage handle.
+    - Handles UTC-to-local date boundaries by checking both `activity_date` and `event_timestamp` range.
+    - Deduplicates events and auto-links unmapped rows to the Employee and Daily POA.
+    - Completely optional: returns `[]` cleanly if the employee has no GitHub account.
+    """
+    if not employee or not poa_date or not frappe.db.exists("DocType", "Xavirgin GitHub Activity"):
+        return []
+
+    p_date = getdate(poa_date)
+    if gh_username is None:
+        gh_username = (frappe.db.get_value("Employee", employee, "custom_github_username") or "").strip()
+
+    if not gh_username:
+        cand = frappe.db.get_value("Employee", employee, "custom_source_candidate")
+        if cand and frappe.db.exists("DocType", "Xavirgin Candidate"):
+            gh_username = (frappe.db.get_value("Xavirgin Candidate", cand, "github_username") or "").strip()
+            if gh_username:
+                frappe.db.set_value("Employee", employee, "custom_github_username", gh_username, update_modified=False)
+
+    meta = frappe.get_meta("Xavirgin GitHub Activity")
+    available_fields = [
+        "name",
+        "employee",
+        "github_username",
+        "event_type",
+        "repository",
+        "summary",
+        "reference_id",
+        "activity_date",
+        "event_timestamp",
+        "xp_awarded",
+    ]
+    for optional_f in (
+        "employee_name",
+        "action",
+        "branch",
+        "commit_url",
+        "event_url",
+        "pr_number",
+        "issue_number",
+        "author_name",
+        "daily_poa",
+        "status",
+    ):
+        if meta.has_field(optional_f):
+            available_fields.append(optional_f)
+
+    date_window = [add_days(p_date, -1), p_date, add_days(p_date, 1)]
+    or_filters = [{"employee": employee}]
+    if gh_username:
+        or_filters.append({"github_username": gh_username})
+        or_filters.append({"github_username": gh_username.lower()})
+
+    raw_events = frappe.get_all(
+        "Xavirgin GitHub Activity",
+        filters={"activity_date": ["between", [date_window[0], date_window[2]]]},
+        or_filters=or_filters,
+        fields=available_fields,
+        order_by="event_timestamp asc, creation asc",
+    )
+
+    matched_events = []
+    seen_keys = set()
+    emp_name = frappe.db.get_value("Employee", employee, "employee_name")
+
+    for ev in raw_events:
+        ev_local_date = getdate(ev.event_timestamp) if ev.get("event_timestamp") else getdate(ev.activity_date)
+        if ev_local_date != p_date and getdate(ev.activity_date) != p_date:
+            continue
+
+        ev_emp = (ev.get("employee") or "").strip()
+        ev_gh = (ev.get("github_username") or "").strip().lower()
+        if ev_emp and ev_emp != employee:
+            continue
+        if not ev_emp and gh_username and ev_gh != gh_username.lower():
+            continue
+        if not ev_emp and not gh_username:
+            continue
+
+        dedup_key = (
+            f"{ev.get('event_type')}|{ev.get('repository')}|{ev.get('reference_id') or ''}|{(ev.get('summary') or '')[:80]}"
+        )
+        if dedup_key in seen_keys:
+            continue
+        seen_keys.add(dedup_key)
+
+        updates = {}
+        if not ev_emp:
+            updates["employee"] = employee
+            if emp_name and meta.has_field("employee_name"):
+                updates["employee_name"] = emp_name
+        if poa_name and meta.has_field("daily_poa") and not ev.get("daily_poa"):
+            updates["daily_poa"] = poa_name
+        if updates:
+            frappe.db.set_value("Xavirgin GitHub Activity", ev.name, updates, update_modified=False)
+
+        repo_name = ev.get("repository") or ""
+        ref_id = ev.get("reference_id") or ""
+        event_url = ev.get("event_url") or ev.get("commit_url") or ""
+        if not event_url and repo_name and "/" in repo_name:
+            if ref_id and len(ref_id) >= 7 and all(c in "0123456789abcdefABCDEF" for c in ref_id):
+                event_url = f"https://github.com/{repo_name}/commit/{ref_id}"
+            else:
+                event_url = f"https://github.com/{repo_name}"
+
+        matched_events.append({
+            "name": ev.name,
+            "event_type": ev.get("event_type") or "Push",
+            "action": ev.get("action") or "",
+            "repository": repo_name,
+            "branch": ev.get("branch") or "",
+            "summary": ev.get("summary") or "",
+            "reference_id": ref_id,
+            "short_sha": ref_id[:7] if ref_id else "",
+            "github_username": ev.get("github_username") or gh_username or "",
+            "event_timestamp": format_datetime(ev.event_timestamp, "hh:mm a") if ev.get("event_timestamp") else "-",
+            "xp_awarded": int(ev.get("xp_awarded") or 0),
+            "event_url": event_url,
+        })
+
+    return matched_events
+
+
 class XavirginDailyPOA(Document):
     def before_validate(self):
         self.resolve_intelligent_employee_fields()
@@ -92,12 +226,10 @@ class XavirginDailyPOA(Document):
         """
         session_ctx = resolve_employee_context(user_id=frappe.session.user)
 
-        # If employee is blank, or if a non-admin/non-lead tried to set someone else's employee ID
         if not self.employee:
             if session_ctx and session_ctx.get("name"):
                 self.employee = session_ctx.get("name")
         elif not is_admin_user() and not is_team_lead_user(emp_ctx=session_ctx):
-            # Force intern/regular employee to their own Employee identity on new records
             if self.is_new() and session_ctx and session_ctx.get("name"):
                 self.employee = session_ctx.get("name")
 
@@ -155,7 +287,7 @@ class XavirginDailyPOA(Document):
                         idx, row.task_title
                     )
                 )
-            if is_completed_state and row.status in ("Pending", "Planned", "In Progress") and not (row.blocker_reason or "").strip():
+            if is_completed_state and row.status in ("Pending", "Planned", "In Progress", "InProgress") and not (row.blocker_reason or "").strip():
                 frappe.throw(
                     _("Task #{0} ('{1}') was not finished. Please mark it as Completed, Carried Forward, or explain what was left in the reason column.").format(
                         idx, row.task_title
@@ -163,7 +295,7 @@ class XavirginDailyPOA(Document):
                 )
 
     def sync_live_attendance_and_github(self):
-        """Pulls same-day attendance sessions (including active running time) and GitHub logs idempotently."""
+        """Pulls same-day attendance sessions (including active running time) and optional GitHub logs idempotently."""
         if not self.employee or not self.poa_date:
             return
         p_date = getdate(self.poa_date)
@@ -205,7 +337,7 @@ class XavirginDailyPOA(Document):
                         hrs = round(float(s.worked_hours or 1.0), 1) or 1.0
                         self.append("tasks", {
                             "task_title": clean_log[:140],
-                            "task_type": "Code/LogicImplementation",
+                            "task_type": "Code / Logic Implementation",
                             "priority": "Medium",
                             "status": "Completed" if s.status in ("Completed", "Corrected") else "In Progress",
                             "expected_hours": hrs,
@@ -217,17 +349,24 @@ class XavirginDailyPOA(Document):
             self.attendance_hours_logged = 0.0
             self.attendance_status = "Not Checked In"
 
-        # 2. GitHub Sync
-        gh_events = frappe.get_all(
-            "Xavirgin GitHub Activity",
-            filters={"employee": self.employee, "activity_date": p_date},
-            fields=["name", "event_type", "repository", "summary", "reference_id"],
-            order_by="event_timestamp asc",
+        # 2. GitHub Sync (Optional — safely skips if employee has no GitHub account)
+        gh_events = resolve_and_fetch_employee_github_events(
+            self.employee, p_date, poa_name=self.name if not self.is_new() else None
         )
         self.github_events_count = len(gh_events)
         if gh_events:
-            lines = [f"• [{g.event_type}] {g.summary} ({g.repository})" for g in gh_events]
+            lines = [
+                f"• [{g['event_type']}] {g['summary']} ({g['repository']}{(' #' + g['short_sha']) if g['short_sha'] else ''})"
+                for g in gh_events
+            ]
             self.github_contributions_summary = "\n".join(lines)
+        else:
+            gh_user = (frappe.db.get_value("Employee", self.employee, "custom_github_username") or "").strip()
+            self.github_contributions_summary = (
+                f"No GitHub events recorded on {p_date} (@{gh_user})."
+                if gh_user
+                else "Not Applicable (No GitHub account linked for this role)."
+            )
 
     def calculate_poa_metrics_and_xp(self):
         """Calculates task tallies, blockers, and points."""
@@ -282,7 +421,9 @@ class XavirginDailyPOA(Document):
 
         att_xp = sum(
             int(r.xp_earned or 0)
-            for r in frappe.get_all("Xavirgin Attendance Session", filters={"employee": self.employee}, fields=["xp_earned"])
+            for r in frappe.get_all(
+                "Xavirgin Attendance Session", filters={"employee": self.employee}, fields=["xp_earned"]
+            )
         )
         poa_rows = frappe.get_all(
             "Xavirgin Daily POA",
@@ -294,7 +435,9 @@ class XavirginDailyPOA(Document):
 
         gh_xp = sum(
             int(r.xp_awarded or 0)
-            for r in frappe.get_all("Xavirgin GitHub Activity", filters={"employee": self.employee}, fields=["xp_awarded"])
+            for r in frappe.get_all(
+                "Xavirgin GitHub Activity", filters={"employee": self.employee}, fields=["xp_awarded"]
+            )
         )
 
         grand_total_xp = att_xp + poa_xp + gh_xp
@@ -341,7 +484,7 @@ class XavirginDailyPOA(Document):
             hrs = round(float(s.worked_hours or 1.0), 1) or 1.0
             self.append("tasks", {
                 "task_title": title_candidate,
-                "task_type": "Code/LogicImplementation",
+                "task_type": "Code / Logic Implementation",
                 "priority": "Medium",
                 "status": "Completed" if s.status in ("Completed", "Corrected") else "In Progress",
                 "expected_hours": hrs,
@@ -361,6 +504,7 @@ class XavirginDailyPOA(Document):
             "attendance_hours_logged": self.attendance_hours_logged,
             "attendance_verified": self.attendance_verified,
             "sessions_count": len(sessions),
+            "github_events_count": self.github_events_count,
         }
 
     @frappe.whitelist()
@@ -385,7 +529,16 @@ class XavirginDailyPOA(Document):
         added = 0
 
         for t in prev_doc.tasks:
-            if t.status in ("Planned", "In Progress", "InProgress", "Pending", "Blocked", "Stuck / Blocked", "Carried Forward", "CarriedForward"):
+            if t.status in (
+                "Planned",
+                "In Progress",
+                "InProgress",
+                "Pending",
+                "Blocked",
+                "Stuck / Blocked",
+                "Carried Forward",
+                "CarriedForward",
+            ):
                 if (t.task_title or "").strip().lower() not in existing_titles:
                     self.append("tasks", {
                         "task_title": t.task_title,
@@ -437,11 +590,31 @@ class XavirginDailyPOA(Document):
 
     @frappe.whitelist()
     def generate_individual_ai_summary(self):
-        """Generates AI performance summary."""
+        """Generates structured AI performance summary with full error classification.
+        Never overwrites an existing valid `ai_summary` if generation fails.
+        """
         self.validate_employee_identity_and_permissions()
-        html_summary = generate_employee_poa_summary(self.name)
-        self.db_set("ai_summary", html_summary, update_modified=False)
-        return html_summary
+        from xavirgin_os.ai import generate_employee_poa_summary_structured
+
+        lock_key = f"xav_poa_ai_lock_{self.name}"
+        if frappe.cache().get_value(lock_key):
+            return {
+                "status": "error",
+                "error_category": "rate_limit",
+                "user_message": _(
+                    "AI Summary generation is already in progress for this Daily POA. Please wait a few seconds."
+                ),
+            }
+
+        frappe.cache().set_value(lock_key, 1, expires_in_sec=45)
+        try:
+            res = generate_employee_poa_summary_structured(self.name)
+            if res.get("status") == "success" and res.get("html_summary"):
+                self.db_set("ai_summary", res["html_summary"], update_modified=False)
+                frappe.db.commit()
+            return res
+        finally:
+            frappe.cache().delete_value(lock_key)
 
 
 # ==============================================================================
@@ -454,8 +627,9 @@ def get_session_poa_Bootstrap(employee: str = None, poa_date: str = None):
     1. Resolves the logged-in user's Employee context (or target employee if authorized).
     2. Checks if a Daily POA already exists for `(employee, poa_date)`.
     3. Fetches live Attendance Sessions (with check-in/out times & work logs).
-    4. Fetches cross-module telemetry counts (Candidate, Interviews, Attendance, GitHub).
-    5. Returns edit authorization flags (`can_edit`, `is_admin`, `is_team_lead`).
+    4. Fetches same-day GitHub webhook events (optional, self-healing).
+    5. Fetches cross-module telemetry counts (Candidate, Interviews, Attendance, GitHub).
+    6. Returns edit authorization flags (`can_edit`, `is_admin`, `is_team_lead`).
     """
     session_ctx = resolve_employee_context(user_id=frappe.session.user)
     admin_flag = is_admin_user()
@@ -486,6 +660,7 @@ def get_session_poa_Bootstrap(employee: str = None, poa_date: str = None):
             "user_id",
             "reports_to",
             "custom_team_lead",
+            "custom_github_username",
             "custom_source_candidate",
             "custom_source_job_opening",
             "custom_source_offer_letter",
@@ -564,8 +739,16 @@ def get_session_poa_Bootstrap(employee: str = None, poa_date: str = None):
         interviews_count = frappe.db.count("Xavirgin Interview", {"candidate": candidate_id})
 
     total_attendance_count = frappe.db.count("Xavirgin Attendance Session", {"employee": emp_id})
-    github_today_count = frappe.db.count("Xavirgin GitHub Activity", {"employee": emp_id, "activity_date": target_date})
+
+    gh_username = (emp_extra.get("custom_github_username") or "").strip()
+    gh_events_today = resolve_and_fetch_employee_github_events(
+        emp_id, target_date, gh_username=gh_username, poa_name=existing_poa.name if existing_poa else None
+    )
+    github_today_count = len(gh_events_today)
     github_total_count = frappe.db.count("Xavirgin GitHub Activity", {"employee": emp_id})
+    configured_model = (
+        frappe.db.get_single_value("Xavirgin HR Settings", "gemini_model") or "gemini-2.5-flash"
+    ).strip()
 
     return {
         "has_employee": True,
@@ -587,6 +770,16 @@ def get_session_poa_Bootstrap(employee: str = None, poa_date: str = None):
             "hours_logged": total_att_hours,
             "active_working": active_working,
             "sessions": formatted_sessions,
+        },
+        "github_activity": {
+            "has_github_account": bool(gh_username),
+            "github_username": gh_username,
+            "today_count": github_today_count,
+            "total_count": github_total_count,
+            "events": gh_events_today,
+        },
+        "ai_config": {
+            "configured_model": configured_model,
         },
         "telemetry": {
             "employee": emp_id,
@@ -657,13 +850,11 @@ def get_department_poa_dashboard(target_date: str = None, department: str = None
         ],
         order_by="modified desc",
     )
-    # Deduplicate by employee (1 POA per employee per date)
     poa_by_emp = {}
     for p in poas_on_date:
         if p.employee and p.employee not in poa_by_emp:
             poa_by_emp[p.employee] = p
 
-    # Attendance sessions on target_date
     att_sessions = frappe.get_all(
         "Xavirgin Attendance Session",
         filters={"attendance_date": q_date},
@@ -778,7 +969,6 @@ def get_department_poa_dashboard(target_date: str = None, department: str = None
         )
         departments_list.append(d_data)
 
-    # Sort user's own department first, then alphabetically
     departments_list.sort(key=lambda x: (0 if x["is_my_department"] else 1, x["department"]))
 
     total_emp = totals["total_employees"]
@@ -841,18 +1031,15 @@ def has_permission(doc, ptype="read", user=None, debug=False) -> bool:
     if roles.intersection({"System Manager", "Administrator", "Xavirgin HR Admin", "Xavirgin HR Manager"}):
         return True
 
-    # 1. Allow reading for all internal staff
     if ptype in ("read", "select", "print", "report", "export"):
         return True
 
     if ptype == "delete":
         return False
 
-    # 2. String check when Frappe calls has_permission for doc creation check
     if isinstance(doc, str) or not doc:
         return True
 
-    # 3. Write / Save validation
     target_emp = getattr(doc, "employee", None)
     if not target_emp:
         return True

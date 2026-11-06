@@ -54,7 +54,14 @@ frappe.ui.form.on("Xavirgin Daily POA", {
                         frm.doc.department = data.department;
                         frm.doc.designation = data.designation;
                         frm.doc.reporting_manager = data.reporting_manager;
-                        frm.refresh_fields(["employee", "employee_name", "user_id", "department", "designation", "reporting_manager"]);
+                        frm.refresh_fields([
+                            "employee",
+                            "employee_name",
+                            "user_id",
+                            "department",
+                            "designation",
+                            "reporting_manager",
+                        ]);
                     }
 
                     // Lock Employee field for regular interns/employees so they never manually select it
@@ -80,7 +87,7 @@ frappe.ui.form.on("Xavirgin Daily POA", {
                         return;
                     }
 
-                    // Auto-populate attendance fields on new unsaved form
+                    // Auto-populate attendance & GitHub fields on new unsaved form
                     if (data.attendance) {
                         frm.doc.attendance_verified = data.attendance.verified ? 1 : 0;
                         frm.doc.attendance_hours_logged = data.attendance.hours_logged || 0.0;
@@ -95,11 +102,12 @@ frappe.ui.form.on("Xavirgin Daily POA", {
                                 if (cleanLog) {
                                     let row = frm.add_child("tasks");
                                     row.task_title = cleanLog.substring(0, 140);
-                                    row.task_type = "Code/LogicImplementation";
+                                    row.task_type = "Code / Logic Implementation";
                                     row.priority = "Medium";
-                                    row.status = sess.status === "Completed" || sess.status === "Corrected" ? "Completed" : "In Progress";
+                                    row.status =
+                                        sess.status === "Completed" || sess.status === "Corrected" ? "Completed" : "In Progress";
                                     row.expected_hours = sess.worked_hours > 0 ? sess.worked_hours : 1.0;
-                                    row.actual_hours = sess.status === "Completed" ? (sess.worked_hours || 1.0) : 0.0;
+                                    row.actual_hours = sess.status === "Completed" ? sess.worked_hours || 1.0 : 0.0;
                                     row.description = `Synced from Attendance Session ${sess.name} (Session #${sess.session_number}):\n${cleanLog}`;
                                     addedAny = true;
                                 }
@@ -108,6 +116,11 @@ frappe.ui.form.on("Xavirgin Daily POA", {
                                 frm.refresh_field("tasks");
                             }
                         }
+                    }
+
+                    if (data.github_activity) {
+                        frm.doc.github_events_count = data.github_activity.today_count || 0;
+                        frm.refresh_field("github_events_count");
                     }
                 } else {
                     // Existing record: enforce read-only UI if user does not have edit authorization
@@ -123,7 +136,7 @@ frappe.ui.form.on("Xavirgin Daily POA", {
                     }
                 }
 
-                // Render Status Badges & Engineering/HR Telemetry Panel
+                // Render Status Badges, Same-Day GitHub Events & Modern AI Summary Workspace
                 frm.events.render_telemetry_and_badges(frm, data);
             },
         });
@@ -173,7 +186,11 @@ frappe.ui.form.on("Xavirgin Daily POA", {
                 ) {
                     frm.add_custom_button(__("🏁 Finish & Submit Today's Work"), () => {
                         let unfinished = (frm.doc.tasks || []).filter(
-                            (t) => t.status === "Planned" || t.status === "In Progress" || t.status === "InProgress" || t.status === "Pending"
+                            (t) =>
+                                t.status === "Planned" ||
+                                t.status === "In Progress" ||
+                                t.status === "InProgress" ||
+                                t.status === "Pending"
                         );
                         if (unfinished.length > 0) {
                             let d = new frappe.ui.Dialog({
@@ -259,22 +276,26 @@ frappe.ui.form.on("Xavirgin Daily POA", {
 
                 // Attendance & Task Sync Utilities
                 frm.add_custom_button(
-                    __("🔄 Sync Attendance & Logs"),
+                    __("🔄 Sync Attendance & GitHub Logs"),
                     () => {
                         frappe.call({
                             doc: frm.doc,
                             method: "sync_deliverables_from_attendance",
                             freeze: true,
-                            freeze_message: __("Synchronizing attendance sessions & deliverables..."),
+                            freeze_message: __("Synchronizing attendance sessions, GitHub activity & deliverables..."),
                             callback(res) {
                                 frm.reload_doc();
                                 const msg = res.message || {};
                                 frappe.show_alert({
-                                    message: __("Synced {0} attendance sessions ({1}h). Added {2} new deliverable(s).", [
-                                        msg.sessions_count || 0,
-                                        msg.attendance_hours_logged || 0,
-                                        msg.added_tasks || 0,
-                                    ]),
+                                    message: __(
+                                        "Synced {0} attendance sessions ({1}h), {2} GitHub event(s), and added {3} new deliverable(s).",
+                                        [
+                                            msg.sessions_count || 0,
+                                            msg.attendance_hours_logged || 0,
+                                            msg.github_events_count || 0,
+                                            msg.added_tasks || 0,
+                                        ]
+                                    ),
                                     indicator: "green",
                                 });
                             },
@@ -307,23 +328,9 @@ frappe.ui.form.on("Xavirgin Daily POA", {
                 );
 
                 frm.add_custom_button(
-                    __("✨ AI Daily Review"),
+                    __("✨ Generate AI Daily Review"),
                     () => {
-                        frappe.call({
-                            doc: frm.doc,
-                            method: "generate_individual_ai_summary",
-                            freeze: true,
-                            freeze_message: __("Generating AI feedback on your day's work..."),
-                            callback(res) {
-                                if (res.message) {
-                                    frm.reload_doc();
-                                    frappe.show_alert({
-                                        message: __("AI feedback ready! Check the section below."),
-                                        indicator: "green",
-                                    });
-                                }
-                            },
-                        });
+                        frm.events.trigger_ai_summary_generation(frm);
                     },
                     __("AI Assistant")
                 );
@@ -338,7 +345,7 @@ frappe.ui.form.on("Xavirgin Daily POA", {
                     <p><b>🚀 Deep-Work Bonus (Task >= 2.0 Hours):</b> +10 Bonus XP (25 XP total)</p>
                     <p><b>🛑 Unverified Task (Completed without Check-In):</b> +2 XP</p>
                     <hr/>
-                    <p><b>💻 Automatic GitHub Points:</b></p>
+                    <p><b>💻 Automatic GitHub Points (Optional for Dev/QA):</b></p>
                     <ul>
                         <li><b>Commit Push Batch:</b> +5 XP</li>
                         <li><b>Pull Request Opened:</b> +15 XP</li>
@@ -350,10 +357,76 @@ frappe.ui.form.on("Xavirgin Daily POA", {
         });
     },
 
+    trigger_ai_summary_generation(frm) {
+        if (frm._generating_ai_summary) return;
+        frm._generating_ai_summary = true;
+
+        const $aiCard = frm.dashboard.wrapper.find(".xav-poa-ai-workspace");
+        if ($aiCard.length) {
+            $aiCard.find(".xav-ai-status-pill").html(
+                `<span style="background:#fef9c3; color:#854d0e; border:1px solid #fde047; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700;">⏳ Generating AI Summary...</span>`
+            );
+        }
+
+        frappe.call({
+            doc: frm.doc,
+            method: "generate_individual_ai_summary",
+            freeze: true,
+            freeze_message: __("Analyzing Daily POA, Attendance & Deliverables with AI..."),
+            callback(res) {
+                frm._generating_ai_summary = false;
+                const payload = res.message || {};
+
+                if (payload.status === "success" || typeof payload === "string") {
+                    frappe.show_alert({
+                        message: __("AI Daily Summary generated successfully!"),
+                        indicator: "green",
+                    });
+                    frm.reload_doc();
+                } else {
+                    const userMsg = payload.user_message || __("AI Summary generation could not be completed.");
+                    const adminHint = payload.admin_hint || "";
+                    const errCat = payload.error_category || "error";
+
+                    if ($aiCard.length) {
+                        $aiCard.find(".xav-ai-status-pill").html(
+                            `<span style="background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700;">⚠️ Generation Failed</span>`
+                        );
+                        $aiCard.find(".xav-ai-error-box").remove();
+                        $aiCard.prepend(`
+                            <div class="xav-ai-error-box" style="background:#fef2f2; border:1px solid #fca5a5; border-radius:8px; padding:10px 14px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                                <div>
+                                    <div style="font-weight:800; color:#991b1b; font-size:12px;">⚠️ AI Generation Failed (${frappe.utils.escape_html(errCat.toUpperCase())})</div>
+                                    <div style="color:#b91c1c; font-size:12px;">${frappe.utils.escape_html(userMsg)}</div>
+                                    ${
+                                        adminHint
+                                            ? `<div style="color:#64748b; font-size:11px; margin-top:2px;">💡 <b>Admin Guidance:</b> ${frappe.utils.escape_html(adminHint)} <a href="/app/xavirgin-hr-settings" style="color:#2563eb; font-weight:700;">Open AI Settings →</a></div>`
+                                            : ""
+                                    }
+                                </div>
+                                <button class="btn btn-xs btn-danger xav-retry-ai-btn" style="font-weight:700;">🔄 Retry Generation</button>
+                            </div>
+                        `);
+                        $aiCard.find(".xav-retry-ai-btn").on("click", () => frm.events.trigger_ai_summary_generation(frm));
+                    } else {
+                        frappe.msgprint({
+                            title: __("AI Summary Generation Notice"),
+                            message: `<b>${frappe.utils.escape_html(userMsg)}</b><br><span class="text-muted">${frappe.utils.escape_html(adminHint)}</span>`,
+                            indicator: "orange",
+                        });
+                    }
+                }
+            },
+            error() {
+                frm._generating_ai_summary = false;
+            },
+        });
+    },
+
     render_telemetry_and_badges(frm, data) {
         const statusColors = {
             "Completed for Today": { bg: "#dcfce7", text: "#166534", border: "#86efac", icon: "✅" },
-            "Working": { bg: "#dbeafe", text: "#1e40af", border: "#93c5fd", icon: "⚡" },
+            Working: { bg: "#dbeafe", text: "#1e40af", border: "#93c5fd", icon: "⚡" },
             "Morning Plan": { bg: "#fef9c3", text: "#854d0e", border: "#fde047", icon: "🌅" },
             "Stuck / Blocked": { bg: "#fee2e2", text: "#991b1b", border: "#fca5a5", icon: "🛑" },
         };
@@ -405,7 +478,58 @@ frappe.ui.form.on("Xavirgin Daily POA", {
                 </div>`;
         }
 
-        // Cross-Module Engineering & HR Telemetry Links
+        // --- Employee-Wise GitHub Activity Section (Optional / Non-Blocking) ---
+        const gh = data.github_activity || {};
+        const ghEvents = gh.events || [];
+        let githubSectionHtml = "";
+
+        if (ghEvents.length > 0) {
+            const ghRows = ghEvents
+                .map(
+                    (ev) => `
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; padding:6px 10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; margin-bottom:4px; font-size:12px;">
+                    <div style="min-width:0; flex:1;">
+                        <span style="background:#e0e7ff; color:#3730a3; padding:1px 7px; border-radius:999px; font-size:10px; font-weight:800; margin-right:6px;">
+                            ${frappe.utils.escape_html(ev.event_type)}
+                        </span>
+                        <strong style="color:#0f172a;">${frappe.utils.escape_html(ev.repository)}</strong>
+                        ${ev.branch ? `<span style="color:#64748b; font-size:11px;">(${frappe.utils.escape_html(ev.branch)})</span>` : ""}
+                        <span style="color:#334155; margin-left:6px;">— ${frappe.utils.escape_html(ev.summary)}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        ${ev.short_sha ? `<code style="font-size:11px; color:#2563eb;">#${frappe.utils.escape_html(ev.short_sha)}</code>` : ""}
+                        <span style="font-size:11px; color:#64748b;">🕒 ${ev.event_timestamp}</span>
+                        ${ev.xp_awarded ? `<span style="background:#dcfce7; color:#166534; padding:1px 6px; border-radius:999px; font-size:10px; font-weight:700;">+${ev.xp_awarded} XP</span>` : ""}
+                        ${ev.event_url ? `<a href="${ev.event_url}" target="_blank" class="btn btn-xs btn-default" style="font-weight:700; font-size:10px;">🔗 GitHub ↗</a>` : ""}
+                    </div>
+                </div>`
+                )
+                .join("");
+
+            githubSectionHtml = `
+                <div style="margin-top:12px; padding-top:10px; border-top:1px solid #f1f5f9;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <span style="font-size:11px; font-weight:700; text-transform:uppercase; color:#64748b;">
+                            💻 Same-Day GitHub Webhook Activity (${ghEvents.length} Event${ghEvents.length > 1 ? "s" : ""} • @${frappe.utils.escape_html(gh.github_username || "linked")})
+                        </span>
+                        <a href="/app/xavirgin-github-activity?employee=${encodeURIComponent(tel.employee || "")}" style="font-size:11px; font-weight:700; color:#2563eb;">Open GitHub Dashboard →</a>
+                    </div>
+                    ${ghRows}
+                </div>`;
+        } else if (gh.has_github_account) {
+            githubSectionHtml = `
+                <div style="margin-top:10px; padding:8px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; font-size:12px; color:#475569; display:flex; justify-content:space-between; align-items:center;">
+                    <span>💻 GitHub Account Linked (<b>@${frappe.utils.escape_html(gh.github_username)}</b>) — No commits/PRs received for ${frm.doc.poa_date || "this date"}.</span>
+                    <a href="/app/xavirgin-github-activity?employee=${encodeURIComponent(tel.employee || "")}" style="font-weight:700; color:#2563eb;">View All Activity (${gh.total_count || 0}) →</a>
+                </div>`;
+        } else {
+            githubSectionHtml = `
+                <div style="margin-top:10px; padding:8px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; font-size:12px; color:#64748b; display:flex; justify-content:space-between; align-items:center;">
+                    <span>ℹ️ <b>GitHub Integration Optional:</b> No GitHub username linked for this role. Daily POA & AI Summary evaluate your tasks and attendance directly.</span>
+                </div>`;
+        }
+
+        // --- Cross-Module Engineering & HR Telemetry Links ---
         let shortcutPills = [];
         if (tel.employee) {
             shortcutPills.push(
@@ -419,8 +543,6 @@ frappe.ui.form.on("Xavirgin Daily POA", {
             shortcutPills.push(
                 `<a href="/app/xavirgin-candidate/${encodeURIComponent(tel.candidate)}" class="btn btn-xs btn-default" style="font-weight:600; border-radius:6px;">🧬 Candidate (${tel.candidate})</a>`
             );
-        }
-        if (tel.candidate) {
             shortcutPills.push(
                 `<a href="/app/xavirgin-interview?candidate=${encodeURIComponent(tel.candidate)}" class="btn btn-xs btn-default" style="font-weight:600; border-radius:6px;">🎤 Interviews (${tel.interviews_count || 0})</a>`
             );
@@ -434,11 +556,63 @@ frappe.ui.form.on("Xavirgin Daily POA", {
             `<a href="/app/xavirgin-github-activity?employee=${encodeURIComponent(tel.employee || "")}" class="btn btn-xs btn-default" style="font-weight:600; border-radius:6px;">💻 GitHub (${tel.github_today_count || 0} Today / ${tel.github_total_count || 0} Total)</a>`
         );
 
-        const readOnlyNotice = !data.can_edit && !frm.is_new()
-            ? `<div style="margin-bottom:10px; padding:6px 12px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; color:#1e40af; font-size:12px; font-weight:600;">
-                👁️ Read-Only View — You are viewing ${frappe.utils.escape_html(frm.doc.employee_name || frm.doc.employee)}'s Daily POA.
-               </div>`
+        // --- Modern AI Summary Workspace Card ---
+        const hasSummary = Boolean((frm.doc.ai_summary || "").trim());
+        const aiCfg = data.ai_config || {};
+        const aiStatusPill = hasSummary
+            ? `<span style="background:#dcfce7; color:#166534; border:1px solid #86efac; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700;">✅ AI Summary Generated</span>`
+            : `<span style="background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700;">⚪ Not Generated Yet</span>`;
+
+        const ghSourceBadge =
+            ghEvents.length > 0
+                ? `<span style="background:#dcfce7; color:#166534; padding:2px 8px; border-radius:999px; font-size:10px; font-weight:700;">💻 GitHub Data Available (${ghEvents.length})</span>`
+                : `<span style="background:#f1f5f9; color:#64748b; padding:2px 8px; border-radius:999px; font-size:10px; font-weight:600;">ℹ️ GitHub Data Optional / None Today</span>`;
+
+        const aiWorkspaceHtml = !frm.is_new()
+            ? `
+            <div class="xav-poa-ai-workspace" style="margin-top:12px; padding:12px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px;">
+                <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+                    <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
+                        <span style="font-size:13px; font-weight:800; color:#0f172a;">✨ AI Daily Performance Workspace</span>
+                        <span class="xav-ai-status-pill">${aiStatusPill}</span>
+                        ${ghSourceBadge}
+                        <span style="background:#f3e8ff; color:#6b21a8; padding:2px 8px; border-radius:999px; font-size:10px; font-weight:700;">
+                            Model: ${frappe.utils.escape_html(aiCfg.configured_model || "gemini-2.5-flash")}
+                        </span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        ${
+                            data.can_edit
+                                ? `<button class="btn btn-xs btn-primary xav-gen-ai-summary-btn" style="font-weight:700;">
+                                    ${hasSummary ? "🔄 Regenerate AI Summary" : "✨ Generate AI Summary"}
+                                   </button>`
+                                : ""
+                        }
+                        ${
+                            hasSummary
+                                ? `<button class="btn btn-xs btn-default xav-copy-ai-summary-btn" style="font-weight:600;">📋 Copy Summary</button>`
+                                : ""
+                        }
+                    </div>
+                </div>
+                <div class="xav-ai-summary-body" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:12px;">
+                    ${
+                        hasSummary
+                            ? frm.doc.ai_summary
+                            : `<div style="font-size:12px; color:#64748b; text-align:center; padding:12px;">
+                                Click <b>✨ Generate AI Summary</b> to synthesize an objective review from today's tasks (${(frm.doc.tasks || []).length}), attendance (${sessions.length} session(s)), and optional GitHub activity.
+                               </div>`
+                    }
+                </div>
+            </div>`
             : "";
+
+        const readOnlyNotice =
+            !data.can_edit && !frm.is_new()
+                ? `<div style="margin-bottom:10px; padding:6px 12px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; color:#1e40af; font-size:12px; font-weight:600;">
+                    👁️ Read-Only View — You are viewing ${frappe.utils.escape_html(frm.doc.employee_name || frm.doc.employee)}'s Daily POA.
+                   </div>`
+                : "";
 
         const bannerHtml = `
             <div class="xav-poa-telemetry-banner" style="padding:14px 16px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; margin-bottom:14px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
@@ -465,6 +639,8 @@ frappe.ui.form.on("Xavirgin Daily POA", {
                     </div>
                 </div>
                 ${sessionsHtml}
+                ${githubSectionHtml}
+                ${aiWorkspaceHtml}
                 <div style="margin-top:12px; padding-top:10px; border-top:1px solid #f1f5f9;">
                     <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:#64748b; margin-bottom:6px;">
                         🔗 Engineering, HR & Recruitment Telemetry Links
@@ -478,5 +654,17 @@ frappe.ui.form.on("Xavirgin Daily POA", {
 
         frm.dashboard.clear_headline();
         frm.dashboard.set_headline_alert(bannerHtml);
+
+        const $wrap = frm.dashboard.wrapper;
+        $wrap.find(".xav-gen-ai-summary-btn").on("click", function () {
+            frm.events.trigger_ai_summary_generation(frm);
+        });
+        $wrap.find(".xav-copy-ai-summary-btn").on("click", function () {
+            const plainText = $("<div/>").html(frm.doc.ai_summary || "").text().trim();
+            if (plainText) {
+                frappe.utils.copy_to_clipboard(plainText);
+                frappe.show_alert({ message: __("AI Summary copied to clipboard."), indicator: "green" });
+            }
+        });
     },
 });

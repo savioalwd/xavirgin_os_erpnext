@@ -45,6 +45,7 @@
   {
    "fieldname": "employee",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Employee ID",
@@ -62,6 +63,7 @@
    "fetch_from": "employee.department",
    "fieldname": "department",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "in_standard_filter": 1,
    "label": "Department",
    "options": "Department",
@@ -147,6 +149,7 @@
   {
    "fieldname": "daily_poa",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Linked Daily POA",
    "options": "Xavirgin Daily POA",
    "read_only": 1
@@ -171,7 +174,7 @@
   }
  ],
  "links": [],
- "modified": "2026-11-03 21:00:00.000000",
+ "modified": "2026-11-06 16:00:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "icon": "git-commit",
@@ -188,14 +191,17 @@
    "write": 1
   },
   {
+   "create": 1,
    "read": 1,
    "report": 1,
-   "role": "Xavirgin HR Admin"
+   "role": "Xavirgin HR Admin",
+   "write": 1
   },
   {
    "read": 1,
    "report": 1,
-   "role": "Xavirgin Team Lead"
+   "role": "Xavirgin Team Lead",
+   "write": 1
   },
   {
    "read": 1,

@@ -26,10 +26,20 @@ frappe.listview_settings["Xavirgin Daily POA"] = {
     },
 
     onload(listview) {
-        // 1. Default Filter: Show Today's Daily POA records by default
         const todayStr = frappe.datetime.get_today();
         listview._xav_selected_date = todayStr;
-        listview._xav_board_collapsed = false;
+        listview._xav_show_table = false; // Keep standard table hidden by default so Kanban is clean
+
+        listview.toggle_underlying_table = function (show) {
+            const $standardList = listview.page.wrapper.find(
+                ".result-list, .frappe-list, .list-row-container, .list-paging-area, .standard-filter-section, .filter-section"
+            );
+            if (show) {
+                $standardList.show();
+            } else {
+                $standardList.hide();
+            }
+        };
 
         setTimeout(() => {
             const existingFilters = listview.filter_area ? listview.filter_area.get() : [];
@@ -37,9 +47,10 @@ frappe.listview_settings["Xavirgin Daily POA"] = {
             if (!hasDateFilter && listview.filter_area) {
                 listview.filter_area.add([["Xavirgin Daily POA", "poa_date", "=", todayStr]]);
             }
+            listview.toggle_underlying_table(listview._xav_show_table);
         }, 150);
 
-        // 2. Primary Action Override: Open today's existing POA if already created, else create new
+        // Primary Action Override: Open today's existing POA if already created, else create new
         listview.page.set_primary_action(__("➕ My Today's POA"), () => {
             frappe.call({
                 method: "xavirgin_os.xavirgin_os.doctype.xavirgin_daily_poa.xavirgin_daily_poa.get_session_poa_Bootstrap",
@@ -60,7 +71,7 @@ frappe.listview_settings["Xavirgin Daily POA"] = {
             });
         });
 
-        // 3. Mount Department-Wise Kanban Dashboard Container
+        // Mount Department-Wise Kanban Dashboard Container
         if (!listview.page.wrapper.find(".xav-poa-kanban-dashboard").length) {
             const $dashboard = $(`<div class="xav-poa-kanban-dashboard" style="padding: 12px 15px 4px 15px;"></div>`);
             listview.page.main.prepend($dashboard);
@@ -84,6 +95,8 @@ frappe.listview_settings["Xavirgin Daily POA"] = {
         listview.render_poa_dashboard = function (data) {
             const $container = listview.page.wrapper.find(".xav-poa-kanban-dashboard");
             if (!$container.length) return;
+
+            listview.toggle_underlying_table(listview._xav_show_table);
 
             const t = data.totals || {};
             const depts = data.departments || [];
@@ -179,7 +192,7 @@ frappe.listview_settings["Xavirgin Daily POA"] = {
                             </div>
                         </div>
 
-                        <div style="max-height:230px; overflow-y:auto; padding-right:2px;">
+                        <div style="max-height:260px; overflow-y:auto; padding-right:2px;">
                             ${memberRows}
                         </div>
                     </div>`;
@@ -188,14 +201,14 @@ frappe.listview_settings["Xavirgin Daily POA"] = {
 
             const html = `
                 <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:14px 16px; margin-bottom:10px; box-shadow:0 1px 4px rgba(0,0,0,0.03);">
-                    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; margin-bottom:${listview._xav_board_collapsed ? "0" : "14px"};">
+                    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; margin-bottom:14px;">
                         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                             <span style="font-size:15px; font-weight:800; color:#0f172a;">
                                 📊 Squad Daily POA Kanban Board
                             </span>
                             <input type="date" class="form-control input-xs xav-poa-date-picker" value="${data.date}" style="width:140px; font-weight:600; height:28px; display:inline-block;" />
                             <button class="btn btn-xs btn-default xav-poa-today-btn" style="font-weight:600;">Today</button>
-                            <button class="btn btn-xs btn-default xav-poa-all-dates-btn" style="font-weight:600;">All History</button>
+                            <button class="btn btn-xs btn-default xav-poa-all-dates-btn" style="font-weight:600;">All History Table</button>
                         </div>
 
                         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
@@ -214,13 +227,13 @@ frappe.listview_settings["Xavirgin Daily POA"] = {
                             <span style="background:#e0e7ff; color:#3730a3; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:800;">
                                 📈 ${t.overall_submission_pct || 0}% Active
                             </span>
-                            <button class="btn btn-xs btn-default xav-toggle-kanban-btn" style="font-weight:600;">
-                                ${listview._xav_board_collapsed ? "▼ Expand Board" : "▲ Collapse Board"}
+                            <button class="btn btn-xs btn-default xav-toggle-table-btn" style="font-weight:700;">
+                                ${listview._xav_show_table ? "▲ Hide Standard Table" : "▼ Show Standard Table"}
                             </button>
                         </div>
                     </div>
 
-                    <div class="xav-kanban-grid-body" style="display:${listview._xav_board_collapsed ? "none" : "grid"}; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); gap:12px;">
+                    <div class="xav-kanban-grid-body" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); gap:12px;">
                         ${deptCardsHtml || `<div class="text-muted" style="padding:12px;">No active departments found.</div>`}
                     </div>
                 </div>
@@ -252,17 +265,19 @@ frappe.listview_settings["Xavirgin Daily POA"] = {
                 listview.refresh_poa_dashboard(tDate);
             });
 
-            // Bind All History Button
+            // Bind All History Button (reveals the standard table & clears date filter)
             $container.find(".xav-poa-all-dates-btn").on("click", function () {
+                listview._xav_show_table = true;
+                listview.toggle_underlying_table(true);
                 if (listview.filter_area) {
                     listview.filter_area.clear();
                 }
                 listview.refresh();
             });
 
-            // Bind Collapse/Expand Toggle
-            $container.find(".xav-toggle-kanban-btn").on("click", function () {
-                listview._xav_board_collapsed = !listview._xav_board_collapsed;
+            // Bind Show/Hide Standard Table Toggle
+            $container.find(".xav-toggle-table-btn").on("click", function () {
+                listview._xav_show_table = !listview._xav_show_table;
                 listview.render_poa_dashboard(data);
             });
 
@@ -271,6 +286,8 @@ frappe.listview_settings["Xavirgin Daily POA"] = {
                 e.preventDefault();
                 const dept = $(this).attr("data-dept");
                 if (listview.filter_area && dept) {
+                    listview._xav_show_table = true;
+                    listview.toggle_underlying_table(true);
                     listview.filter_area.clear();
                     const filters = [["Xavirgin Daily POA", "poa_date", "=", data.date]];
                     if (dept !== "Unassigned Squad") {
@@ -308,6 +325,9 @@ frappe.listview_settings["Xavirgin Daily POA"] = {
     refresh(listview) {
         if (listview.refresh_poa_dashboard) {
             listview.refresh_poa_dashboard(listview._xav_selected_date || frappe.datetime.get_today());
+        }
+        if (listview.toggle_underlying_table) {
+            listview.toggle_underlying_table(listview._xav_show_table);
         }
     },
 };
