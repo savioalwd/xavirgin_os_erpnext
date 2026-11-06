@@ -825,33 +825,36 @@ def get_permission_query_conditions(user: str = None) -> str:
 
 
 def has_permission(doc, ptype="read", user=None, debug=False) -> bool:
-    """Separates read visibility from write/edit/delete permissions:
-    - Read / Print: Allowed for all authenticated internal users.
-    - Write / Create / Save:
-        * Admins & HR: All records.
-        * Team Leads: Own record + records of members in their department or reporting to them.
-        * Interns & Employees: Strictly their own Employee record only.
-    - Delete: Only Admins & HR.
+    """Separates read visibility from write/edit permissions:
+    - Read / Select / Print / Export: Allowed for all internal authenticated users.
+    - Create / Write / Submit:
+        * Admins: Allowed everywhere.
+        * Team Leads: Own record + members in their department / squad.
+        * Interns / Employees: Only their own Employee record.
+    - Delete: Admins only.
     """
     user = user or frappe.session.user
     if user == "Guest":
         return False
 
-    if is_admin_user(user):
+    roles = set(frappe.get_roles(user))
+    if roles.intersection({"System Manager", "Administrator", "Xavirgin HR Admin", "Xavirgin HR Manager"}):
         return True
 
+    # 1. Allow reading for all internal staff
     if ptype in ("read", "select", "print", "report", "export"):
         return True
 
     if ptype == "delete":
         return False
 
-    if ptype in ("write", "create", "submit", "amend"):
-        target_emp = getattr(doc, "employee", None)
-        if not target_emp:
-            # New unsaved document being initialized
-            session_ctx = resolve_employee_context(user_id=user)
-            return bool(session_ctx and session_ctx.get("name"))
-        return can_user_manage_employee_poa(target_emp, user)
+    # 2. String check when Frappe calls has_permission for doc creation check
+    if isinstance(doc, str) or not doc:
+        return True
 
-    return True
+    # 3. Write / Save validation
+    target_emp = getattr(doc, "employee", None)
+    if not target_emp:
+        return True
+
+    return can_user_manage_employee_poa(target_emp, user)
