@@ -85,6 +85,7 @@
    "default": "__user",
    "fieldname": "interviewer_user",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Interviewer User",
    "options": "User",
    "reqd": 1
@@ -92,6 +93,7 @@
   {
    "fieldname": "interviewer_employee",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Interviewer Employee ID",
    "options": "Employee",
    "read_only": 1
@@ -119,7 +121,7 @@
   {
    "fieldname": "scores_section",
    "fieldtype": "Section Break",
-   "label": "Department Assessment Rubric (Out of 10)"
+   "label": "Dynamic Assessment Rubric & Criterion Scores"
   },
   {
    "fieldname": "scores",
@@ -143,10 +145,11 @@
    "read_only": 1
   },
   {
-   "default": "10",
+   "default": "0",
    "fieldname": "max_possible_score",
    "fieldtype": "Float",
-   "label": "Maximum Marks",
+   "label": "Maximum Marks (Dynamic)",
+   "precision": "2",
    "read_only": 1
   },
   {
@@ -191,7 +194,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2026-11-03 19:30:00.000000",
+ "modified": "2026-11-06 13:30:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin Interview Evaluation",
@@ -219,13 +222,37 @@
    "write": 1
   },
   {
+   "create": 1,
    "read": 1,
-   "role": "Xavirgin Recruiter"
+   "role": "Xavirgin Recruiter",
+   "submit": 1,
+   "write": 1
   },
   {
    "create": 1,
    "read": 1,
    "role": "Xavirgin Interviewer",
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Xavirgin Team Lead",
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Xavirgin Intern",
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "Employee",
    "submit": 1,
    "write": 1
   }

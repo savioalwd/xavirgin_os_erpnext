@@ -45,6 +45,15 @@
   "send_interviewer_email_notifications",
   "send_interviewer_system_notifications",
   "send_candidate_stage_emails",
+  "default_interview_instructions",
+  "assessment_section",
+  "default_assessment_template",
+  "default_assessment_total_marks",
+  "default_assessment_criteria_count",
+  "col_break_assess",
+  "strongly_recommended_threshold_pct",
+  "recommended_threshold_pct",
+  "hold_threshold_pct",
   "leave_and_internship_section",
   "internship_required_active_days",
   "initial_evaluation_days",
@@ -69,10 +78,10 @@
   },
   {
    "default": "gemini-2.5-flash",
+   "description": "Enter string identifier (e.g., gemini-2.5-flash, gemini-2.5-pro, custom)",
    "fieldname": "gemini_model",
    "fieldtype": "Data",
-   "label": "Gemini Model Name",
-   "description": "Enter string identifier (e.g., gemini-2.5-flash, gemini-2.5-pro, custom)"
+   "label": "Gemini Model Name"
   },
   {
    "fieldname": "col_break_ai",
@@ -290,6 +299,57 @@
    "label": "Send Candidate Application & Decision Emails"
   },
   {
+   "fieldname": "default_interview_instructions",
+   "fieldtype": "Text Editor",
+   "label": "Default Candidate & Panel Interview Instructions"
+  },
+  {
+   "fieldname": "assessment_section",
+   "fieldtype": "Section Break",
+   "label": "Global Assessment & Evaluation Rubric Configuration"
+  },
+  {
+   "fieldname": "default_assessment_template",
+   "fieldtype": "Link",
+   "label": "Fallback Default Assessment Template",
+   "options": "Xavirgin Assessment Template"
+  },
+  {
+   "default": "100.0",
+   "description": "Default total marks when creating new Assessment Templates (e.g., 10, 50, 100)",
+   "fieldname": "default_assessment_total_marks",
+   "fieldtype": "Float",
+   "label": "Default Total Assessment Marks"
+  },
+  {
+   "default": "5",
+   "fieldname": "default_assessment_criteria_count",
+   "fieldtype": "Int",
+   "label": "Default Number of Assessment Criteria"
+  },
+  {
+   "fieldname": "col_break_assess",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "85.0",
+   "fieldname": "strongly_recommended_threshold_pct",
+   "fieldtype": "Float",
+   "label": "Strongly Recommended Threshold (%)"
+  },
+  {
+   "default": "65.0",
+   "fieldname": "recommended_threshold_pct",
+   "fieldtype": "Float",
+   "label": "Recommended Threshold (%)"
+  },
+  {
+   "default": "50.0",
+   "fieldname": "hold_threshold_pct",
+   "fieldtype": "Float",
+   "label": "Hold Threshold (%)"
+  },
+  {
    "fieldname": "leave_and_internship_section",
    "fieldtype": "Section Break",
    "label": "Internship & Leave Governance Rules"
@@ -337,19 +397,21 @@
   {
    "fieldname": "default_supervisor",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Default Director / Reporting Supervisor",
    "options": "Employee"
   },
   {
    "fieldname": "default_hiring_manager",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Default Hiring Manager",
    "options": "Employee"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-11-04 00:00:00.000000",
+ "modified": "2026-11-06 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin HR Settings",
@@ -373,6 +435,22 @@
   {
    "read": 1,
    "role": "Xavirgin Recruiter"
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Interviewer"
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Team Lead"
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Intern"
+  },
+  {
+   "read": 1,
+   "role": "Employee"
   }
  ],
  "sort_field": "modified",

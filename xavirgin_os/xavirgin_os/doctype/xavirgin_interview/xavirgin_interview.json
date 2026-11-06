@@ -44,6 +44,7 @@
   {
    "fieldname": "candidate",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Candidate ID",
@@ -76,6 +77,7 @@
    "fetch_from": "candidate.job_opening",
    "fieldname": "job_opening",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "in_standard_filter": 1,
    "label": "Job Opening",
    "options": "Xavirgin Job Opening",
@@ -85,6 +87,7 @@
    "fetch_from": "candidate.department",
    "fieldname": "department",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "in_standard_filter": 1,
    "label": "Department",
    "options": "Department",
@@ -94,6 +97,7 @@
    "fetch_from": "candidate.designation",
    "fieldname": "designation",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "label": "Designation",
    "options": "Designation",
    "read_only": 1
@@ -203,7 +207,7 @@
    "default": "0",
    "fieldname": "average_score",
    "fieldtype": "Float",
-   "label": "Average Score (/ 10)",
+   "label": "Average Panel Score",
    "precision": "2",
    "read_only": 1
   },
@@ -232,7 +236,7 @@
    "link_fieldname": "interview"
   }
  ],
- "modified": "2026-11-03 19:30:00.000000",
+ "modified": "2026-11-06 13:30:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "icon": "calendar",
@@ -270,6 +274,18 @@
   {
    "read": 1,
    "role": "Xavirgin Interviewer"
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Team Lead"
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Intern"
+  },
+  {
+   "read": 1,
+   "role": "Employee"
   }
  ],
  "sort_field": "interview_date",

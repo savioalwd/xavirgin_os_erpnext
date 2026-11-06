@@ -52,18 +52,17 @@
    "label": "Is Active"
   },
   {
-   "default": "10.0",
+   "default": "100.0",
    "fieldname": "target_total_marks",
    "fieldtype": "Float",
-   "label": "Target Benchmark Score",
-   "read_only": 1
+   "label": "Target Total Marks (Configurable)"
   },
   {
-   "default": "10.0",
+   "default": "100.0",
    "fieldname": "total_max_marks",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Total Rubric Marks",
+   "label": "Total Rubric Marks (Sum of Criteria)",
    "read_only": 1
   },
   {
@@ -90,7 +89,7 @@
   }
  ],
  "links": [],
- "modified": "2026-11-03 18:30:00.000000",
+ "modified": "2026-11-06 13:30:00.000000",
  "modified_by": "Administrator",
  "module": "Xavirgin OS",
  "name": "Xavirgin Assessment Template",
@@ -112,12 +111,26 @@
    "write": 1
   },
   {
+   "create": 1,
    "read": 1,
-   "role": "Xavirgin Recruiter"
+   "role": "Xavirgin Recruiter",
+   "write": 1
   },
   {
    "read": 1,
    "role": "Xavirgin Interviewer"
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Team Lead"
+  },
+  {
+   "read": 1,
+   "role": "Xavirgin Intern"
+  },
+  {
+   "read": 1,
+   "role": "Employee"
   }
  ],
  "sort_field": "modified",
